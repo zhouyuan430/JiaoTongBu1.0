@@ -9,5 +9,12 @@
 #import <UIKit/UIKit.h>
 
 @interface AssetImage : UIImageView
+{
+    NSData *imageData;
+    NSString *url;
+}
 
+@property (strong, nonatomic) NSData *img;
+
+-(void)loadimg:(NSString*)_url;
 @end
