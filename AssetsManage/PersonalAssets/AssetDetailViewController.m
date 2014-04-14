@@ -9,6 +9,7 @@
 #import "AssetDetailViewController.h"
 #import "AssetDetailCell.h"
 #import "AssetInfo.h"
+#import "TMCache.h"
 @interface AssetDetailViewController ()
 
 @end
@@ -32,7 +33,6 @@
 
 - (void)viewDidLoad
 {
-    
     [super viewDidLoad];
     currentLine = currentInfo.row;
     
@@ -251,6 +251,9 @@
         
         AssetInfo *tmp = [dataSource objectAtIndex:currentLine];
         tmp.assetImg = image;
+        tmp.assetImgUrl = filePath;
+        
+        
         [self.tableView reloadData];
         //[self.assetImgButton setImage:image forState:UIControlStateNormal];
     }
@@ -296,7 +299,7 @@
     
     cell.assetName.text = assetInfo.assetName;
     cell.assetkind.text = assetInfo.assetkind;
-    cell.asserCount.text = assetInfo.assetID;
+    cell.asserCount.text = assetInfo.assetCount;
     cell.userName.text = assetInfo.userName;
     cell.directorName.text = assetInfo.directorName;
     [cell.assetImg setImage:assetInfo.assetImg forState:UIControlStateNormal];

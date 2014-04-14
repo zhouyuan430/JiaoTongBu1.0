@@ -11,6 +11,7 @@
 @implementation AssetInfo
 
 @synthesize assetID;
+@synthesize assetCount;
 @synthesize assetName;
 @synthesize assetkind;
 @synthesize recentCheckDate;
@@ -26,7 +27,7 @@
     //if(dic == NULL)
    // {
         int i = arc4random() % 5 ;
-        tmp.assetID = [NSString stringWithFormat:@"数量：%d",i];
+        tmp.assetCount = [NSString stringWithFormat:@"数量：%d",i];
         tmp.assetName = @"MacBook Pro";
         tmp.assetkind = @"类别：办公电子类";
         tmp.userName = @"使用人：周源";

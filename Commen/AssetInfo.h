@@ -13,6 +13,7 @@
     
 }
 @property (strong, nonatomic) NSString *assetID;
+@property (strong, nonatomic) NSString *assetCount;
 @property (strong, nonatomic) NSString *assetName;
 @property (strong, nonatomic) NSString *assetkind;
 @property (strong, nonatomic) NSString *recentCheckDate;

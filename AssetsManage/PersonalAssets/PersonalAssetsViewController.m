@@ -81,8 +81,9 @@
     AssetInfo *tmp = [dataSource objectAtIndex:indexPath.row];
     cell.assetName.text = tmp.assetName;
     cell.assetKind.text = tmp.assetkind;
-    cell.assetcount.text = tmp.assetID;
+    cell.assetcount.text = tmp.assetCount;
     // Configure the cell...
+    tmp.assetID = [NSString stringWithFormat:@"%d",indexPath.row];
     [dataSource addObject:tmp];
     
     return cell;
