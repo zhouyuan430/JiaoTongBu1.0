@@ -114,13 +114,13 @@ static NSString* const kDataCacheDirectory=@"ImageCache";
     // Can't use defaultManager another thread
     NSFileManager *fileManager = [[NSFileManager alloc] init];
     NSString *key = [keyAndData objectAtIndex:0];
+    
 	// If no data representation given, convert the UIImage in JPEG and store it
 	// This trick is more CPU/memory intensive and doesn't preserve alpha channel
 	NSData *data=[self dataFromKey:key fromDisk:YES];  // be thread safe with no lock
 	if (data)
 	{
 		[fileManager createFileAtPath:[self cachePathForKey:key] contents:data attributes:nil];
-        
 	}
     
 }
@@ -200,7 +200,8 @@ static NSString* const kDataCacheDirectory=@"ImageCache";
     NSDate *modificationDate=[attrs fileModificationDate];
     NSDate *expirationDate = [modificationDate dateByAddingTimeInterval:intervalTime];
     if ([currentDate compare:expirationDate]==NSOrderedDescending)
-    {   NSLog(@"yes al delete");
+    {
+        NSLog(@"yes al delete");
         [[NSFileManager defaultManager] removeItemAtPath:filePath error:nil];
     }
 }
@@ -219,7 +220,7 @@ static NSString* const kDataCacheDirectory=@"ImageCache";
         //}
     }
 }
-///Users/shuukougyoku/Library/Application Support/
+
 -(int)getSize
 {
     int size = 0;
@@ -232,13 +233,5 @@ static NSString* const kDataCacheDirectory=@"ImageCache";
     }
     return size;
 }
-
--(void)dealloc
-{
-    //  [_dictionary release];
-}
-
-
-
 
 @end

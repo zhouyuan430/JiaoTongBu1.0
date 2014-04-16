@@ -69,6 +69,7 @@
 		C00E5B6918FAE73600C8AA43 /* zbar-helpicons.png in Resources */ = {isa = PBXBuildFile; fileRef = C00E5B6418FAE73600C8AA43 /* zbar-helpicons.png */; };
 		C00E5B6A18FAE73600C8AA43 /* zbar-samples.png in Resources */ = {isa = PBXBuildFile; fileRef = C00E5B6518FAE73600C8AA43 /* zbar-samples.png */; };
 		C00EA52D18FC0C4C0093BC20 /* DiskCache.m in Sources */ = {isa = PBXBuildFile; fileRef = C00EA52C18FC0C4C0093BC20 /* DiskCache.m */; };
+		C00EA53318FC18060093BC20 /* AssetImage.m in Sources */ = {isa = PBXBuildFile; fileRef = C00EA53218FC18060093BC20 /* AssetImage.m */; };
 		C064A97C18F78B6E004C8774 /* AssetCell.m in Sources */ = {isa = PBXBuildFile; fileRef = C064A97B18F78B6E004C8774 /* AssetCell.m */; };
 		C0C7B9D118F7B3F300566E3E /* AssetInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = C0C7B9D018F7B3F300566E3E /* AssetInfo.m */; };
 /* End PBXBuildFile section */
@@ -211,6 +212,8 @@
 		C00E5B6518FAE73600C8AA43 /* zbar-samples.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "zbar-samples.png"; sourceTree = "<group>"; };
 		C00EA52B18FC0C4C0093BC20 /* DiskCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DiskCache.h; sourceTree = "<group>"; };
 		C00EA52C18FC0C4C0093BC20 /* DiskCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DiskCache.m; sourceTree = "<group>"; };
+		C00EA53118FC18060093BC20 /* AssetImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetImage.h; sourceTree = "<group>"; };
+		C00EA53218FC18060093BC20 /* AssetImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetImage.m; sourceTree = "<group>"; };
 		C064A97A18F78B6E004C8774 /* AssetCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetCell.h; sourceTree = "<group>"; };
 		C064A97B18F78B6E004C8774 /* AssetCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetCell.m; sourceTree = "<group>"; };
 		C0C7B9CF18F7B3F300566E3E /* AssetInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetInfo.h; sourceTree = "<group>"; };
@@ -480,12 +483,12 @@
 		C00E5B3418FACF6E00C8AA43 /* PersonalAssets */ = {
 			isa = PBXGroup;
 			children = (
-				C00E5B3518FACF6E00C8AA43 /* AssetDetailCell.h */,
-				C00E5B3618FACF6E00C8AA43 /* AssetDetailCell.m */,
-				C00E5B3718FACF6E00C8AA43 /* AssetDetailViewController.h */,
-				C00E5B3818FACF6E00C8AA43 /* AssetDetailViewController.m */,
 				C00E5B3918FACF6E00C8AA43 /* PersonalAssetsViewController.h */,
 				C00E5B3A18FACF6E00C8AA43 /* PersonalAssetsViewController.m */,
+				C00E5B3718FACF6E00C8AA43 /* AssetDetailViewController.h */,
+				C00E5B3818FACF6E00C8AA43 /* AssetDetailViewController.m */,
+				C00E5B3518FACF6E00C8AA43 /* AssetDetailCell.h */,
+				C00E5B3618FACF6E00C8AA43 /* AssetDetailCell.m */,
 			);
 			path = PersonalAssets;
 			sourceTree = "<group>";
@@ -576,6 +579,8 @@
 				C0C7B9D018F7B3F300566E3E /* AssetInfo.m */,
 				C00EA52B18FC0C4C0093BC20 /* DiskCache.h */,
 				C00EA52C18FC0C4C0093BC20 /* DiskCache.m */,
+				C00EA53118FC18060093BC20 /* AssetImage.h */,
+				C00EA53218FC18060093BC20 /* AssetImage.m */,
 			);
 			path = Commen;
 			sourceTree = "<group>";
@@ -713,6 +718,7 @@
 				C00D1EE618F6CF220026D610 /* RootViewController.m in Sources */,
 				C00E5B4718FAD94800C8AA43 /* ContactInfo.m in Sources */,
 				C00D1EF018F6E6A80026D610 /* AssignmentCheckViewController.m in Sources */,
+				C00EA53318FC18060093BC20 /* AssetImage.m in Sources */,
 				C00D1E4A18F67CA90026D610 /* UIWebView+AFNetworking.m in Sources */,
 				C00D1EC318F680550026D610 /* MBProgressHUD.m in Sources */,
 				C00D1E3C18F67CA90026D610 /* AFHTTPSessionManager.m in Sources */,

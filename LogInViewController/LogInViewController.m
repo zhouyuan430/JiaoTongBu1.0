@@ -35,6 +35,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
 	// Do any additional setup after loading the view.
 }
 -(IBAction)logInButton:(id)sender
@@ -56,6 +57,17 @@
     [self presentViewController:next animated:YES completion:^{}];
 }
 
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    [passwordTextField resignFirstResponder];
+    [userNameTextField resignFirstResponder];
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    [textField resignFirstResponder];
+    return YES;
+}
 
 - (void)didReceiveMemoryWarning
 {

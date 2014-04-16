@@ -8,11 +8,13 @@
 
 #import <UIKit/UIKit.h>
 #import "AssetInfo.h"
-@interface PersonalAssetsViewController : UITableViewController
+@interface PersonalAssetsViewController : UITableViewController <UITextFieldDelegate>
 {
     NSMutableArray *dataSource;
     AssetInfo *assetInfo;
 }
 
 @property (nonatomic, retain) AssetInfo *assetInfo;
+@property (strong, nonatomic) IBOutlet UISearchBar *searchBar;
+
 @end

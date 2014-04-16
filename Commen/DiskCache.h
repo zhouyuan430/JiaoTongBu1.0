@@ -28,13 +28,13 @@ static NSString  *datasuccess = @"Datasuccess";
 - (NSString *)cachePathForKey:(NSString *)key;
 - (NSData *)dataFromKey:(NSString *)key;
 - (NSData *)dataFromKey:(NSString *)key fromDisk:(BOOL)fromDisk;//得到指定的data
--(NSString *) getFilePath:(NSString*)filename;
--(NSDictionary *) readFromFile:(NSString *) filePath;
+- (NSString *) getFilePath:(NSString*)filename;
+- (NSDictionary *) readFromFile:(NSString *) filePath;
 
 - (void)storeData:(NSData *)aData forKey:(NSString *)key;
 - (void)storeData:(NSData *)aData forKey:(NSString *)key toDisk:(BOOL)toDisk;//存储data
 
 //添加
-- (void)cleanDisk;
--(int)getSize;
+-(void)cleanDisk;
+-(int )getSize;
 @end

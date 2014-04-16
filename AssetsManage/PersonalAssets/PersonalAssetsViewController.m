@@ -40,9 +40,16 @@
     UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
                                    initWithBarButtonSystemItem:UIBarButtonSystemItemReply
                                    target:self
-                                   action:@selector(back)];
-    [self.navigationItem setLeftBarButtonItem:leftButton];
+                                   action:@selector(replyButton)];
     
+    UIBarButtonItem *rightButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSearch target:self action:@selector(searchButton)];
+
+    [self.navigationItem setLeftBarButtonItem:leftButton];
+    [self.navigationItem setRightBarButtonItem:rightButton];
+    
+    self.searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0, -44, 320, 44)];
+    self.searchBar.showsCancelButton = YES;
+    [self.view addSubview:self.searchBar];
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
  
@@ -50,10 +57,27 @@
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
 
--(void)back
+-(void)replyButton
 {
     [self.navigationController popViewControllerAnimated:YES];
 }
+
+-(void)searchButton
+{
+    self.navigationController.navigationBarHidden = YES;
+    self.tableView.contentInset = UIEdgeInsetsMake(44+20, 0, 0, 0);
+    self.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(44+20, 0, 0, 0);
+    self.tableView.contentOffset = CGPointMake(0, -(44+20));
+}
+
+-(void)viewWillAppear:(BOOL)animated
+{
+    self.tableView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
+    self.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(0, 0, 0, 0);
+    self.tableView.contentOffset = CGPointMake(0, 0);
+
+}
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
@@ -79,6 +103,7 @@
     static NSString *CellIdentifier = @"PersonalAssetCell";
     AssetCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
     AssetInfo *tmp = [dataSource objectAtIndex:indexPath.row];
+    
     cell.assetName.text = tmp.assetName;
     cell.assetKind.text = tmp.assetkind;
     cell.assetcount.text = tmp.assetCount;

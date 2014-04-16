@@ -34,6 +34,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    self.navigationController.navigationBarHidden = NO;
     currentLine = currentInfo.row;
     
     [self addFooter];
@@ -42,7 +43,7 @@
     UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
                                    initWithBarButtonSystemItem:UIBarButtonSystemItemReply
                                    target:self
-                                   action:@selector(back)];
+                                   action:@selector(replyButton)];
     [self.navigationItem setLeftBarButtonItem:leftButton];
 
     // Uncomment the following line to preserve selection between presentations.
@@ -51,7 +52,7 @@
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
--(void)back
+-(void)replyButton
 {
     [self.navigationController popViewControllerAnimated:YES];
 }
