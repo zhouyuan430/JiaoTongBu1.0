@@ -72,6 +72,8 @@
 		C00EA53318FC18060093BC20 /* AssetImage.m in Sources */ = {isa = PBXBuildFile; fileRef = C00EA53218FC18060093BC20 /* AssetImage.m */; };
 		C03F593818FEE6C20041E417 /* CommenData.m in Sources */ = {isa = PBXBuildFile; fileRef = C03F593718FEE6C20041E417 /* CommenData.m */; };
 		C064A97C18F78B6E004C8774 /* AssetCell.m in Sources */ = {isa = PBXBuildFile; fileRef = C064A97B18F78B6E004C8774 /* AssetCell.m */; };
+		C0BE813D1900012B00AE1B1A /* SetUpViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C0BE813C1900012B00AE1B1A /* SetUpViewController.m */; };
+		C0BE81431900199F00AE1B1A /* HelpViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C0BE81421900199F00AE1B1A /* HelpViewController.m */; };
 		C0C7B9D118F7B3F300566E3E /* AssetInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = C0C7B9D018F7B3F300566E3E /* AssetInfo.m */; };
 /* End PBXBuildFile section */
 
@@ -219,6 +221,10 @@
 		C03F593718FEE6C20041E417 /* CommenData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CommenData.m; sourceTree = "<group>"; };
 		C064A97A18F78B6E004C8774 /* AssetCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetCell.h; sourceTree = "<group>"; };
 		C064A97B18F78B6E004C8774 /* AssetCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetCell.m; sourceTree = "<group>"; };
+		C0BE813B1900012B00AE1B1A /* SetUpViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SetUpViewController.h; sourceTree = "<group>"; };
+		C0BE813C1900012B00AE1B1A /* SetUpViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SetUpViewController.m; sourceTree = "<group>"; };
+		C0BE81411900199F00AE1B1A /* HelpViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelpViewController.h; sourceTree = "<group>"; };
+		C0BE81421900199F00AE1B1A /* HelpViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HelpViewController.m; sourceTree = "<group>"; };
 		C0C7B9CF18F7B3F300566E3E /* AssetInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetInfo.h; sourceTree = "<group>"; };
 		C0C7B9D018F7B3F300566E3E /* AssetInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetInfo.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -251,6 +257,7 @@
 		C00D1C5D18F6784F0026D610 = {
 			isa = PBXGroup;
 			children = (
+				C0BE813A1900010B00AE1B1A /* MoreView */,
 				C064A97318F787A2004C8774 /* Commen */,
 				C00E5B3E18FAD3E000C8AA43 /* ContactInfo */,
 				C00E5B3218FACF6E00C8AA43 /* AssetsManage */,
@@ -590,6 +597,17 @@
 			path = Commen;
 			sourceTree = "<group>";
 		};
+		C0BE813A1900010B00AE1B1A /* MoreView */ = {
+			isa = PBXGroup;
+			children = (
+				C0BE813B1900012B00AE1B1A /* SetUpViewController.h */,
+				C0BE813C1900012B00AE1B1A /* SetUpViewController.m */,
+				C0BE81411900199F00AE1B1A /* HelpViewController.h */,
+				C0BE81421900199F00AE1B1A /* HelpViewController.m */,
+			);
+			path = MoreView;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -713,10 +731,12 @@
 				C00D1E4118F67CA90026D610 /* AFURLResponseSerialization.m in Sources */,
 				C00D1E3F18F67CA90026D610 /* AFURLConnectionOperation.m in Sources */,
 				C00E5B3D18FACF6E00C8AA43 /* PersonalAssetsViewController.m in Sources */,
+				C0BE813D1900012B00AE1B1A /* SetUpViewController.m in Sources */,
 				C00D1EE118F6AEF40026D610 /* TMMemoryCache.m in Sources */,
 				C00D1ED518F6A4C30026D610 /* MJRefreshConst.m in Sources */,
 				C00D1E4618F67CA90026D610 /* UIButton+AFNetworking.m in Sources */,
 				C00D1EF318F6E7670026D610 /* DirectCheckViewController.m in Sources */,
+				C0BE81431900199F00AE1B1A /* HelpViewController.m in Sources */,
 				C00D1E4418F67CA90026D610 /* UIActivityIndicatorView+AFNetworking.m in Sources */,
 				C00D1E3E18F67CA90026D610 /* AFSecurityPolicy.m in Sources */,
 				C00E5B4118FAD42800C8AA43 /* ContactInfoViewController.m in Sources */,

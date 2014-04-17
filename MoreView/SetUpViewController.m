@@ -1,22 +1,19 @@
 //
-//  PersonalAssetsViewController.m
+//  SetUpViewController.m
 //  JiaoTongBu
 //
-//  Created by zhouyuan on 14-4-11.
+//  Created by zhouyuan on 14-4-17.
 //  Copyright (c) 2014年 zhouyuan. All rights reserved.
 //
 
-#import "PersonalAssetsViewController.h"
-#import "AssetCell.h"
-#import "AssetInfo.h"
-#import "AssetDetailViewController.h"
-@interface PersonalAssetsViewController ()
+#import "SetUpViewController.h"
+
+@interface SetUpViewController ()
 
 @end
 
-@implementation PersonalAssetsViewController
+@implementation SetUpViewController
 
-@synthesize assetInfo;
 - (id)initWithStyle:(UITableViewStyle)style
 {
     self = [super initWithStyle:style];
@@ -29,56 +26,23 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    dataSource = [[NSMutableArray alloc] initWithCapacity:20];
-    
-    for (int i = 0; i<5; i++) {
-        AssetInfo *tmp = [[AssetInfo alloc] initWithData];
-        [dataSource addObject:tmp];
-    }
+
     //添加左按钮
     UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
                                    initWithBarButtonSystemItem:UIBarButtonSystemItemReply
                                    target:self
-                                   action:@selector(replyButton)];
-    
-    UIBarButtonItem *rightButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSearch target:self action:@selector(searchButton)];
-
+                                   action:@selector(ReplyButton)];
     [self.navigationItem setLeftBarButtonItem:leftButton];
-    [self.navigationItem setRightBarButtonItem:rightButton];
-    
-    self.searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0, -44, 320, 44)];
-    self.searchBar.showsCancelButton = YES;
-    [self.view addSubview:self.searchBar];
-    
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
  
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
-
--(void)replyButton
+-(void)ReplyButton
 {
     [self.navigationController popViewControllerAnimated:YES];
 }
-
--(void)searchButton
-{
-    self.navigationController.navigationBarHidden = YES;
-    self.tableView.contentInset = UIEdgeInsetsMake(44+20, 0, 0, 0);
-    self.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(44+20, 0, 0, 0);
-    self.tableView.contentOffset = CGPointMake(0, -(44+20));
-}
-
--(void)viewWillAppear:(BOOL)animated
-{
-    self.tableView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
-    self.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(0, 0, 0, 0);
-    self.tableView.contentOffset = CGPointMake(0, 0);
-
-}
-
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
@@ -89,28 +53,24 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
+//#warning Potentially incomplete method implementation.
     // Return the number of sections.
     return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
+//#warning Incomplete method implementation.
     // Return the number of rows in the section.
-    return [dataSource count];
+    return 0;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    static NSString *CellIdentifier = @"PersonalAssetCell";
-    AssetCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
-    AssetInfo *tmp = [dataSource objectAtIndex:indexPath.row];
+    static NSString *CellIdentifier = @"Cell";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
     
-    cell.assetName.text = tmp.assetName;
-    cell.assetKind.text = tmp.assetkind;
-    cell.assetcount.text = tmp.assetCount;
     // Configure the cell...
-    tmp.assetID = [NSString stringWithFormat:@"%d",indexPath.row];
-    [dataSource addObject:tmp];
     
     return cell;
 }
@@ -154,24 +114,16 @@
 }
 */
 
+/*
 #pragma mark - Navigation
 
 // In a story board-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
-    UIViewController *view = segue.destinationViewController;
-    if ([view respondsToSelector:@selector(setAssetInfo:)])
-    {
-        NSIndexPath *selectedRowIndex = [self.tableView indexPathForSelectedRow];
-        //AssetInfo *data = [dataSource objectAtIndex:selectedRowIndex.row];
-        [view setValue:dataSource forKey:@"dataSource"];
-        [view setValue:selectedRowIndex forKey:@"currentInfo"];
-        
-    }
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
 }
 
-
+ */
 
 @end

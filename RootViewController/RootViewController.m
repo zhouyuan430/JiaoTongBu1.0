@@ -7,7 +7,7 @@
 //
 
 #import "RootViewController.h"
-
+#import "SetUpViewController.h"
 @interface RootViewController ()
 
 @end
@@ -36,6 +36,34 @@
     
     
 	// Do any additional setup after loading the view.
+}
+
+-(IBAction)moreView:(id)sender
+{
+    //在这里呼出下方菜单按钮项
+    myActionSheet = [[UIActionSheet alloc]
+                     initWithTitle:nil
+                     delegate:self
+                     cancelButtonTitle:@"取消"
+                     destructiveButtonTitle:nil
+                     otherButtonTitles: @"设置", @"帮助",nil];
+    
+    [myActionSheet showInView:self.view];
+}
+
+-(void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    switch (buttonIndex)
+    {
+        case 0:  //打开照相机拍照
+            
+            [self performSegueWithIdentifier:@"SetUpViewController" sender:self];
+            break;
+            
+        case 1:  //打开本地相册
+            [self performSegueWithIdentifier:@"HelpViewController" sender:self];
+            break;
+    }
 }
 
 - (void)didReceiveMemoryWarning

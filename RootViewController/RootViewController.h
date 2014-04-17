@@ -8,8 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
-@interface RootViewController : UIViewController
-
+@interface RootViewController : UIViewController<UIActionSheetDelegate>
+{
+    UIActionSheet * myActionSheet;
+}
 @property (strong, nonatomic) IBOutlet UIButton *personalAssets;
 @property (strong, nonatomic) IBOutlet UIButton *AssetsCheck;
 @property (strong, nonatomic) IBOutlet UIButton *AssetsChange;
@@ -17,5 +19,6 @@
 @property (strong, nonatomic) IBOutlet UIButton *ContactInfo;
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *BarItem;
 
+-(IBAction)moreView:(id)sender;
 
 @end

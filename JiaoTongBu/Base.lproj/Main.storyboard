@@ -114,6 +114,60 @@
             </objects>
             <point key="canvasLocation" x="-532" y="-918"/>
         </scene>
+        <!--Help View Controller - 帮助-->
+        <scene sceneID="P76-9T-w8T">
+            <objects>
+                <viewController id="9fd-MN-PAc" customClass="HelpViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="G0M-3H-alT"/>
+                        <viewControllerLayoutGuide type="bottom" id="pcr-VU-KkM"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="y8V-5k-awd">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fhd-fa-yR0">
+                                <rect key="frame" x="15" y="64" width="290" height="504"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <mutableString key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</mutableString>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="帮助" id="hWb-gm-M1w"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Tv7-fT-9Em" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-304" y="38"/>
+        </scene>
+        <!--Set Up View Controller - 设置-->
+        <scene sceneID="iDU-eO-FxA">
+            <objects>
+                <tableViewController storyboardIdentifier="SetUpViewController" id="vzr-lD-AHc" customClass="SetUpViewController" sceneMemberID="viewController">
+                    <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="bL8-bk-uGB">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <prototypes>
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="rQB-Sl-qcL">
+                                <rect key="frame" x="0.0" y="86" width="320" height="44"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="rQB-Sl-qcL" id="R0u-Ee-wra">
+                                    <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="设置" id="g9e-SR-kry"/>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="4PY-kK-dla" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="400" y="155"/>
+        </scene>
         <!--Root View Controller - 资产信息系统-->
         <scene sceneID="opv-XN-7nG">
             <objects>
@@ -141,7 +195,7 @@
                                     <constraint firstAttribute="width" constant="60" id="k8a-Fu-kPh"/>
                                     <constraint firstAttribute="height" constant="50" id="uMf-hQ-0Tp"/>
                                 </constraints>
-                                <state key="normal" title="个人呜呜呜呜呜呜呜资产">
+                                <state key="normal" title="个人资产">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
@@ -231,15 +285,21 @@
                     </view>
                     <navigationItem key="navigationItem" title="资产信息系统" id="GF1-59-r0N">
                         <barButtonItem key="leftBarButtonItem" image="Icon-Small.png" id="5Ls-9b-8gn"/>
-                        <barButtonItem key="rightBarButtonItem" image="Icon-Small.png" width="90" id="M1R-jV-dZe"/>
+                        <barButtonItem key="rightBarButtonItem" image="Icon-Small.png" width="90" id="M1R-jV-dZe">
+                            <connections>
+                                <action selector="moreView:" destination="Afh-QU-I0M" id="WSE-zK-0LL"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="AssetsChange" destination="Oi4-Tj-Hdm" id="Jt0-8P-tu1"/>
                         <outlet property="AssetsCheck" destination="Y67-Br-Rnd" id="Hb3-m4-3m6"/>
                         <outlet property="AssetsSearch" destination="Cdc-f9-H2a" id="wBz-FQ-M67"/>
-                        <outlet property="BarItem" destination="M1R-jV-dZe" id="Azq-sU-S2d"/>
+                        <outlet property="BarItem" destination="M1R-jV-dZe" id="0eL-IW-8p1"/>
                         <outlet property="ContactInfo" destination="V1h-UH-DvL" id="rWQ-vw-2a1"/>
                         <outlet property="personalAssets" destination="XJ8-7w-Qia" id="u55-AN-opn"/>
+                        <segue destination="vzr-lD-AHc" kind="push" identifier="SetUpViewController" id="EC4-m6-d64"/>
+                        <segue destination="9fd-MN-PAc" kind="push" identifier="HelpViewController" id="4qN-4I-zmi"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="PJ2-UH-RAa" userLabel="First Responder" sceneMemberID="firstResponder"/>

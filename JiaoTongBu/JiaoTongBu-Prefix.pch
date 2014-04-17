@@ -16,3 +16,4 @@
 #endif
 
 #define kUserName         @"kUserName"
+#define kToken            @"kToken" 

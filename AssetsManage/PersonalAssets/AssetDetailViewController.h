@@ -13,6 +13,7 @@
 {
     //图片选择器
     UIActionSheet *myActionSheet;
+    
     //图片2进制路径
     NSString* filePath;
     
