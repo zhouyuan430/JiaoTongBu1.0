@@ -14,5 +14,4 @@
 @property (strong, nonatomic) IBOutlet UILabel *assetKind;
 @property (strong, nonatomic) IBOutlet UILabel *assetcount;
 
-
 @end

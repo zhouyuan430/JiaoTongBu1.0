@@ -72,9 +72,18 @@
 		C00EA53318FC18060093BC20 /* AssetImage.m in Sources */ = {isa = PBXBuildFile; fileRef = C00EA53218FC18060093BC20 /* AssetImage.m */; };
 		C03F593818FEE6C20041E417 /* CommenData.m in Sources */ = {isa = PBXBuildFile; fileRef = C03F593718FEE6C20041E417 /* CommenData.m */; };
 		C064A97C18F78B6E004C8774 /* AssetCell.m in Sources */ = {isa = PBXBuildFile; fileRef = C064A97B18F78B6E004C8774 /* AssetCell.m */; };
+		C0702BDE1904B47A00C095EB /* GDataXMLNode.m in Sources */ = {isa = PBXBuildFile; fileRef = C0702BDD1904B47A00C095EB /* GDataXMLNode.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		C0702BE01904B4B200C095EB /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C0702BDF1904B4B200C095EB /* libxml2.dylib */; };
+		C0702BE31905041F00C095EB /* AssetChangeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C0702BE21905041F00C095EB /* AssetChangeViewController.m */; };
+		C0702BE61905046F00C095EB /* AssetChangeCell.m in Sources */ = {isa = PBXBuildFile; fileRef = C0702BE51905046F00C095EB /* AssetChangeCell.m */; };
+		C0702BF41905126E00C095EB /* check@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C0702BF01905126E00C095EB /* check@2x.png */; };
+		C0702BF51905126E00C095EB /* check.png in Resources */ = {isa = PBXBuildFile; fileRef = C0702BF11905126E00C095EB /* check.png */; };
+		C0702BF61905126E00C095EB /* uncheck@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C0702BF21905126E00C095EB /* uncheck@2x.png */; };
+		C0702BF71905126E00C095EB /* uncheck.png in Resources */ = {isa = PBXBuildFile; fileRef = C0702BF31905126E00C095EB /* uncheck.png */; };
 		C0BE813D1900012B00AE1B1A /* SetUpViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C0BE813C1900012B00AE1B1A /* SetUpViewController.m */; };
 		C0BE81431900199F00AE1B1A /* HelpViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C0BE81421900199F00AE1B1A /* HelpViewController.m */; };
 		C0C7B9D118F7B3F300566E3E /* AssetInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = C0C7B9D018F7B3F300566E3E /* AssetInfo.m */; };
+		C0EEE6771902EF480093B619 /* JiaoTongBuClient.m in Sources */ = {isa = PBXBuildFile; fileRef = C0EEE6761902EF480093B619 /* JiaoTongBuClient.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -221,12 +230,25 @@
 		C03F593718FEE6C20041E417 /* CommenData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CommenData.m; sourceTree = "<group>"; };
 		C064A97A18F78B6E004C8774 /* AssetCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetCell.h; sourceTree = "<group>"; };
 		C064A97B18F78B6E004C8774 /* AssetCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetCell.m; sourceTree = "<group>"; };
+		C0702BDC1904B47A00C095EB /* GDataXMLNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GDataXMLNode.h; sourceTree = "<group>"; };
+		C0702BDD1904B47A00C095EB /* GDataXMLNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GDataXMLNode.m; sourceTree = "<group>"; };
+		C0702BDF1904B4B200C095EB /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
+		C0702BE11905041F00C095EB /* AssetChangeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetChangeViewController.h; sourceTree = "<group>"; };
+		C0702BE21905041F00C095EB /* AssetChangeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetChangeViewController.m; sourceTree = "<group>"; };
+		C0702BE41905046F00C095EB /* AssetChangeCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetChangeCell.h; sourceTree = "<group>"; };
+		C0702BE51905046F00C095EB /* AssetChangeCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetChangeCell.m; sourceTree = "<group>"; };
+		C0702BF01905126E00C095EB /* check@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "check@2x.png"; sourceTree = "<group>"; };
+		C0702BF11905126E00C095EB /* check.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = check.png; sourceTree = "<group>"; };
+		C0702BF21905126E00C095EB /* uncheck@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "uncheck@2x.png"; sourceTree = "<group>"; };
+		C0702BF31905126E00C095EB /* uncheck.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = uncheck.png; sourceTree = "<group>"; };
 		C0BE813B1900012B00AE1B1A /* SetUpViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SetUpViewController.h; sourceTree = "<group>"; };
 		C0BE813C1900012B00AE1B1A /* SetUpViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SetUpViewController.m; sourceTree = "<group>"; };
 		C0BE81411900199F00AE1B1A /* HelpViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelpViewController.h; sourceTree = "<group>"; };
 		C0BE81421900199F00AE1B1A /* HelpViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HelpViewController.m; sourceTree = "<group>"; };
 		C0C7B9CF18F7B3F300566E3E /* AssetInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetInfo.h; sourceTree = "<group>"; };
 		C0C7B9D018F7B3F300566E3E /* AssetInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetInfo.m; sourceTree = "<group>"; };
+		C0EEE6751902EF480093B619 /* JiaoTongBuClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JiaoTongBuClient.h; sourceTree = "<group>"; };
+		C0EEE6761902EF480093B619 /* JiaoTongBuClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JiaoTongBuClient.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -234,6 +256,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C0702BE01904B4B200C095EB /* libxml2.dylib in Frameworks */,
 				C00D1C6C18F6784F0026D610 /* CoreGraphics.framework in Frameworks */,
 				C00D1C6E18F6784F0026D610 /* UIKit.framework in Frameworks */,
 				C00E5B6618FAE73600C8AA43 /* libzbar.a in Frameworks */,
@@ -284,6 +307,7 @@
 		C00D1C6818F6784F0026D610 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C0702BDF1904B4B200C095EB /* libxml2.dylib */,
 				C00D1C6918F6784F0026D610 /* Foundation.framework */,
 				C00D1C6B18F6784F0026D610 /* CoreGraphics.framework */,
 				C00D1C6D18F6784F0026D610 /* UIKit.framework */,
@@ -338,6 +362,7 @@
 		C00D1D0C18F67CA80026D610 /* ThirdClasslib */ = {
 			isa = PBXGroup;
 			children = (
+				C0702BDB1904B47A00C095EB /* GDataXMLNode */,
 				C00E5B4818FAE73600C8AA43 /* ZBarSDK */,
 				C00D1ED818F6AEF40026D610 /* TMCache */,
 				C00D1EC818F6A4C30026D610 /* MJRefresh */,
@@ -486,6 +511,10 @@
 		C00E5B3318FACF6E00C8AA43 /* AssetChange */ = {
 			isa = PBXGroup;
 			children = (
+				C0702BE11905041F00C095EB /* AssetChangeViewController.h */,
+				C0702BE21905041F00C095EB /* AssetChangeViewController.m */,
+				C0702BE41905046F00C095EB /* AssetChangeCell.h */,
+				C0702BE51905046F00C095EB /* AssetChangeCell.m */,
 			);
 			path = AssetChange;
 			sourceTree = "<group>";
@@ -583,6 +612,7 @@
 		C064A97318F787A2004C8774 /* Commen */ = {
 			isa = PBXGroup;
 			children = (
+				C0702BE71905081A00C095EB /* ImageResource */,
 				C064A97A18F78B6E004C8774 /* AssetCell.h */,
 				C064A97B18F78B6E004C8774 /* AssetCell.m */,
 				C0C7B9CF18F7B3F300566E3E /* AssetInfo.h */,
@@ -593,8 +623,30 @@
 				C00EA53218FC18060093BC20 /* AssetImage.m */,
 				C03F593618FEE6C20041E417 /* CommenData.h */,
 				C03F593718FEE6C20041E417 /* CommenData.m */,
+				C0EEE6751902EF480093B619 /* JiaoTongBuClient.h */,
+				C0EEE6761902EF480093B619 /* JiaoTongBuClient.m */,
 			);
 			path = Commen;
+			sourceTree = "<group>";
+		};
+		C0702BDB1904B47A00C095EB /* GDataXMLNode */ = {
+			isa = PBXGroup;
+			children = (
+				C0702BDC1904B47A00C095EB /* GDataXMLNode.h */,
+				C0702BDD1904B47A00C095EB /* GDataXMLNode.m */,
+			);
+			path = GDataXMLNode;
+			sourceTree = "<group>";
+		};
+		C0702BE71905081A00C095EB /* ImageResource */ = {
+			isa = PBXGroup;
+			children = (
+				C0702BF01905126E00C095EB /* check@2x.png */,
+				C0702BF11905126E00C095EB /* check.png */,
+				C0702BF21905126E00C095EB /* uncheck@2x.png */,
+				C0702BF31905126E00C095EB /* uncheck.png */,
+			);
+			path = ImageResource;
 			sourceTree = "<group>";
 		};
 		C0BE813A1900010B00AE1B1A /* MoreView */ = {
@@ -690,13 +742,17 @@
 				C00E5B6918FAE73600C8AA43 /* zbar-helpicons.png in Resources */,
 				C00D1EC018F680550026D610 /* Icon-Small@2x.png in Resources */,
 				C00D1C7418F6784F0026D610 /* InfoPlist.strings in Resources */,
+				C0702BF71905126E00C095EB /* uncheck.png in Resources */,
+				C0702BF51905126E00C095EB /* check.png in Resources */,
 				C00D1ED318F6A4C30026D610 /* MJRefresh.bundle in Resources */,
 				C00D1EBE18F680550026D610 /* Icon-iOS7@2x.png in Resources */,
 				C00D1C7D18F6784F0026D610 /* Main.storyboard in Resources */,
 				C00E5B6818FAE73600C8AA43 /* zbar-help.html in Resources */,
 				C00D1EC118F680550026D610 /* Icon.png in Resources */,
+				C0702BF61905126E00C095EB /* uncheck@2x.png in Resources */,
 				C00D1EBF18F680550026D610 /* Icon-Small.png in Resources */,
 				C00E5B6718FAE73600C8AA43 /* zbar-back.png in Resources */,
+				C0702BF41905126E00C095EB /* check@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -717,6 +773,7 @@
 			files = (
 				C00D1E3A18F67CA90026D610 /* AFHTTPRequestOperation.m in Sources */,
 				C00D1E4718F67CA90026D610 /* UIImageView+AFNetworking.m in Sources */,
+				C0702BE61905046F00C095EB /* AssetChangeCell.m in Sources */,
 				C0C7B9D118F7B3F300566E3E /* AssetInfo.m in Sources */,
 				C00D1EE918F6CFF60026D610 /* LogInViewController.m in Sources */,
 				C03F593818FEE6C20041E417 /* CommenData.m in Sources */,
@@ -728,9 +785,12 @@
 				C00D1E4818F67CA90026D610 /* UIProgressView+AFNetworking.m in Sources */,
 				C00E5B3C18FACF6E00C8AA43 /* AssetDetailViewController.m in Sources */,
 				C00D1E3D18F67CA90026D610 /* AFNetworkReachabilityManager.m in Sources */,
+				C0EEE6771902EF480093B619 /* JiaoTongBuClient.m in Sources */,
 				C00D1E4118F67CA90026D610 /* AFURLResponseSerialization.m in Sources */,
 				C00D1E3F18F67CA90026D610 /* AFURLConnectionOperation.m in Sources */,
 				C00E5B3D18FACF6E00C8AA43 /* PersonalAssetsViewController.m in Sources */,
+				C0702BDE1904B47A00C095EB /* GDataXMLNode.m in Sources */,
+				C0702BE31905041F00C095EB /* AssetChangeViewController.m in Sources */,
 				C0BE813D1900012B00AE1B1A /* SetUpViewController.m in Sources */,
 				C00D1EE118F6AEF40026D610 /* TMMemoryCache.m in Sources */,
 				C00D1ED518F6A4C30026D610 /* MJRefreshConst.m in Sources */,
@@ -885,17 +945,24 @@
 		C00D1C9918F6784F0026D610 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "JiaoTongBu/JiaoTongBu-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/include/libxml2,
+				);
 				INFOPLIST_FILE = "JiaoTongBu/JiaoTongBu-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/Users/ixiu/Desktop/JiaoTongBu/ThirdClasslib/ZBarSDK/ZBarSDK,
 					/Users/ixiu/Desktop/JiaoTongBu1.0/ThirdClasslib/ZBarSDK,
 				);
+				OTHER_LDFLAGS = "-lxml2";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -903,17 +970,24 @@
 		C00D1C9A18F6784F0026D610 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "JiaoTongBu/JiaoTongBu-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/include/libxml2,
+				);
 				INFOPLIST_FILE = "JiaoTongBu/JiaoTongBu-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/Users/ixiu/Desktop/JiaoTongBu/ThirdClasslib/ZBarSDK/ZBarSDK,
 					/Users/ixiu/Desktop/JiaoTongBu1.0/ThirdClasslib/ZBarSDK,
 				);
+				OTHER_LDFLAGS = "-lxml2";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

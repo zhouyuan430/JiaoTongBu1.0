@@ -10,6 +10,7 @@
 #import "AssetDetailCell.h"
 #import "AssetInfo.h"
 #import "TMCache.h"
+#import "CommenData.h"
 @interface AssetDetailViewController ()
 
 @end
@@ -34,6 +35,8 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    [self getData];
+    
     self.navigationController.navigationBarHidden = NO;
     currentLine = currentInfo.row;
     
@@ -45,13 +48,24 @@
                                    target:self
                                    action:@selector(replyButton)];
     [self.navigationItem setLeftBarButtonItem:leftButton];
-
+    
+    
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
  
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
+
+-(void)getData
+{
+    NSDictionary *dic = [[CommenData mainShare] getInfo:@"AssetsInfo.plist"];
+    
+    dataSource = dic[@"data"];
+    
+    NSLog(@"%@",dic);
+}
+
 -(void)replyButton
 {
     [self.navigationController popViewControllerAnimated:YES];

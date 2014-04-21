@@ -5,7 +5,7 @@
 //  Created by zhouyuan on 14-4-17.
 //  Copyright (c) 2014年 zhouyuan. All rights reserved.
 
-//缓存临时文件  程序退出 数据删除
+//缓存临时文件  程序退出 数据删除 不能存自定义数据
 //
 
 #import <Foundation/Foundation.h>

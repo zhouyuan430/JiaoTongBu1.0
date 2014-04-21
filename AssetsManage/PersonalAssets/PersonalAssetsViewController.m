@@ -5,11 +5,11 @@
 //  Created by zhouyuan on 14-4-11.
 //  Copyright (c) 2014年 zhouyuan. All rights reserved.
 //
-
 #import "PersonalAssetsViewController.h"
 #import "AssetCell.h"
 #import "AssetInfo.h"
 #import "AssetDetailViewController.h"
+#import "CommenData.h"
 @interface PersonalAssetsViewController ()
 
 @end
@@ -36,19 +36,31 @@
         AssetInfo *tmp = [[AssetInfo alloc] initWithData];
         [dataSource addObject:tmp];
     }
+    NSDictionary *dic = [NSDictionary dictionaryWithObject:dataSource forKey:@"data"];
+    NSLog(@"----%@",dic);
+    [[CommenData mainShare] saveInfo:dic fileName:@"AssetsInfo.plist"];
+    
+    NSDictionary * dic2 = [[CommenData mainShare] getInfo:@"AssetsInfo.plist"];
+    NSLog(@"dic2 %@",dic2);
+    
     //添加左按钮
     UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
                                    initWithBarButtonSystemItem:UIBarButtonSystemItemReply
                                    target:self
                                    action:@selector(replyButton)];
-    
-    UIBarButtonItem *rightButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSearch target:self action:@selector(searchButton)];
-
     [self.navigationItem setLeftBarButtonItem:leftButton];
+
+    //添加右按钮
+    UIBarButtonItem *rightButton = [[UIBarButtonItem alloc]
+                                    initWithBarButtonSystemItem:UIBarButtonSystemItemSearch
+                                    target:self
+                                    action:@selector(searchButton)];
     [self.navigationItem setRightBarButtonItem:rightButton];
     
+    //searchBar初始化
     self.searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0, -44, 320, 44)];
     self.searchBar.showsCancelButton = YES;
+    self.searchBar.delegate = self;
     [self.view addSubview:self.searchBar];
     
     // Uncomment the following line to preserve selection between presentations.
@@ -58,25 +70,29 @@
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
 
+//返回上级界面
 -(void)replyButton
 {
     [self.navigationController popViewControllerAnimated:YES];
 }
 
+//显示搜索框
 -(void)searchButton
 {
     self.navigationController.navigationBarHidden = YES;
+    self.searchBar.hidden = NO;
+    
     self.tableView.contentInset = UIEdgeInsetsMake(44+20, 0, 0, 0);
     self.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(44+20, 0, 0, 0);
     self.tableView.contentOffset = CGPointMake(0, -(44+20));
 }
-
+//隐藏搜索框
 -(void)viewWillAppear:(BOOL)animated
 {
     self.tableView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
     self.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(0, 0, 0, 0);
     self.tableView.contentOffset = CGPointMake(0, 0);
-
+    self.searchBar.hidden = YES;
 }
 
 - (void)didReceiveMemoryWarning
@@ -112,59 +128,45 @@
     tmp.assetID = [NSString stringWithFormat:@"%d",indexPath.row];
     [dataSource addObject:tmp];
     
+    
     return cell;
 }
 
-/*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
-}
-*/
+#pragma mark - SearchBar
 
-/*
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+//点击取消按钮时，隐藏键盘
+-(void)searchBarCancelButtonClicked:(UISearchBar *)searchBar
 {
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    }   
-    else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }   
+    searchBar.text = @"";
+    [searchBar resignFirstResponder];
 }
-*/
+//点击搜索按钮时，隐藏键盘，显示搜索内容
+-(void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
+{
+    NSLog(@"search");
+    searchBar.text = @"";
+    [self searchBarCancelButtonClicked:searchBar];
+    [searchBar resignFirstResponder];
+}
+-(void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar
+{
+    //[searchBar]
+    NSLog(@"begin");
+}
 
-/*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-}
-*/
-
-/*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
 
 #pragma mark - Navigation
-
+//跳转界面的数据传递
 // In a story board-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
+    [self.searchBar resignFirstResponder];
     UIViewController *view = segue.destinationViewController;
     if ([view respondsToSelector:@selector(setAssetInfo:)])
     {
         NSIndexPath *selectedRowIndex = [self.tableView indexPathForSelectedRow];
-        //AssetInfo *data = [dataSource objectAtIndex:selectedRowIndex.row];
-        [view setValue:dataSource forKey:@"dataSource"];
+
+        //[view setValue:dataSource forKey:@"dataSource"];
         [view setValue:selectedRowIndex forKey:@"currentInfo"];
         
     }

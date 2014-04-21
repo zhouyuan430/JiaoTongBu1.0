@@ -25,8 +25,6 @@ static CommenData *_shareKit;
 {
     NSString *tempPath = NSTemporaryDirectory();
     NSString *path = [tempPath stringByAppendingPathComponent:fileName];
-
-    NSLog(@"%@",path);
     NSDictionary *dict = [[NSDictionary alloc] initWithContentsOfFile:path] ;
     return dict;
 }
@@ -37,8 +35,11 @@ static CommenData *_shareKit;
     
     NSString *tempPath = NSTemporaryDirectory();
     NSString *path = [tempPath stringByAppendingPathComponent:fileName];
-
-    [dict writeToFile:path atomically:YES];
+    BOOL isSuccess = [dict writeToFile:path atomically:YES];
+    if(!isSuccess)
+    {
+        NSLog(@"保存失败");
+    }
 }
 
 //查找文件

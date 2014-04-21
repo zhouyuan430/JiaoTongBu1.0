@@ -43,13 +43,12 @@ static NSString* const kDataCacheDirectory=@"ImageCache";
     
 }
 
--(void)succeed:(NSDictionary *)dict{
+-(void)succeed:(NSDictionary *)dict
+{
     
     NSArray *tA=[dict objectForKey:@"data"];
-    
     NSNotification * notification = [NSNotification notificationWithName:datasuccess object:tA];
     [[NSNotificationCenter defaultCenter] postNotification:notification];
-    //[tA retain];
     
 }
 

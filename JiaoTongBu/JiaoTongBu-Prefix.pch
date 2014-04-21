@@ -17,3 +17,5 @@
 
 #define kUserName         @"kUserName"
 #define kToken            @"kToken" 
+#define kDataKey          @"kDataKey"
+#define BaseURLString     @"http://health.lekangba.cn/axis2/services/"
