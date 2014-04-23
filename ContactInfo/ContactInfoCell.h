@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import "ContactInfo.h"
+#import "ContactInfoCell.h"
 @interface ContactInfoCell : UITableViewCell
 
 @property (strong, nonatomic) IBOutlet UILabel *nameLabel;
@@ -17,4 +18,8 @@
 @property (strong, nonatomic) IBOutlet UILabel *departmentLabel;
 
 @property (strong, nonatomic) IBOutlet UIImageView *peopleImg;
+
+
+-(void)setCellInfo:(ContactInfo *)_info;
+
 @end

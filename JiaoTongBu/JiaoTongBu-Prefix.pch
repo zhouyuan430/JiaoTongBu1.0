@@ -13,9 +13,17 @@
 #ifdef __OBJC__
     #import <UIKit/UIKit.h>
     #import <Foundation/Foundation.h>
+    #import "UserDefaults.h"
+    #import "ServerAddr.h"
 #endif
 
+#define kUserID           @"kUserID"
 #define kUserName         @"kUserName"
 #define kToken            @"kToken" 
 #define kDataKey          @"kDataKey"
+
+#define ContactInfoPlist       @"ContactInfo.plist"
+#define AssetsListPlist        @"AssetsList.plist"
+
+
 #define BaseURLString     @"http://health.lekangba.cn/axis2/services/"

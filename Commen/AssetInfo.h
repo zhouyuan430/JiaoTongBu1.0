@@ -15,14 +15,15 @@
 @property (strong, nonatomic) NSString *assetID;
 @property (strong, nonatomic) NSString *assetCount;
 @property (strong, nonatomic) NSString *assetName;
-@property (strong, nonatomic) NSString *assetkind;
+@property (strong, nonatomic) NSString *assetCate;
 @property (strong, nonatomic) NSString *recentCheckDate;
 @property (strong, nonatomic) NSString *userName;
 @property (strong, nonatomic) NSString *directorName;
 @property (strong, nonatomic) NSString *useDeadline;
 @property (strong, nonatomic) NSString *assetImgUrl;
 @property (strong, nonatomic) UIImage *assetImg;
+@property (strong, nonatomic) NSString *assetValue;
 
 
--(AssetInfo *)initWithData;
+-(AssetInfo *)initWithData:(NSDictionary *)dic;
 @end

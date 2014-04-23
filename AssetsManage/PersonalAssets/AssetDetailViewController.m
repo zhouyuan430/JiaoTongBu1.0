@@ -20,8 +20,6 @@
 @synthesize scrollView;
 @synthesize assetInfo;
 @synthesize currentInfo;
-@synthesize dataSource;
-
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -35,8 +33,10 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    //一定要初始化
+    dataSource = [[NSMutableArray alloc] initWithCapacity:20];
+    //获取数据
     [self getData];
-    
     self.navigationController.navigationBarHidden = NO;
     currentLine = currentInfo.row;
     
@@ -49,21 +49,27 @@
                                    action:@selector(replyButton)];
     [self.navigationItem setLeftBarButtonItem:leftButton];
     
-    
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
- 
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    [self.tableView reloadData];
 }
 
 -(void)getData
 {
-    NSDictionary *dic = [[CommenData mainShare] getInfo:@"AssetsInfo.plist"];
-    
-    dataSource = dic[@"data"];
-    
-    NSLog(@"%@",dic);
+    if ([[CommenData mainShare] isExistsFile:AssetsListPlist]) {
+        NSLog(@"本地");
+        [self loadData:[[CommenData mainShare] getInfo:AssetsListPlist]];
+        
+    }
+}
+
+-(void)loadData:(NSDictionary *)dic
+{
+    NSArray *arr = dic[@"data"];
+    for (int i = 0 ; i < [arr count]; i++) {
+        AssetInfo *tmp = [[AssetInfo alloc] initWithData:arr[i]];
+        [dataSource addObject:tmp];
+    }
+    [self.tableView reloadData];
+
 }
 
 -(void)replyButton
@@ -227,7 +233,6 @@
 }
 //当选择一张图片后进入这里
 -(void)imagePickerController:(UIImagePickerController*)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
-
 {
     
     NSString *type = [info objectForKey:UIImagePickerControllerMediaType];
@@ -310,57 +315,28 @@
 {
     static NSString *CellIdentifier = @"AssetDetailCell";
     AssetDetailCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
+    
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+
     assetInfo = [dataSource objectAtIndex:currentLine];
     
+    if (assetInfo.assetImgUrl) {
+        
+    }
     cell.assetName.text = assetInfo.assetName;
-    cell.assetkind.text = assetInfo.assetkind;
-    cell.asserCount.text = assetInfo.assetCount;
-    cell.userName.text = assetInfo.userName;
-    cell.directorName.text = assetInfo.directorName;
+    NSLog(@"%d %@",currentLine,assetInfo.assetName);
+    
+    cell.assetkind.text = [NSString stringWithFormat:@"种类：%@", assetInfo.assetCate];
+    cell.asserCount.text = [NSString stringWithFormat:@"数量：%@", assetInfo.assetCount];
+    cell.userName.text = [NSString stringWithFormat:@"使用人：%@", assetInfo.userName];
+    cell.directorName.text = [NSString stringWithFormat:@"监管部门：%@", assetInfo.directorName];
     [cell.assetImg setImage:assetInfo.assetImg forState:UIControlStateNormal];
     // Configure the cell...
     
     return cell;
 }
 
-/*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
-}
-*/
 
-/*
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    }   
-    else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }   
-}
-*/
-
-/*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-}
-*/
-
-/*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
 
 /*
 #pragma mark - Navigation

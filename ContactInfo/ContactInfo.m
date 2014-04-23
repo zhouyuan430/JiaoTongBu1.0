@@ -17,10 +17,13 @@
 @synthesize peopleImgUrl;
 @synthesize peopleImg;
 
--(ContactInfo *)initWithData
+-(ContactInfo *)initWithData:(NSDictionary *)data
 {
     ContactInfo *tmp = [[ContactInfo alloc] init];
     
+    tmp.nameLabel = data[@"username"];
+    tmp.emailLabel = data[@"email"];
+    tmp.departmentLabel = data[@"rolelist"];
     
     return tmp;
 }

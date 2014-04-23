@@ -499,8 +499,8 @@
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UKC-Mo-Iq3">
-                                            <rect key="frame" x="272" y="42" width="30" height="30"/>
+                                        <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Yg5-A6-IeB">
+                                            <rect key="frame" x="265" y="42" width="30" height="30"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             <state key="normal">
                                                 <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
@@ -509,7 +509,7 @@
                                     </subviews>
                                 </tableViewCellContentView>
                                 <connections>
-                                    <outlet property="CheckButton" destination="UKC-Mo-Iq3" id="ibn-4j-vz2"/>
+                                    <outlet property="CheckButton" destination="Yg5-A6-IeB" id="Ix7-TD-jPT"/>
                                     <outlet property="assetKind" destination="BRt-KB-7Fw" id="fFC-I4-ecv"/>
                                     <outlet property="assetName" destination="XDx-3o-21J" id="YrI-zN-2i5"/>
                                     <outlet property="assetcount" destination="i9M-dQ-QdH" id="omw-3A-iW0"/>

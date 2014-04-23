@@ -8,10 +8,13 @@
 
 #import <UIKit/UIKit.h>
 #import "AssetInfo.h"
+#import "MBProgressHUD.h"
 @interface PersonalAssetsViewController : UITableViewController <UITextFieldDelegate,UISearchBarDelegate>
 {
     NSMutableArray *dataSource;
     AssetInfo *assetInfo;
+    
+    MBProgressHUD * HUD;
 }
 
 @property (nonatomic, retain) AssetInfo *assetInfo;

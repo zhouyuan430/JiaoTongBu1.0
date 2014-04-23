@@ -7,7 +7,11 @@
 //
 
 #import "ContactInfoViewController.h"
-
+#import "JiaoTongBuClient.h"
+#import "ServerAddr.h"
+#import "CommenData.h"
+#import "ContactInfo.h"
+#import "ContactInfoCell.h"
 @interface ContactInfoViewController ()
 
 @end
@@ -26,22 +30,87 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    dataSource = [[NSMutableArray alloc] initWithCapacity:20];
     //添加左按钮
     UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
                                    initWithBarButtonSystemItem:UIBarButtonSystemItemReply
                                    target:self
-                                   action:@selector(back)];
+                                   action:@selector(replyButton)];
     [self.navigationItem setLeftBarButtonItem:leftButton];
+    
+    [self getData];
+
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
  
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
--(IBAction)back
+//返回上一级
+-(IBAction)replyButton
 {
     [self.navigationController popViewControllerAnimated:YES];
 }
+//获取数据
+-(void)getData
+{
+    if ([[CommenData mainShare] isExistsFile:ContactInfoPlist]) {
+        NSLog(@"本地");
+       [self loadData:[[CommenData mainShare] getInfo:ContactInfoPlist]];
+    }
+    else{
+        NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
+        NSString *token = [[UserDefaults userDefaults] getdata:kToken];
+    
+        NSString *url = [NSString stringWithFormat:@"%@uid=%@&token=%@",getContactList,uid,token];
+    
+        [[JiaoTongBuClient sharedClient] GET:url parameters:nil success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
+        
+            NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
+            if ([dic[@"status"] isEqualToString:@"A0006"])
+            {
+                //存储数据,历史缓存类型
+                [[CommenData mainShare] saveInfo:dic fileName:ContactInfoPlist];
+                [self loadData:dic];
+            }
+            else{
+                [self showMsg:dic[@"msg"]];
+            }
+        
+        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+            NSLog(@"%@",error);
+        }];
+    }
+}
+
+-(void)loadData:(NSDictionary*)dic
+{
+    NSArray *arr = dic[@"data"];
+    for (int i = 0 ; i < [arr count]; i++) {
+        ContactInfo *tmp = [[ContactInfo alloc] initWithData:arr[i]];
+        
+        [dataSource addObject:tmp];
+    }
+    [self.tableView reloadData];
+}
+
+//弹出提示框
+-(void)showMsg:(NSString*)msg
+{
+    HUD = [[MBProgressHUD alloc] initWithView:self.view];
+    [self.view addSubview:HUD];
+    HUD.labelText = msg;
+    HUD.mode = MBProgressHUDModeText;
+    [HUD showAnimated:YES whileExecutingBlock:^{
+        sleep(2);
+    } completionBlock:^{
+        [HUD removeFromSuperview];
+        HUD = nil;
+    }];
+}
+
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
@@ -61,15 +130,21 @@
 {
 //#warning Incomplete method implementation.
     // Return the number of rows in the section.
-    return 1;
+    return [dataSource count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     static NSString *CellIdentifier = @"ContactInfoCell";
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
-    
+    ContactInfoCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    if(cell == nil)
+    {
+        cell = [[ContactInfoCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+    }
+
     // Configure the cell...
+    ContactInfo *tmp = dataSource[indexPath.row];
+    [cell setCellInfo:tmp];
     
     return cell;
 }

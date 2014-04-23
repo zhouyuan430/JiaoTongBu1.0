@@ -21,6 +21,7 @@
 @property (strong, nonatomic) IBOutlet UILabel *useDeadline;
 @property (strong, nonatomic) NSString *assetImgUrl;
 
+-(void)loadImg:(NSString *)_url;
 
 
 @end

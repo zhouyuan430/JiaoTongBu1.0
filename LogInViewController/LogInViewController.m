@@ -7,11 +7,10 @@
 //
 
 #import "LogInViewController.h"
-#import "AFNetworking.h"
 #import "JiaoTongBuClient.h"
 #import "AFHTTPRequestOperation.h"
-#import "AFHTTPSessionManager.h"
 #import "GDataXMLNode.h"
+#import "ServerAddr.h"
 @interface LogInViewController ()
 
 @end
@@ -33,56 +32,66 @@
 //判断是否已经登录过，是否存在用户信息，如果有就直接跳转到首页
 -(void)viewDidAppear:(BOOL)animated
 {
-   
+    NSLog(@"%@",[[UserDefaults userDefaults] getdata:kUserName]);
+    if ([[UserDefaults userDefaults] getdata:kUserName]) {
+        [self toRootView];
+    }
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
+     
 	// Do any additional setup after loading the view.
 }
 -(IBAction)logInButton:(id)sender
 {
     //网络请求
-    NSString *loginUrl = [NSString stringWithFormat:@"http://health.lekangba.cn/axis2/services/AssetManageInter/login?usrname=ajy&password=ajy"];
-    
-    
-    
-    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-    AFHTTPRequestSerializer * requestSerializer = [AFHTTPRequestSerializer serializer];
-    AFHTTPResponseSerializer * responseSerializer = [AFHTTPResponseSerializer serializer];
-    NSString *ua = @"Mozilla/5.0 (iPhone; CPU iPhone OS 7_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.1.1 Mobile/10A5376e Safari/8537.73.11";
-    [requestSerializer setValue:ua forHTTPHeaderField:@"User-Agent"];
-    
- //[requestSerializer setValue:@"text/html" forHTTPHeaderField:@"Content-type"];
-    responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/xml",@"text/html" ,nil];
-    manager.responseSerializer = responseSerializer;
-    manager.requestSerializer = requestSerializer;
-    
-    [manager GET:loginUrl parameters:nil success:^(AFHTTPRequestOperation *operation, NSXMLParser *XMLParser) {
-        NSData * data = (NSData*)XMLParser;
-        NSLog(@"%@",[NSString stringWithUTF8String:[data bytes]]);
+    NSString *loginUrl = [NSString stringWithFormat:@"%@usrname=ajy&password=ajy",login];
+        
+    [[JiaoTongBuClient sharedClient] GET:loginUrl parameters:nil success:^(AFHTTPRequestOperation *operation, NSData *XMLParser) {
+        
+        //XML解析
+        NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:XMLParser];
+        
+        if ([dic[@"status"] isEqualToString:@"A0006"]) {
+            
+            NSArray *arr = dic[@"data"];
+            NSDictionary *dict = [arr objectAtIndex:0];
+                                
+            //存储用户信息
+            [[UserDefaults userDefaults] setdata:dict[@"token"] key:kToken];
+            [[UserDefaults userDefaults] setdata:dict[@"name"] key:kUserName];
+            [[UserDefaults userDefaults] setdata:dict[@"uid"] key:kUserID];
+            
+            //跳转
+            [self toRootView];
+        }
+        else{
+            [self showMsg:dic[@"msg"]];
+        }
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"%@",error);
         
     }];
-    //跳转
-    [self toRootView];
 }
-
--(NSString*)XMLParser:(NSData*)data
+//弹出提示框
+-(void)showMsg:(NSString*)msg
 {
-    GDataXMLDocument *doc = [[GDataXMLDocument alloc] initWithData:data options:0 error:nil];
-    GDataXMLElement *rootElement = [doc rootElement];
-    //节点
-    GDataXMLElement *dicElement = [[rootElement elementsForName:@""] objectAtIndex:0];
-    NSString *dic = [dicElement stringValue];
-    NSLog(@"data is:%@",dic);
-    return dic;
+    HUD = [[MBProgressHUD alloc] initWithView:self.view];
+    [self.view addSubview:HUD];
+    HUD.labelText = msg;
+    HUD.mode = MBProgressHUDModeText;
+    [HUD showAnimated:YES whileExecutingBlock:^{
+        sleep(2);
+    } completionBlock:^{
+        [HUD removeFromSuperview];
+        HUD = nil;
+    }];
 }
 
+//跳转界面
 -(void)toRootView
 {
     //跳转
@@ -93,12 +102,12 @@
     [self presentViewController:next animated:YES completion:^{}];
 }
 
+#pragma mark -- 触摸其他地方隐藏键盘
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     [passwordTextField resignFirstResponder];
     [userNameTextField resignFirstResponder];
 }
-
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
     [textField resignFirstResponder];

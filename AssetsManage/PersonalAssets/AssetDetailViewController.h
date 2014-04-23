@@ -11,6 +11,7 @@
 #import "AssetInfo.h"
 @interface AssetDetailViewController : UITableViewController <UIActionSheetDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate>
 {
+    NSMutableArray *dataSource;
     //图片选择器
     UIActionSheet *myActionSheet;
     
@@ -23,9 +24,9 @@
     
     NSUInteger currentLine;
 }
-@property (strong, nonatomic) NSMutableArray *dataSource;
+
 @property (strong, nonatomic) NSIndexPath *currentInfo;
 @property (strong, nonatomic) IBOutlet UIScrollView *scrollView;
-@property (nonatomic, retain) AssetInfo *assetInfo;
+@property (strong, nonatomic) AssetInfo *assetInfo;
 -(IBAction)imgClick:(id)sender;
 @end

@@ -7,7 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import "MBProgressHUD.h"
 @interface ContactInfoViewController : UITableViewController
+{
+    NSMutableArray * dataSource;
+    
+    MBProgressHUD * HUD;
+}
+
 
 @end

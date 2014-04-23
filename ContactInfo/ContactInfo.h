@@ -18,5 +18,5 @@
 @property (strong, nonatomic) NSString *peopleImgUrl;
 @property (strong, nonatomic) UIImage *peopleImg;
 
--(ContactInfo *)initWithData;
+-(ContactInfo *)initWithData:(NSDictionary *)data;
 @end

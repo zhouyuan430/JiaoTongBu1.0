@@ -74,6 +74,7 @@ static CommenData *_shareKit;
 
     NSFileManager *defaultManager;
     defaultManager = [NSFileManager defaultManager];
+    
     BOOL boolValue = [defaultManager removeItemAtPath:path error:nil];
     return boolValue;
 }

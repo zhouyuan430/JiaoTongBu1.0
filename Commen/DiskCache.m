@@ -207,16 +207,11 @@ static NSString* const kDataCacheDirectory=@"ImageCache";
 
 - (void)cleanDisk
 {
-    //NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:-cacheMaxCacheAge];
     NSDirectoryEnumerator *fileEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:diskCachePath];
     for (NSString *fileName in fileEnumerator)
     {
         NSString *filePath = [diskCachePath stringByAppendingPathComponent:fileName];
-        //NSDictionary *attrs = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil];
-        //if ([[[attrs fileModificationDate] laterDate:expirationDate] isEqualToDate:expirationDate])
-        //{
         [[NSFileManager defaultManager] removeItemAtPath:filePath error:nil];
-        //}
     }
 }
 

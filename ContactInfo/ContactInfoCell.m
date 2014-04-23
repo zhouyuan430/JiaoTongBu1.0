@@ -34,4 +34,11 @@
     // Configure the view for the selected state
 }
 
+-(void)setCellInfo:(ContactInfo *)_info
+{
+    self.nameLabel.text = [NSString stringWithFormat:@"姓名：%@",_info.nameLabel];
+    self.emailLabel.text = [NSString stringWithFormat:@"email：%@",_info.emailLabel];
+    self.departmentLabel.text = _info.departmentLabel;
+}
+
 @end

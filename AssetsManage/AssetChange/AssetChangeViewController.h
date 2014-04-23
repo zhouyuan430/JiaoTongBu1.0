@@ -7,7 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import "MBProgressHUD.h"
 @interface AssetChangeViewController : UITableViewController
-
+{
+    NSMutableArray *dataSource;
+    
+    NSMutableArray *isSelected;
+    MBProgressHUD * HUD;
+}
 @end

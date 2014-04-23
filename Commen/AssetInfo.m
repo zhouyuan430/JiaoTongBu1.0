@@ -13,29 +13,25 @@
 @synthesize assetID;
 @synthesize assetCount;
 @synthesize assetName;
-@synthesize assetkind;
+@synthesize assetCate;
 @synthesize recentCheckDate;
 @synthesize userName;
 @synthesize directorName;
 @synthesize useDeadline;
 @synthesize assetImgUrl;
 @synthesize assetImg;
+@synthesize assetValue;
 
--(AssetInfo *)initWithData
+-(AssetInfo *)initWithData:(NSDictionary *)dic
 {
     AssetInfo *tmp = [[AssetInfo alloc] init];
-    int i = arc4random() % 5 ;
-    
-    tmp.assetID = @"1";
-    tmp.assetCount = [NSString stringWithFormat:@"数量：%d",i];
-    tmp.assetName = @"MacBook Pro";
-    tmp.assetkind = @"类别：办公电子类";
-    tmp.recentCheckDate = @"20140412";
-    tmp.userName = @"使用人：周源";
-    tmp.directorName = @"责任人：李四";
-    tmp.useDeadline = @"20140511";
-    tmp.assetImgUrl = @"11111";
-    tmp.assetImg = [UIImage imageNamed:@"Icon-Small.png"];
+    tmp.assetID = dic[@"aid"];
+    tmp.assetName = dic[@"name"];
+    tmp.assetCate = dic[@"cate"];
+    tmp.assetValue = dic[@"value"];
+    tmp.userName = dic[@"username"];
+    tmp.assetCount = dic[@"count"];
+    tmp.directorName = dic[@"useDepartment"];
     
     return tmp;
 }

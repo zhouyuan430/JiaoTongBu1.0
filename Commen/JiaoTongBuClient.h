@@ -7,10 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "AFHTTPSessionManager.h"
+#import "AFHTTPRequestOperationManager.h"
 
-@interface JiaoTongBuClient : AFHTTPSessionManager
+@interface JiaoTongBuClient : AFHTTPRequestOperationManager
 
 +(instancetype)sharedClient;
+
+-(NSDictionary *)XMLParser:(NSData *)data;
 
 @end

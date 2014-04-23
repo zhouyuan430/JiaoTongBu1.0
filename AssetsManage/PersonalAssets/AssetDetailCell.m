@@ -7,7 +7,7 @@
 //
 
 #import "AssetDetailCell.h"
-
+#import "AssetImage.h"
 @implementation AssetDetailCell
 
 @synthesize assetImg;
@@ -36,5 +36,15 @@
 
     // Configure the view for the selected state
 }
+
+-(void)loadImg:(NSString *)_url
+{
+    if (_url) {
+        AssetImage *img = [[AssetImage alloc] initWithFrame:CGRectMake(0,0,self.assetImg.frame.size.width,self.assetImg.frame.size.height)];
+        [img loadimg:_url];
+        [self.assetImg setImage:img.image forState:UIControlStateNormal];
+    }
+}
+
 
 @end

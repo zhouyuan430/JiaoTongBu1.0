@@ -10,6 +10,7 @@
 #import "AssetInfo.h"
 #import "AssetDetailViewController.h"
 #import "CommenData.h"
+#import "JiaoTongBuClient.h"
 @interface PersonalAssetsViewController ()
 
 @end
@@ -25,6 +26,24 @@
     }
     return self;
 }
+//隐藏搜索框
+-(void)viewWillAppear:(BOOL)animated
+{
+    self.tableView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
+    self.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(0, 0, 0, 0);
+    self.tableView.contentOffset = CGPointMake(0, 0);
+    self.searchBar.hidden = YES;
+}
+//显示搜索框
+-(void)searchButton
+{
+    self.navigationController.navigationBarHidden = YES;
+    self.searchBar.hidden = NO;
+    
+    self.tableView.contentInset = UIEdgeInsetsMake(44+20, 0, 0, 0);
+    self.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(44+20, 0, 0, 0);
+    self.tableView.contentOffset = CGPointMake(0, -(44+20));
+}
 
 - (void)viewDidLoad
 {
@@ -32,16 +51,6 @@
     
     dataSource = [[NSMutableArray alloc] initWithCapacity:20];
     
-    for (int i = 0; i<5; i++) {
-        AssetInfo *tmp = [[AssetInfo alloc] initWithData];
-        [dataSource addObject:tmp];
-    }
-    NSDictionary *dic = [NSDictionary dictionaryWithObject:dataSource forKey:@"data"];
-    NSLog(@"----%@",dic);
-    [[CommenData mainShare] saveInfo:dic fileName:@"AssetsInfo.plist"];
-    
-    NSDictionary * dic2 = [[CommenData mainShare] getInfo:@"AssetsInfo.plist"];
-    NSLog(@"dic2 %@",dic2);
     
     //添加左按钮
     UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
@@ -63,6 +72,10 @@
     self.searchBar.delegate = self;
     [self.view addSubview:self.searchBar];
     
+    
+    [self getData];
+    [self.tableView reloadData];
+    
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
  
@@ -76,23 +89,63 @@
     [self.navigationController popViewControllerAnimated:YES];
 }
 
-//显示搜索框
--(void)searchButton
+-(void)getData
 {
-    self.navigationController.navigationBarHidden = YES;
-    self.searchBar.hidden = NO;
-    
-    self.tableView.contentInset = UIEdgeInsetsMake(44+20, 0, 0, 0);
-    self.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(44+20, 0, 0, 0);
-    self.tableView.contentOffset = CGPointMake(0, -(44+20));
+    if ([[CommenData mainShare] isExistsFile:AssetsListPlist]) {
+        NSLog(@"本地");
+        [self loadData:[[CommenData mainShare] getInfo:AssetsListPlist]];
+        
+    }
+    else{
+        /*
+        NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
+        NSString *token = [[UserDefaults userDefaults] getdata:kToken];
+        
+        NSString *url = [NSString stringWithFormat:@"%@uid=%@&token=%@",getContactList,uid,token];
+         */
+        NSString *url = [NSString stringWithFormat:@"%@",getAssetsList];
+        
+        [[JiaoTongBuClient sharedClient] GET:url parameters:nil success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
+            
+            NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
+            if ([dic[@"status"] isEqualToString:@"A0006"])
+            {
+                //存储数据,历史缓存类型
+                [[CommenData mainShare] saveInfo:dic fileName:AssetsListPlist];
+                [self loadData:dic];
+            }
+            else{
+                [self showMsg:dic[@"msg"]];
+            }
+            
+        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+            NSLog(@"%@",error);
+        }];
+    }
 }
-//隐藏搜索框
--(void)viewWillAppear:(BOOL)animated
+
+-(void)loadData:(NSDictionary *)dic
 {
-    self.tableView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
-    self.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(0, 0, 0, 0);
-    self.tableView.contentOffset = CGPointMake(0, 0);
-    self.searchBar.hidden = YES;
+    NSArray *arr = dic[@"data"];
+    for (int i = 0 ; i < [arr count]; i++) {
+        AssetInfo *tmp = [[AssetInfo alloc] initWithData:arr[i]];
+        
+        [dataSource addObject:tmp];
+    }
+    [self.tableView reloadData];
+}
+-(void)showMsg:(NSString *)msg
+{
+    HUD = [[MBProgressHUD alloc] initWithView:self.view];
+    [self.view addSubview:HUD];
+    HUD.labelText = msg;
+    HUD.mode = MBProgressHUDModeText;
+    [HUD showAnimated:YES whileExecutingBlock:^{
+        sleep(2);
+    } completionBlock:^{
+        [HUD removeFromSuperview];
+        HUD = nil;
+    }];
 }
 
 - (void)didReceiveMemoryWarning
@@ -118,16 +171,19 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     static NSString *CellIdentifier = @"PersonalAssetCell";
-    AssetCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
+    AssetCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier ];
+    if (cell == nil) {
+          cell = [[AssetCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+    }
+    
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
     AssetInfo *tmp = [dataSource objectAtIndex:indexPath.row];
     
     cell.assetName.text = tmp.assetName;
-    cell.assetKind.text = tmp.assetkind;
-    cell.assetcount.text = tmp.assetCount;
+    cell.assetKind.text = [NSString stringWithFormat:@"种类：%@",tmp.assetCate];
+    cell.assetcount.text = [NSString stringWithFormat:@"数量：%@",tmp.assetCount];
     // Configure the cell...
-    tmp.assetID = [NSString stringWithFormat:@"%d",indexPath.row];
-    [dataSource addObject:tmp];
-    
+    tmp.assetID = [NSString stringWithFormat:@"%d",indexPath.row];    
     
     return cell;
 }
