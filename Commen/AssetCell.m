@@ -26,8 +26,16 @@
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated
 {
     [super setSelected:selected animated:animated];
-
+    
     // Configure the view for the selected state
+}
+-(void)setData:(AssetInfo *)tmp
+{
+    if (tmp) {
+        self.assetName.text = tmp.assetName;
+        self.assetKind.text = [NSString stringWithFormat:@"种类：%@",tmp.assetCate];
+        self.assetcount.text = [NSString stringWithFormat:@"数量：%@",tmp.assetCount];
+    }
 }
 
 @end

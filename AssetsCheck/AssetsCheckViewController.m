@@ -31,11 +31,11 @@
     UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
                                    initWithBarButtonSystemItem:UIBarButtonSystemItemReply
                                    target:self
-                                   action:@selector(back)];
+                                   action:@selector(ReplyButton)];
     [self.navigationItem setLeftBarButtonItem:leftButton];
     // Do any additional setup after loading the view.
 }
--(IBAction)back
+-(IBAction)ReplyButton
 {
     [self.navigationController popViewControllerAnimated:YES];
 }

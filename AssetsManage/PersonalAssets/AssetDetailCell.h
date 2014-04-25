@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import "AssetInfo.h"
 @interface AssetDetailCell : UITableViewCell
 
 @property (strong, nonatomic) IBOutlet UIButton *assetImg;
@@ -22,6 +22,6 @@
 @property (strong, nonatomic) NSString *assetImgUrl;
 
 -(void)loadImg:(NSString *)_url;
-
+-(void)setdata:(AssetInfo *)tmp;
 
 @end

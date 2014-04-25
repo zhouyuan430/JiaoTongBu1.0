@@ -9,6 +9,7 @@
 #import "AssetChangeCell.h"
 
 @implementation AssetChangeCell
+
 @synthesize CheckButton;
 
 @end

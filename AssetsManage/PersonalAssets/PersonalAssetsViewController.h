@@ -12,12 +12,13 @@
 @interface PersonalAssetsViewController : UITableViewController <UITextFieldDelegate,UISearchBarDelegate>
 {
     NSMutableArray *dataSource;
-    AssetInfo *assetInfo;
+    
+    //判断是否经历过搜索
+    BOOL searched;
     
     MBProgressHUD * HUD;
 }
 
-@property (nonatomic, retain) AssetInfo *assetInfo;
-@property (strong, nonatomic) IBOutlet UISearchBar *searchBar;
+@property (strong, nonatomic) IBOutlet UISearchBar *assetSearchBar;
 
 @end

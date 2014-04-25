@@ -8,6 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
-@interface SetUpViewController : UITableViewController
+@interface SetUpViewController : UIViewController
+@property (strong, nonatomic) IBOutlet UIButton *receiveButton;
 
+-(IBAction)clearCache:(id)sender;
+-(IBAction)changeUser:(id)sender;
 @end

@@ -19,6 +19,6 @@
 @property (strong, nonatomic) IBOutlet UIButton *ContactInfo;
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *BarItem;
 
--(IBAction)moreView:(id)sender;
+-(void)moreView:(id)sender;
 
 @end

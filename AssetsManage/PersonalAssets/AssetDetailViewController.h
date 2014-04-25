@@ -9,8 +9,11 @@
 #import <UIKit/UIKit.h>
 #import "MJRefresh.h"
 #import "AssetInfo.h"
+#import "MBProgressHUD.h"
 @interface AssetDetailViewController : UITableViewController <UIActionSheetDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate>
 {
+    MBProgressHUD *HUD;
+    
     NSMutableArray *dataSource;
     //图片选择器
     UIActionSheet *myActionSheet;
@@ -24,9 +27,8 @@
     
     NSUInteger currentLine;
 }
-
+@property (strong, nonatomic) NSMutableArray *dataSource;
 @property (strong, nonatomic) NSIndexPath *currentInfo;
-@property (strong, nonatomic) IBOutlet UIScrollView *scrollView;
 @property (strong, nonatomic) AssetInfo *assetInfo;
 -(IBAction)imgClick:(id)sender;
 @end

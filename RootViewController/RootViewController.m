@@ -34,11 +34,23 @@
 {
     [super viewDidLoad];
     
+    [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"LogIn背景"]]];
+    
+    UIGraphicsBeginImageContext(CGSizeMake(5, 25));
+    [[UIImage imageNamed:@"竖条" ] drawInRect:CGRectMake(0, 0, 5, 25)];
+    
+    UIBarButtonItem *right = [[UIBarButtonItem alloc] initWithImage:UIGraphicsGetImageFromCurrentImageContext() style:UIBarButtonItemStyleBordered target:self action:@selector(moreView:)];
+    
+    self.navigationItem.rightBarButtonItem = right;
+    
+    [BarItem setImage:UIGraphicsGetImageFromCurrentImageContext()];
+    UIGraphicsEndImageContext();
+    
     
 	// Do any additional setup after loading the view.
 }
 
--(IBAction)moreView:(id)sender
+-(void)moreView:(id)sender
 {
     //在这里呼出下方菜单按钮项
     myActionSheet = [[UIActionSheet alloc]
@@ -55,12 +67,12 @@
 {
     switch (buttonIndex)
     {
-        case 0:  //打开照相机拍照
+        case 0://设置
             
             [self performSegueWithIdentifier:@"SetUpViewController" sender:self];
             break;
             
-        case 1:  //打开本地相册
+        case 1:  //帮助
             [self performSegueWithIdentifier:@"HelpViewController" sender:self];
             break;
     }

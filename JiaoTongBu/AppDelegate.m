@@ -8,6 +8,10 @@
 
 #import "AppDelegate.h"
 #import "CommenData.h"
+
+static NSString* const KAssetsListPlist = @"AssetsList.plist";
+static NSString* const KContactInfoPlist = @"ContactInfo.plist";
+
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -19,11 +23,11 @@
 - (void)applicationWillResignActive:(UIApplication *)application
 {
     NSLog(@"55");
-    if ([[CommenData mainShare] isExistsFile:AssetsListPlist]) {
-        [[CommenData mainShare] DeleteFile:AssetsListPlist];
+    if ([[CommenData mainShare] isExistsFile:KAssetsListPlist]) {
+        [[CommenData mainShare] DeleteFile:KAssetsListPlist];
     }
-    if ([[CommenData mainShare] isExistsFile:ContactInfoPlist]) {
-        [[CommenData mainShare] DeleteFile:ContactInfoPlist];
+    if ([[CommenData mainShare] isExistsFile:KContactInfoPlist]) {
+        [[CommenData mainShare] DeleteFile:KContactInfoPlist];
     }
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
     // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
@@ -55,11 +59,11 @@
 {
  
     NSLog(@"11");
-    if ([[CommenData mainShare] isExistsFile:AssetsListPlist]) {
-        [[CommenData mainShare] DeleteFile:AssetsListPlist];
+    if ([[CommenData mainShare] isExistsFile:KAssetsListPlist]) {
+        [[CommenData mainShare] DeleteFile:KAssetsListPlist];
     }
-    if ([[CommenData mainShare] isExistsFile:ContactInfoPlist]) {
-        [[CommenData mainShare] DeleteFile:ContactInfoPlist];
+    if ([[CommenData mainShare] isExistsFile:KContactInfoPlist]) {
+        [[CommenData mainShare] DeleteFile:KContactInfoPlist];
     }
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }

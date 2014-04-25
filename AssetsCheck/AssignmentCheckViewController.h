@@ -7,7 +7,15 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "MBProgressHUD.h"
+#import "ZBarSDK.h"
 
-@interface AssignmentCheckViewController : UITableViewController
-
+@interface AssignmentCheckViewController : UITableViewController <ZBarReaderDelegate>
+{
+    NSMutableArray *dataSource;
+    
+    NSMutableArray *isChecked;
+    
+    MBProgressHUD *HUD;
+}
 @end

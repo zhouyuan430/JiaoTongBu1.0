@@ -26,4 +26,6 @@
 
 
 -(AssetInfo *)initWithData:(NSDictionary *)dic;
+
+-(AssetInfo *)initWithCheckData:(NSDictionary *)dic;
 @end

@@ -7,12 +7,19 @@
 //
 
 #import "AssignmentCheckViewController.h"
-
+#import "AssignmentCheckCell.h"
+#import "AssetInfo.h"
+#import "CommenData.h"
+#import "JiaoTongBuClient.h"
+#import "ZBarSDK.h"
 @interface AssignmentCheckViewController ()
 
 @end
 
+static NSString* const KCheckListPlist = @"CheckList.plist";
+
 @implementation AssignmentCheckViewController
+
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -26,23 +33,81 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
+    dataSource = [[NSMutableArray alloc] initWithCapacity:20];
+    isChecked = [[NSMutableArray alloc] initWithCapacity:20];
+    
+    [self getData];
     //添加左按钮
     UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
                                    initWithBarButtonSystemItem:UIBarButtonSystemItemReply
                                    target:self
                                    action:@selector(back)];
     [self.navigationItem setLeftBarButtonItem:leftButton];
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
- 
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
 -(IBAction)back
 {
     [self.navigationController popViewControllerAnimated:YES];
 }
+
+-(void)getData
+{
+    if ([[CommenData mainShare] isExistsFile:KCheckListPlist]) {
+        NSLog(@"本地");
+        [self loadData:[[CommenData mainShare] getInfo:KCheckListPlist]];
+    }
+    else{
+        NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
+        NSString *token = [[UserDefaults userDefaults] getdata:kToken];
+        
+        NSString *url = [[NSString stringWithFormat:@"%@uid=%@&token=%@",getCheckList,uid,token] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        NSLog(@"%@",url);
+        
+        [[JiaoTongBuClient sharedClient] GET:url parameters:nil success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
+            
+            NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
+            if ([dic[@"status"] isEqualToString:@"A0006"])
+            {
+                //存储数据,历史缓存类型
+                [[CommenData mainShare] saveInfo:dic fileName:KCheckListPlist];
+                [self loadData:dic];
+            }
+            else{
+                [self showMsg:dic[@"msg"]];
+            }
+            
+        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+            NSLog(@"%@",error);
+        }];
+    }
+}
+
+-(void)loadData:(NSDictionary *)dic
+{
+    NSArray *arr = dic[@"data"];
+    for (int i = 0 ; i < [arr count]; i++) {
+        AssetInfo *tmp = [[AssetInfo alloc] initWithCheckData:arr[i]];
+        [dataSource addObject:tmp];
+        [isChecked addObject:@"0"];
+    }
+    [self.tableView reloadData];
+}
+
+-(void)showMsg:(NSString *)msg
+{
+    HUD = [[MBProgressHUD alloc] initWithView:self.view];
+    [self.view addSubview:HUD];
+    HUD.labelText = msg;
+    HUD.mode = MBProgressHUDModeText;
+    [HUD showAnimated:YES whileExecutingBlock:^{
+        sleep(2);
+    } completionBlock:^{
+        [HUD removeFromSuperview];
+        HUD = nil;
+    }];
+}
+
+
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
@@ -53,26 +118,123 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-#warning Potentially incomplete method implementation.
     // Return the number of sections.
-    return 0;
+    return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-#warning Incomplete method implementation.
     // Return the number of rows in the section.
-    return 0;
+    return [dataSource count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    static NSString *CellIdentifier = @"Cell";
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
+    static NSString *CellIdentifier = @"AssignmentCheckCell";
+    AssignmentCheckCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
     
+    AssetInfo *tmp = dataSource[indexPath.row];
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    
+    if ([isChecked[indexPath.row] isEqualToString:@"1"]) {
+        cell.isCheckButton.selected = 1;
+    }
+    else{
+        cell.isCheckButton.selected = 0;
+    }
+
+    [cell.isCheckButton setBackgroundImage:[UIImage imageNamed:@"选择框"] forState:UIControlStateNormal];
+    
+    [cell setData:tmp];
     // Configure the cell...
-    
     return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    //扫描
+    ZBarReaderViewController *reader = [ZBarReaderViewController new];
+    reader.readerDelegate = self;
+    reader.supportedOrientationsMask = ZBarOrientationMaskAll;
+    
+    ZBarImageScanner *scanner = reader.scanner;
+    
+    [scanner setSymbology: ZBAR_I25
+                   config: ZBAR_CFG_ENABLE
+                       to: 0];
+
+    [self presentViewController:reader animated:YES completion:nil];
+}
+-(void)imagePickerController:(UIImagePickerController *)reader didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
+    NSIndexPath *selectedRowIndex = [self.tableView indexPathForSelectedRow];
+    
+    AssetInfo *tmp = dataSource[selectedRowIndex.row];
+    
+    AssignmentCheckCell *cell = (AssignmentCheckCell *)[self.tableView cellForRowAtIndexPath:selectedRowIndex];
+    id<NSFastEnumeration> results = [info objectForKey: ZBarReaderControllerResults];
+    ZBarSymbol *symbol = nil;
+    for(symbol in results)
+        break;
+    //加上是否是正确的资产
+    
+    //此图片要上传
+    [cell.isCheckButton setBackgroundImage:[info objectForKey: UIImagePickerControllerOriginalImage] forState:UIControlStateNormal];
+    
+    UIImage * image = [info objectForKey: UIImagePickerControllerOriginalImage];
+    
+    NSData *data;
+    if (UIImagePNGRepresentation(image) == nil)
+    {
+        data = UIImageJPEGRepresentation(image, 1.0);
+    }
+    else
+    {
+        data = UIImagePNGRepresentation(image);
+    }
+    [reader dismissViewControllerAnimated:YES completion:nil];
+
+    [self upLoadImage:data  assetID:tmp.assetID];
+    
+   // [self upLoadCheckList:tmp.assetID path:@""];
+}
+
+-(void)upLoadImage:(NSData *)imageData assetID:(NSString *)aid
+{
+    NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
+    NSString *token = [[UserDefaults userDefaults] getdata:kToken];
+    
+    NSString *url = [[NSString stringWithFormat:@"%@b=%@&token=%@&uid=%@",getAssetsList,uid,imageData,token] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    
+    [[JiaoTongBuClient sharedClient] GET:url parameters:nil success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
+        
+        NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
+        [self upLoadCheckList:aid path:dic[@"data"]];
+        
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"%@",error);
+    }];
+    
+    
+}
+
+-(void)upLoadCheckList:(NSString *)aid path:(NSString *)path
+{
+    NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
+    NSString *token = [[UserDefaults userDefaults] getdata:kToken];
+    
+    NSString *url = [[NSString stringWithFormat:@"%@uid=%@&token=%@&path=%@&aid=%@",uploadCheckList,uid,token,path,aid] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    NSLog(@"%@",url);
+    
+    [[JiaoTongBuClient sharedClient] GET:url parameters:nil success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
+        
+        NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
+        
+        [self showMsg:dic[@"msg"]];
+        
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"%@",error);
+    }];
 }
 
 /*

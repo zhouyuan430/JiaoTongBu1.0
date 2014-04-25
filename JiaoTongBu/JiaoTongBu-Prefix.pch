@@ -17,13 +17,12 @@
     #import "ServerAddr.h"
 #endif
 
+
+#define kPassword         @"kPassword"
 #define kUserID           @"kUserID"
 #define kUserName         @"kUserName"
 #define kToken            @"kToken" 
 #define kDataKey          @"kDataKey"
-
-#define ContactInfoPlist       @"ContactInfo.plist"
-#define AssetsListPlist        @"AssetsList.plist"
 
 
 #define BaseURLString     @"http://health.lekangba.cn/axis2/services/"

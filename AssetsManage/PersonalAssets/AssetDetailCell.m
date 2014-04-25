@@ -46,5 +46,12 @@
     }
 }
 
-
+-(void)setdata:(AssetInfo *)tmp
+{
+    self.assetName.text = tmp.assetName;
+    self.assetkind.text = [NSString stringWithFormat:@"种类：%@", tmp.assetCate];
+    self.asserCount.text = [NSString stringWithFormat:@"数量：%@", tmp.assetCount];
+    self.userName.text = [NSString stringWithFormat:@"使用人：%@", tmp.userName];
+    self.directorName.text = [NSString stringWithFormat:@"监管部门：%@", tmp.directorName];
+}
 @end

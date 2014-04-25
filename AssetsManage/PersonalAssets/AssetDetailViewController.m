@@ -11,16 +11,18 @@
 #import "AssetInfo.h"
 #import "TMCache.h"
 #import "CommenData.h"
+#import "JiaoTongBuClient.h"
 @interface AssetDetailViewController ()
 
 @end
 
+static NSString* const KAssetsListPlist = @"AssetsList.plist";
+
 @implementation AssetDetailViewController
 
-@synthesize scrollView;
 @synthesize assetInfo;
 @synthesize currentInfo;
-
+@synthesize dataSource;
 - (id)initWithStyle:(UITableViewStyle)style
 {
     self = [super initWithStyle:style];
@@ -34,9 +36,8 @@
 {
     [super viewDidLoad];
     //一定要初始化
-    dataSource = [[NSMutableArray alloc] initWithCapacity:20];
-    //获取数据
-    [self getData];
+    //dataSource = [[NSMutableArray alloc] initWithCapacity:20];
+    
     self.navigationController.navigationBarHidden = NO;
     currentLine = currentInfo.row;
     
@@ -50,26 +51,6 @@
     [self.navigationItem setLeftBarButtonItem:leftButton];
     
     [self.tableView reloadData];
-}
-
--(void)getData
-{
-    if ([[CommenData mainShare] isExistsFile:AssetsListPlist]) {
-        NSLog(@"本地");
-        [self loadData:[[CommenData mainShare] getInfo:AssetsListPlist]];
-        
-    }
-}
-
--(void)loadData:(NSDictionary *)dic
-{
-    NSArray *arr = dic[@"data"];
-    for (int i = 0 ; i < [arr count]; i++) {
-        AssetInfo *tmp = [[AssetInfo alloc] initWithData:arr[i]];
-        [dataSource addObject:tmp];
-    }
-    [self.tableView reloadData];
-
 }
 
 -(void)replyButton
@@ -88,9 +69,7 @@
         
         // 模拟延迟加载数据，因此2秒后才调用）
         // 这里的refreshView其实就是footer
-        [vc performSelector:@selector(PreviousView:) withObject:refreshView afterDelay:0.5];
-        
-        NSLog(@"%@----开始进入刷新状态", refreshView.class);
+        [vc performSelector:@selector(PreviousView:) withObject:refreshView afterDelay:0.2];
     };
     _footer = footer;
 }
@@ -105,38 +84,16 @@
     header.beginRefreshingBlock = ^(MJRefreshBaseView *refreshView) {
         // 进入刷新状态就会回调这个Block
         
-        // 增加5条假数据
-        
         // 模拟延迟加载数据，因此2秒后才调用）
         // 这里的refreshView其实就是header
-        [vc performSelector:@selector(NextView:) withObject:refreshView afterDelay:0.5];
-        
-        NSLog(@"%@----开始进入刷新状态", refreshView.class);
+        [vc performSelector:@selector(NextView:) withObject:refreshView afterDelay:0.2];
     };
     
     header.endStateChangeBlock = ^(MJRefreshBaseView *refreshView) {
         // 刷新完毕就会回调这个Block
-        NSLog(@"%@----刷新完毕", refreshView.class);
+       // NSLog(@"%@----刷新完毕", refreshView.class);
     };
     
-    header.refreshStateChangeBlock = ^(MJRefreshBaseView *refreshView, MJRefreshState state) {
-        // 控件的刷新状态切换了就会调用这个block
-        switch (state) {
-            case MJRefreshStateNormal:
-                NSLog(@"%@----切换到：普通状态", refreshView.class);
-                break;
-                
-            case MJRefreshStatePulling:
-                NSLog(@"%@----切换到：松开即可刷新的状态", refreshView.class);
-                break;
-                
-            case MJRefreshStateRefreshing:
-                NSLog(@"%@----切换到：正在刷新状态", refreshView.class);
-                break;
-            default:
-                break;
-        }
-    };
     //[header beginRefreshing];
     _header = header;
 }
@@ -164,7 +121,6 @@
 
 -(IBAction)imgClick:(id)sender
 {
-    NSLog(@"yes");
     //在这里呼出下方菜单按钮项
     myActionSheet = [[UIActionSheet alloc]
                      initWithTitle:nil
@@ -272,13 +228,70 @@
         AssetInfo *tmp = [dataSource objectAtIndex:currentLine];
         tmp.assetImg = image;
         tmp.assetImgUrl = filePath;
-        
-        
         [self.tableView reloadData];
+        
+        [self upLoadImage:data assetID:tmp.assetID cate:tmp.assetCate];
         //[self.assetImgButton setImage:image forState:UIControlStateNormal];
     }
     
 }
+
+-(void)upLoadImage:(NSData *)imageData assetID:(NSString *)aid cate:(NSString *)cate
+{
+    NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
+    NSString *token = [[UserDefaults userDefaults] getdata:kToken];
+    
+    //NSLog(@"%@",imageData);
+    
+    NSString *imageString = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+    
+    NSString *url = [[NSString stringWithFormat:@"%@b=%@&token=%@&uid=%@",uploadImage,imageString,token,uid] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    NSLog(@"\n\n\n\n%@",url);
+    
+    [[JiaoTongBuClient sharedClient] GET:url parameters:nil success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
+        
+        NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
+        
+        NSLog(@"%@",[dic[@"data"] objectAtIndex:0][@"url"]);
+        NSLog(@"%@",dic[@"msg"]);
+        [self upLoadAssetImage:aid path:[dic[@"data"] objectAtIndex:0][@"url"] cate:cate];
+        
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"%@",error);
+    }];
+}
+
+-(void)upLoadAssetImage:(NSString *)aid path:(NSString *)path cate:(NSString *)cate
+{
+    NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
+    NSString *token = [[UserDefaults userDefaults] getdata:kToken];
+    
+    NSString *url = [[NSString stringWithFormat:@"%@uid=%@&token=%@&path=%@&aic=%@&cate=%@",uploadAssetImage,uid,token,path,aid,cate] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    NSLog(@"%@",url);
+    
+    [[JiaoTongBuClient sharedClient] GET:url parameters:nil success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
+        NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
+        [self showMsg:dic[@"msg"]];
+         
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"%@",error);
+    }];
+}
+
+-(void)showMsg:(NSString *)msg
+{
+    HUD = [[MBProgressHUD alloc] initWithView:self.view];
+    [self.view addSubview:HUD];
+    HUD.labelText = msg;
+    HUD.mode = MBProgressHUDModeText;
+    [HUD showAnimated:YES whileExecutingBlock:^{
+        sleep(2);
+    } completionBlock:^{
+        [HUD removeFromSuperview];
+        HUD = nil;
+    }];
+}
+
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
@@ -304,13 +317,11 @@
     // Return the number of sections.
     return 1;
 }
-
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
     return 1;
 }
-
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     static NSString *CellIdentifier = @"AssetDetailCell";
@@ -323,14 +334,10 @@
     if (assetInfo.assetImgUrl) {
         
     }
-    cell.assetName.text = assetInfo.assetName;
-    NSLog(@"%d %@",currentLine,assetInfo.assetName);
     
-    cell.assetkind.text = [NSString stringWithFormat:@"种类：%@", assetInfo.assetCate];
-    cell.asserCount.text = [NSString stringWithFormat:@"数量：%@", assetInfo.assetCount];
-    cell.userName.text = [NSString stringWithFormat:@"使用人：%@", assetInfo.userName];
-    cell.directorName.text = [NSString stringWithFormat:@"监管部门：%@", assetInfo.directorName];
     [cell.assetImg setImage:assetInfo.assetImg forState:UIControlStateNormal];
+    
+    [cell setdata:assetInfo];
     // Configure the cell...
     
     return cell;

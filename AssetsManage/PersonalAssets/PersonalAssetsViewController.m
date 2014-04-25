@@ -15,9 +15,11 @@
 
 @end
 
-@implementation PersonalAssetsViewController
+static NSString* const KAssetsListPlist = @"AssetsList.plist";
 
-@synthesize assetInfo;
+@implementation PersonalAssetsViewController
+@synthesize assetSearchBar;
+
 - (id)initWithStyle:(UITableViewStyle)style
 {
     self = [super initWithStyle:style];
@@ -26,6 +28,7 @@
     }
     return self;
 }
+/*
 //隐藏搜索框
 -(void)viewWillAppear:(BOOL)animated
 {
@@ -44,36 +47,45 @@
     self.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(44+20, 0, 0, 0);
     self.tableView.contentOffset = CGPointMake(0, -(44+20));
 }
+*/
+-(void)viewDidDisappear:(BOOL)animated
+{
+    if (searched) {
+        NSLog(@"delete");
+        [[CommenData mainShare] DeleteFile:KAssetsListPlist];
+    }
+}
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
+    searched = NO;
     dataSource = [[NSMutableArray alloc] initWithCapacity:20];
     
+    self.title = [NSString stringWithFormat:@"资产[%@]",[[UserDefaults userDefaults] getdata:kUserName]];
     
+    /*
+    //添加左按钮
+    UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
+                                   initWithImage:[UIImage imageNamed:@"箭头"] style:UIBarButtonItemStylePlain target:self action:@selector(replyButton)];
+    */
     //添加左按钮
     UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
                                    initWithBarButtonSystemItem:UIBarButtonSystemItemReply
                                    target:self
                                    action:@selector(replyButton)];
     [self.navigationItem setLeftBarButtonItem:leftButton];
-
+/*
     //添加右按钮
     UIBarButtonItem *rightButton = [[UIBarButtonItem alloc]
                                     initWithBarButtonSystemItem:UIBarButtonSystemItemSearch
                                     target:self
                                     action:@selector(searchButton)];
     [self.navigationItem setRightBarButtonItem:rightButton];
+*/
     
-    //searchBar初始化
-    self.searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0, -44, 320, 44)];
-    self.searchBar.showsCancelButton = YES;
-    self.searchBar.delegate = self;
-    [self.view addSubview:self.searchBar];
-    
-    
-    [self getData];
+    assetSearchBar.showsCancelButton = YES;
+    [self getData:@""];
     [self.tableView reloadData];
     
     // Uncomment the following line to preserve selection between presentations.
@@ -89,21 +101,20 @@
     [self.navigationController popViewControllerAnimated:YES];
 }
 
--(void)getData
+-(void)getData:(NSString *)keywd
 {
-    if ([[CommenData mainShare] isExistsFile:AssetsListPlist]) {
+    [dataSource removeAllObjects];
+    if ([[CommenData mainShare] isExistsFile:KAssetsListPlist]) {
         NSLog(@"本地");
-        [self loadData:[[CommenData mainShare] getInfo:AssetsListPlist]];
+        [self loadData:[[CommenData mainShare] getInfo:KAssetsListPlist]];
         
     }
     else{
-        /*
+        
         NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
         NSString *token = [[UserDefaults userDefaults] getdata:kToken];
         
-        NSString *url = [NSString stringWithFormat:@"%@uid=%@&token=%@",getContactList,uid,token];
-         */
-        NSString *url = [NSString stringWithFormat:@"%@",getAssetsList];
+        NSString *url = [[NSString stringWithFormat:@"%@uid=%@&keywd=%@&token=%@",getAssetsList,uid,keywd,token] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
         
         [[JiaoTongBuClient sharedClient] GET:url parameters:nil success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
             
@@ -111,7 +122,7 @@
             if ([dic[@"status"] isEqualToString:@"A0006"])
             {
                 //存储数据,历史缓存类型
-                [[CommenData mainShare] saveInfo:dic fileName:AssetsListPlist];
+                [[CommenData mainShare] saveInfo:dic fileName:KAssetsListPlist];
                 [self loadData:dic];
             }
             else{
@@ -183,7 +194,6 @@
     cell.assetKind.text = [NSString stringWithFormat:@"种类：%@",tmp.assetCate];
     cell.assetcount.text = [NSString stringWithFormat:@"数量：%@",tmp.assetCount];
     // Configure the cell...
-    tmp.assetID = [NSString stringWithFormat:@"%d",indexPath.row];    
     
     return cell;
 }
@@ -199,32 +209,27 @@
 //点击搜索按钮时，隐藏键盘，显示搜索内容
 -(void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
 {
-    NSLog(@"search");
+    [[CommenData mainShare] DeleteFile:KAssetsListPlist];
+    searched = YES;
+    [self getData:searchBar.text];
+
     searchBar.text = @"";
     [self searchBarCancelButtonClicked:searchBar];
     [searchBar resignFirstResponder];
 }
--(void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar
-{
-    //[searchBar]
-    NSLog(@"begin");
-}
-
 
 #pragma mark - Navigation
-//跳转界面的数据传递
 // In a story board-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
-    [self.searchBar resignFirstResponder];
+    [assetSearchBar resignFirstResponder];
     UIViewController *view = segue.destinationViewController;
     if ([view respondsToSelector:@selector(setAssetInfo:)])
     {
         NSIndexPath *selectedRowIndex = [self.tableView indexPathForSelectedRow];
-
-        //[view setValue:dataSource forKey:@"dataSource"];
+        //传递数据
+        [view setValue:dataSource forKey:@"dataSource"];
         [view setValue:selectedRowIndex forKey:@"currentInfo"];
-        
     }
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.

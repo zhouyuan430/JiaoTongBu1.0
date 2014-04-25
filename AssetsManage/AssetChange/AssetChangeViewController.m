@@ -15,6 +15,9 @@
 
 @end
 
+static NSString* const KAssetsListPlist = @"AssetsList.plist";
+
+
 @implementation AssetChangeViewController
 
 - (id)initWithStyle:(UITableViewStyle)style
@@ -29,7 +32,9 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
+    
+    self.title = [NSString stringWithFormat:@"资产变更[%@]",[[UserDefaults userDefaults] getdata:kUserName]];
+    
     dataSource = [[NSMutableArray alloc] initWithCapacity:20];
     isSelected = [[NSMutableArray alloc] initWithCapacity:20];
     //添加左按钮
@@ -38,8 +43,9 @@
                                    target:self
                                    action:@selector(replyButton)];
     [self.navigationItem setLeftBarButtonItem:leftButton];
-
-    UIBarButtonItem *allCheckButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemEdit target:self action:@selector(allCheck)];
+    
+    UIBarButtonItem *allCheckButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemEdit target:self action:@selector(allCheck:)];
+    allCheckButton.tag = 0;
     
     UIBarButtonItem *submitButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(submit)];
     
@@ -54,27 +60,25 @@
 
 -(void)getData
 {
-    if ([[CommenData mainShare] isExistsFile:AssetsListPlist]) {
+    if ([[CommenData mainShare] isExistsFile:KAssetsListPlist]) {
         NSLog(@"本地");
-        [self loadData:[[CommenData mainShare] getInfo:AssetsListPlist]];
+        [self loadData:[[CommenData mainShare] getInfo:KAssetsListPlist]];
         
     }
     else{
-        /*
+        
          NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
          NSString *token = [[UserDefaults userDefaults] getdata:kToken];
          
-         NSString *url = [NSString stringWithFormat:@"%@uid=%@&token=%@",getContactList,uid,token];
-         */
-        NSString *url = [NSString stringWithFormat:@"%@",getAssetsList];
-        
+         NSString *url = [NSString stringWithFormat:@"%@uid=%@&token=%@",getAssetsList,uid,token];
+     
         [[JiaoTongBuClient sharedClient] GET:url parameters:nil success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
             
             NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
             if ([dic[@"status"] isEqualToString:@"A0006"])
             {
                 //存储数据,历史缓存类型
-                [[CommenData mainShare] saveInfo:dic fileName:AssetsListPlist];
+                [[CommenData mainShare] saveInfo:dic fileName:KAssetsListPlist];
                 [self loadData:dic];
             }
             else{
@@ -119,14 +123,56 @@
     [self.navigationController popViewControllerAnimated:YES];
 }
 
--(void)allCheck
+-(void)allCheck:(id)sender
 {
-    
+    UIButton *cb = (UIButton *)sender;
+    cb.tag = (cb.tag + 1) % 2;
+    if (cb.tag) {
+        for (int i = 0; i < [isSelected count]; i++) {
+            [isSelected replaceObjectAtIndex:i withObject:@"1"];
+        }
+    }
+    else{
+        for (int i = 0; i < [isSelected count]; i++) {
+            [isSelected replaceObjectAtIndex:i withObject:@"0"];
+        }
+    }
+    [self.tableView reloadData];
 }
 
 -(void)submit
 {
-    
+    NSString * aids = [[NSString alloc] init];
+    aids = [NSString stringWithFormat:@""];
+    for (int i = 0 ; i < [isSelected count]; i++) {
+        if ([isSelected[i] isEqualToString:@"1"]) {
+            AssetInfo *tmp = dataSource[i];
+            aids = [NSString stringWithFormat:@"%@%@,",aids,tmp.assetID];
+        }
+    }
+    if ([aids isEqualToString:@""]) {
+        [self showMsg:@"请选择资产"];
+    }
+    else{
+        NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
+        NSString *token = [[UserDefaults userDefaults] getdata:kToken];
+        
+        NSString *url = [NSString stringWithFormat:@"%@aids=%@&uid=%@&token=%@",applyRefund,aids,uid,token];
+
+        [[JiaoTongBuClient sharedClient] GET:url parameters:nil success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
+            
+            NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
+            if ([dic[@"status"] isEqualToString:@"A0006"]){
+                [self showMsg:dic[@"msg"]];
+            }
+            else{
+                [self showMsg:dic[@"msg"]];
+            }
+            
+        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+            NSLog(@"%@",error);
+        }];
+    }
 }
 
 - (void)didReceiveMemoryWarning
@@ -139,14 +185,14 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-//#warning Potentially incomplete method implementation.
+    //#warning Potentially incomplete method implementation.
     // Return the number of sections.
     return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-//#warning Incomplete method implementation.
+    //#warning Incomplete method implementation.
     // Return the number of rows in the section.
     return [dataSource count];
 }
@@ -155,7 +201,7 @@
 {
     static NSString *CellIdentifier = @"AssetChangeCell";
     AssetChangeCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier ];
-
+    
     if(cell == nil)
     {
         cell = [[AssetChangeCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
@@ -171,81 +217,25 @@
     else{
         cell.CheckButton.selected = 0;
     }
-    cell.CheckButton.tag = indexPath.row;
-    [cell.CheckButton setBackgroundImage:[UIImage imageNamed:@"uncheck.png"] forState:UIControlStateNormal];
-    [cell.CheckButton setBackgroundImage:[UIImage imageNamed:@"check.png"] forState:UIControlStateSelected];
-    [cell.CheckButton addTarget:self action:@selector(touchUIInside:) forControlEvents:UIControlEventTouchUpInside];
     
-    cell.assetName.text = tmp.assetName;
-    cell.assetcount.text = [NSString stringWithFormat:@"数量：%@",tmp.assetCount];
-    cell.assetKind.text = [NSString stringWithFormat:@"种类：%@",tmp.assetCate];
+    [cell.CheckButton setBackgroundImage:[UIImage imageNamed:@"选择框"] forState:UIControlStateNormal];
+    [cell.CheckButton setBackgroundImage:[UIImage imageNamed:@"选择框-1"] forState:UIControlStateSelected];
     
-    // Configure the cell...
+    [cell setData:tmp];
     return cell;
 }
 
--(IBAction)touchUIInside:(id)sender{
-    UIButton * cb= (UIButton *)sender;
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    AssetChangeCell *cell = (AssetChangeCell *)[self.tableView cellForRowAtIndexPath:indexPath];
+    UIButton * cb= (UIButton *)cell.CheckButton;
     cb.selected = !cb.selected;
     if (cb.selected == 1) {
-        //isSelected[cb.tag] = @"0";
         [isSelected replaceObjectAtIndex:cb.tag withObject:@"1"];
     }
     else{
         [isSelected replaceObjectAtIndex:cb.tag withObject:@"0"];
     }
-    NSLog(@"%@",isSelected[cb.tag]);
-
 }
-/*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
-}
-*/
-
-/*
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    }   
-    else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }   
-}
-*/
-
-/*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-}
-*/
-
-/*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
-
-/*
-#pragma mark - Navigation
-
-// In a story board-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-
- */
 
 @end
