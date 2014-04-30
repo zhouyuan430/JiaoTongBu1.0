@@ -9,6 +9,8 @@
 #import <UIKit/UIKit.h>
 #import "AssetInfo.h"
 #import "MBProgressHUD.h"
+#import "MJRefresh.h"
+
 @interface PersonalAssetsViewController : UITableViewController <UITextFieldDelegate,UISearchBarDelegate>
 {
     NSMutableArray *dataSource;
@@ -17,6 +19,8 @@
     BOOL searched;
     
     MBProgressHUD * HUD;
+    
+    MJRefreshHeaderView *_header;
 }
 
 @property (strong, nonatomic) IBOutlet UISearchBar *assetSearchBar;

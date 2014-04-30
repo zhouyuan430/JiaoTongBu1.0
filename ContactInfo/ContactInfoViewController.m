@@ -30,6 +30,11 @@ static NSString* const KContactInfoPlist = @"ContactInfo.plist";
     return self;
 }
 
+-(void)dealloc
+{
+    [self.tableView removeObserver:_header forKeyPath:@"contentOffset"];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -56,6 +61,8 @@ static NSString* const KContactInfoPlist = @"ContactInfo.plist";
 -(void)getData
 {
     [dataSource removeAllObjects];
+    [self.tableView reloadData];
+
     if ([[CommenData mainShare] isExistsFile:KContactInfoPlist]) {
         NSLog(@"本地");
        [self loadData:[[CommenData mainShare] getInfo:KContactInfoPlist]];
@@ -158,23 +165,21 @@ static NSString* const KContactInfoPlist = @"ContactInfo.plist";
     MJRefreshHeaderView *header = [MJRefreshHeaderView header];
     header.scrollView = self.tableView;
     header.beginRefreshingBlock = ^(MJRefreshBaseView *refreshView) {
-        
         // 进入刷新状态就会回调这个Block
         // 模拟延迟加载数据，因此0.2秒后才调用
         [vc performSelector:@selector(NextView:) withObject:refreshView afterDelay:0.2];
         
     };
-
     _header = header;
 }
 
 - (void)NextView:(MJRefreshBaseView *)refreshView
 {
-    [[CommenData mainShare] DeleteFile:KContactInfoPlist];    
+    [[CommenData mainShare] DeleteFile:KContactInfoPlist];
     [self getData];
     
-    [self.tableView reloadData];
-    // (最好在刷新表格后调用)调用endRefreshing可以结束刷新状态
+    
+    //结束刷新状态
     [refreshView endRefreshing];
 }
 

@@ -28,6 +28,13 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     }
     return self;
 }
+
+-(void)dealloc
+{
+    [self.tableView removeObserver:_header forKeyPath:@"contentOffset"];
+}
+
+
 /*
 //隐藏搜索框
 -(void)viewWillAppear:(BOOL)animated
@@ -58,6 +65,8 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    [self addHeader];
     searched = NO;
     dataSource = [[NSMutableArray alloc] initWithCapacity:20];
     
@@ -84,6 +93,9 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 -(void)getData:(NSString *)keywd
 {
     [dataSource removeAllObjects];
+    [self.tableView reloadData];
+
+    
     if ([[CommenData mainShare] isExistsFile:KAssetsListPlist]) {
         NSLog(@"本地");
         [self loadData:[[CommenData mainShare] getInfo:KAssetsListPlist]];
@@ -210,6 +222,32 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
         [view setValue:dataSource forKey:@"dataSource"];
         [view setValue:selectedRowIndex forKey:@"currentInfo"];
     }
+}
+
+#pragma 下拉刷新
+- (void)addHeader
+{
+    __unsafe_unretained PersonalAssetsViewController *vc = self;
+    
+    MJRefreshHeaderView *header = [MJRefreshHeaderView header];
+    header.scrollView = self.tableView;
+    header.beginRefreshingBlock = ^(MJRefreshBaseView *refreshView) {
+        
+        // 进入刷新状态就会回调这个Block
+        // 模拟延迟加载数据，因此0.2秒后才调用
+        [vc performSelector:@selector(NextView:) withObject:refreshView afterDelay:0.2];
+        
+    };
+    _header = header;
+}
+
+- (void)NextView:(MJRefreshBaseView *)refreshView
+{
+    [[CommenData mainShare] DeleteFile:KAssetsListPlist];
+    [self getData:assetSearchBar.text];
+    
+    // (最好在刷新表格后调用)调用endRefreshing可以结束刷新状态
+    [refreshView endRefreshing];
 }
 
 

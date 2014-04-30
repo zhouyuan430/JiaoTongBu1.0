@@ -9,14 +9,17 @@
 #import <UIKit/UIKit.h>
 #import "MBProgressHUD.h"
 #import "ZBarSDK.h"
-
+#import "MJRefresh.h"
 @interface AssignmentCheckViewController : UITableViewController <ZBarReaderDelegate>
 {
     NSMutableArray *dataSource;
     
     NSMutableArray *isChecked;
+    
     NSMutableArray *assetsPath;
     
     MBProgressHUD *HUD;
+    
+    MJRefreshHeaderView *_header;
 }
 @end

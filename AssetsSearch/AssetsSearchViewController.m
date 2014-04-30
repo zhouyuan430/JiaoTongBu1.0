@@ -30,6 +30,11 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
     }
     return self;
 }
+-(void)dealloc
+{
+    [self.tableView removeObserver:_footer forKeyPath:@"contentOffset"];
+    [self.tableView removeObserver:_footer forKeyPath:@"contentSize"];
+}
 
 -(void)viewDidDisappear:(BOOL)animated
 {
@@ -72,6 +77,8 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
 -(void)getData:(NSString *)keywd searchItem:(NSString *)Item
 {
     [dataSource removeAllObjects];
+   // [self.tableView reloadData];
+
     if ([[CommenData mainShare] isExistsFile:KAuthListPlist]) {
         NSLog(@"本地");
         [self loadData:[[CommenData mainShare] getInfo:KAuthListPlist]];
@@ -222,10 +229,8 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
 - (void)PreviousView:(MJRefreshBaseView *)refreshView
 {
     [[CommenData mainShare] DeleteFile:KAuthListPlist];
-    
     size += 20;
     [self getData:searchBarButton.text searchItem:@""];
-    
     [refreshView endRefreshing];
 }
 

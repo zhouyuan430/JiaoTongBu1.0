@@ -11,6 +11,7 @@
 
 @interface JiaoTongBuClient : AFHTTPRequestOperationManager
 {
+    
 }
 +(instancetype)sharedClient;
 

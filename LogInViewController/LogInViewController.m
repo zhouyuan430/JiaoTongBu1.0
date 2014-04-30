@@ -77,7 +77,6 @@
 {
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
     //网络请求
- 
     NSDictionary *parameters = @{@"usrname":userName,@"password":password};
     
     [[JiaoTongBuClient sharedClient] GET:login parameters:parameters success:^(AFHTTPRequestOperation *operation, NSData *XMLParser) {

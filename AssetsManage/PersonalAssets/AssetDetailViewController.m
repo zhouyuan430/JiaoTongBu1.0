@@ -31,6 +31,14 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     }
     return self;
 }
+-(void)dealloc
+{
+    [self.tableView removeObserver:_header forKeyPath:@"contentOffset"];
+    
+    [self.tableView removeObserver:_footer forKeyPath:@"contentSize"];
+    [self.tableView removeObserver:_footer forKeyPath:@"contentOffset"];
+
+}
 
 - (void)viewDidLoad
 {

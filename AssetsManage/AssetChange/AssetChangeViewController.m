@@ -29,12 +29,20 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     return self;
 }
 
+-(void)dealloc
+{
+    [self.tableView removeObserver:_header forKeyPath:@"contentOffset"];
+}
+
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    //添加下拉刷新
+    [self addHeader];
     
     self.title = [NSString stringWithFormat:@"资产变更[%@]",[[UserDefaults userDefaults] getdata:kUserName]];
-    
+    //初始化数组
     dataSource = [[NSMutableArray alloc] initWithCapacity:20];
     isSelected = [[NSMutableArray alloc] initWithCapacity:20];
     //添加左按钮
@@ -51,16 +59,15 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     
     self.navigationItem.rightBarButtonItems = @[submitButton,allCheckButton];
     
+    //获取数据
     [self getData];
-    // Uncomment the following line to preserve selection between presentations.
-    
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
 
 -(void)getData
 {
     [dataSource removeAllObjects];
+    [self.tableView reloadData];
+
     if ([[CommenData mainShare] isExistsFile:KAssetsListPlist]) {
         NSLog(@"本地");
         [self loadData:[[CommenData mainShare] getInfo:KAssetsListPlist]];
@@ -279,5 +286,33 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
         isSelected[cb.tag] = @"0";
     }
 }
+
+
+#pragma 下拉刷新
+- (void)addHeader
+{
+    __unsafe_unretained AssetChangeViewController *vc = self;
+    
+    MJRefreshHeaderView *header = [MJRefreshHeaderView header];
+    header.scrollView = self.tableView;
+    header.beginRefreshingBlock = ^(MJRefreshBaseView *refreshView) {
+        
+        // 进入刷新状态就会回调这个Block
+        // 模拟延迟加载数据，因此0.2秒后才调用
+        [vc performSelector:@selector(NextView:) withObject:refreshView afterDelay:0.2];
+        
+    };
+    _header = header;
+}
+
+- (void)NextView:(MJRefreshBaseView *)refreshView
+{
+    [[CommenData mainShare] DeleteFile:KAssetsListPlist];
+    [self getData];
+    // (最好在刷新表格后调用)调用endRefreshing可以结束刷新状态
+    [refreshView endRefreshing];
+}
+
+
 
 @end

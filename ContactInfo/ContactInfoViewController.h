@@ -12,11 +12,11 @@
 
 @interface ContactInfoViewController : UITableViewController
 {
+    //数据源
     NSMutableArray * dataSource;
-    
+    //提示框
     MBProgressHUD * HUD;
-    
-    //下拉和上拉
+    //下拉刷新
     MJRefreshHeaderView *_header;
 }
 

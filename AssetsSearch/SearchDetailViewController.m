@@ -33,6 +33,16 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
     return self;
 }
 
+-(void)dealloc
+{
+    [self.tableView removeObserver:_header forKeyPath:@"contentOffset"];
+    
+    [self.tableView removeObserver:_footer forKeyPath:@"contentSize"];
+    [self.tableView removeObserver:_footer forKeyPath:@"contentOffset"];
+    
+}
+
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -56,7 +66,8 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
 -(void)getData
 {
     [dataSource removeAllObjects];
-    
+    [self.tableView reloadData];
+
     if ([[CommenData mainShare] isExistsFile:KAuthListPlist]) {
         NSLog(@"本地");
         [self loadData:[[CommenData mainShare] getInfo:KAuthListPlist]];

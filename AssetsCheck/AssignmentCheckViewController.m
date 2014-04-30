@@ -29,15 +29,21 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
     }
     return self;
 }
+-(void)dealloc
+{
+    [self.tableView removeObserver:_header forKeyPath:@"contentOffset"];
+}
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    [self addHeader];
+    
     dataSource = [[NSMutableArray alloc] initWithCapacity:20];
     isChecked = [[NSMutableArray alloc] initWithCapacity:20];
     assetsPath = [[NSMutableArray alloc] initWithCapacity:20];
     
-    [self getData];
     //添加左按钮
     UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
                                    initWithBarButtonSystemItem:UIBarButtonSystemItemReply
@@ -50,6 +56,9 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
                                     target:self
                                     action:@selector(submitButton)];
     self.navigationItem.rightBarButtonItem = rightButton;
+    
+    [self getData];
+
 }
 -(IBAction)ReplyButton
 {
@@ -59,6 +68,11 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
 -(void)getData
 {
     [dataSource removeAllObjects];
+    [isChecked removeAllObjects];
+    [assetsPath removeAllObjects];
+    
+    [self.tableView reloadData];
+
     if ([[CommenData mainShare] isExistsFile:KCheckListPlist]) {
         NSLog(@"本地");
         [self loadData:[[CommenData mainShare] getInfo:KCheckListPlist]];
@@ -70,7 +84,7 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
         NSString *token = [[UserDefaults userDefaults] getdata:kToken];
 
         NSDictionary *parameters = @{@"uid":uid,@"token":token};
-        
+
         [[JiaoTongBuClient sharedClient] GET:getCheckList parameters:parameters success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
             
             NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
@@ -99,6 +113,7 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
     NSArray *arr = dic[@"data"];
     for (int i = 0 ; i < [arr count]; i++) {
         AssetInfo *tmp = [[AssetInfo alloc] initWithCheckData:arr[i]];
+        
         [dataSource addObject:tmp];
         [isChecked addObject:@"0"];
         [assetsPath addObject:@"0"];
@@ -145,9 +160,13 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     static NSString *CellIdentifier = @"AssignmentCheckCell";
-    AssignmentCheckCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
+    AssignmentCheckCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    if (cell == nil) {
+        cell = [[AssignmentCheckCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+    }
     
     AssetInfo *tmp = dataSource[indexPath.row];
+    
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     
     if ([isChecked[indexPath.row] isEqualToString:@"1"]) {
@@ -286,6 +305,36 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
         NSLog(@"%@",error);
     }];
 }
+
+
+#pragma 下拉刷新
+- (void)addHeader
+{
+    __unsafe_unretained AssignmentCheckViewController *vc = self;
+    
+    MJRefreshHeaderView *header = [MJRefreshHeaderView header];
+    header.scrollView = self.tableView;
+    header.beginRefreshingBlock = ^(MJRefreshBaseView *refreshView) {
+        
+        // 进入刷新状态就会回调这个Block
+        // 模拟延迟加载数据，因此0.2秒后才调用
+        [vc performSelector:@selector(NextView:) withObject:refreshView afterDelay:0.2];
+        
+    };
+    _header = header;
+}
+
+- (void)NextView:(MJRefreshBaseView *)refreshView
+{
+    [[CommenData mainShare] DeleteFile:KCheckListPlist];
+    
+    [self getData];
+
+    //结束刷新状态
+    [refreshView endRefreshing];
+}
+
+
 
 
 @end
