@@ -36,6 +36,7 @@ static UserDefaults *_userDefaults;
 {
     if (_key) {
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:_key];
+        [[NSUserDefaults standardUserDefaults] synchronize];
     }
 }
 

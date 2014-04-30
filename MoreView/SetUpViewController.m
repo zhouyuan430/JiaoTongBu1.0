@@ -17,6 +17,7 @@
 static NSString* const KAssetsListPlist = @"AssetsList.plist";
 static NSString* const KContactInfoPlist = @"ContactInfo.plist";
 static NSString* const KAuthListPlist = @"AuthList.plist";
+static NSString* const KCheckListPlist = @"CheckList.plist";
 
 @implementation SetUpViewController
 
@@ -31,7 +32,6 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
     
     [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"LogIn背景"]]];
 
@@ -42,12 +42,6 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
                                    action:@selector(ReplyButton)];
     [self.navigationItem setLeftBarButtonItem:leftButton];
    
-
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
- 
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
 -(void)ReplyButton
 {
@@ -60,18 +54,53 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
     [[UserDefaults userDefaults] removedata:kToken];
     [[UserDefaults userDefaults] removedata:kPassword];
     
-    [[CommenData mainShare] DeleteFile:KAuthListPlist];
-    [[CommenData mainShare] DeleteFile:KContactInfoPlist];
-    [[CommenData mainShare] DeleteFile:KAssetsListPlist];
+    [self clear];
     
     [self performSegueWithIdentifier:@"LogInViewController" sender:self];
     
 }
 -(IBAction)clearCache:(id)sender
 {
-    
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"清除缓存！" message:nil delegate:self cancelButtonTitle:@"确定" otherButtonTitles:@"取消", nil];
+    [alertView show];
 }
 
+//弹出确定提示框
+-(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    switch (buttonIndex) {
+        case 0:
+            [self clear];
+            [self showMsg:@"缓存清除完毕！"];
+            break;
+        case 1:
+            break;
+        default:
+            break;
+    }
+}
+
+-(void)clear
+{
+    [[CommenData mainShare] DeleteFile:KAuthListPlist];
+    [[CommenData mainShare] DeleteFile:KContactInfoPlist];
+    [[CommenData mainShare] DeleteFile:KAssetsListPlist];
+    [[CommenData mainShare] DeleteFile:KCheckListPlist];
+}
+
+-(void)showMsg:(NSString *)msg
+{
+    HUD = [[MBProgressHUD alloc] initWithView:self.view];
+    [self.view addSubview:HUD];
+    HUD.labelText = msg;
+    HUD.mode = MBProgressHUDModeText;
+    [HUD showAnimated:YES whileExecutingBlock:^{
+        sleep(2);
+    } completionBlock:^{
+        [HUD removeFromSuperview];
+        HUD = nil;
+    }];
+}
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];

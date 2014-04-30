@@ -68,16 +68,14 @@
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="749" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Wu3-FO-UBm">
+                            <button contentMode="scaleToFill" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="749" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Wu3-FO-UBm">
                                 <rect key="frame" x="72" y="308" width="25" height="25"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="25" id="IgY-Zu-ovr"/>
                                 </constraints>
-                                <color key="tintColor" red="1" green="0.99155520990000001" blue="0.97443653760000004" alpha="1" colorSpace="calibratedRGB"/>
-                                <state key="normal" backgroundImage="选择框.png">
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
+                                <color key="tintColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                <state key="normal" backgroundImage="选择框.png"/>
                                 <connections>
                                     <action selector="saveButton:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="UPj-sw-yjK"/>
                                 </connections>
@@ -201,6 +199,10 @@
                                     </button>
                                 </subviews>
                                 <color key="backgroundColor" red="0.96862751245498657" green="1" blue="0.93725496530532837" alpha="1" colorSpace="deviceRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="303" id="2w2-GO-rAE"/>
+                                    <constraint firstAttribute="height" constant="80" id="k9V-Vs-m9C"/>
+                                </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="s0D-yZ-aM5">
                                 <rect key="frame" x="9" y="144" width="303" height="80"/>
@@ -220,6 +222,10 @@
                                     </button>
                                 </subviews>
                                 <color key="backgroundColor" red="0.94117653369903564" green="0.98823535442352295" blue="0.9960784912109375" alpha="1" colorSpace="deviceRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="303" id="4BK-nh-7yL"/>
+                                    <constraint firstAttribute="height" constant="80" id="zG6-tw-WRX"/>
+                                </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3b4-2H-cvm">
                                 <rect key="frame" x="9" y="224" width="303" height="80"/>
@@ -239,6 +245,10 @@
                                     </button>
                                 </subviews>
                                 <color key="backgroundColor" red="0.96862751245498657" green="1" blue="0.93725496530532837" alpha="1" colorSpace="deviceRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="80" id="aDH-TH-plt"/>
+                                    <constraint firstAttribute="width" constant="303" id="eaX-sD-G9Q"/>
+                                </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5lC-8e-C2y">
                                 <rect key="frame" x="9" y="304" width="303" height="264"/>
@@ -317,7 +327,8 @@
                                     <constraint firstAttribute="width" constant="60" id="k8a-Fu-kPh"/>
                                     <constraint firstAttribute="height" constant="50" id="uMf-hQ-0Tp"/>
                                 </constraints>
-                                <state key="normal" title="个人资产">
+                                <color key="tintColor" red="1" green="0.99155520990000001" blue="0.97443653760000004" alpha="1" colorSpace="calibratedRGB"/>
+                                <state key="normal" backgroundImage="个人资产.png">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
@@ -331,21 +342,21 @@
                                     <constraint firstAttribute="width" constant="60" id="5Mj-x1-vfP"/>
                                     <constraint firstAttribute="height" constant="50" id="sBx-8O-CT1"/>
                                 </constraints>
-                                <state key="normal" title="资产变更">
+                                <state key="normal" backgroundImage="资产变更.png">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
                                     <segue destination="YPM-eR-6Ax" kind="push" id="Pox-2s-uYP"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="V1h-UH-DvL">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="wordWrap" translatesAutoresizingMaskIntoConstraints="NO" id="V1h-UH-DvL">
                                 <rect key="frame" x="173" y="344" width="60" height="50"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="60" id="A9u-oa-B82"/>
                                     <constraint firstAttribute="height" constant="50" id="mYQ-Rh-Lec"/>
                                 </constraints>
-                                <state key="normal">
+                                <state key="normal" backgroundImage="资产申请流程.png">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
@@ -359,7 +370,7 @@
                                     <constraint firstAttribute="width" constant="60" id="ZD6-DG-iqT"/>
                                     <constraint firstAttribute="height" constant="50" id="c6L-Bf-hDM"/>
                                 </constraints>
-                                <state key="normal" title="资产查询">
+                                <state key="normal" backgroundImage="资产查询.png">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
@@ -374,18 +385,11 @@
                                     <constraint firstAttribute="height" constant="50" id="z9W-oA-a20"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" name="HelveticaNeue-Bold" family="Helvetica Neue" pointSize="15"/>
-                                <state key="normal" title="资产盘点"/>
+                                <state key="normal" backgroundImage="资产盘点.png"/>
                                 <connections>
                                     <segue destination="N9e-5g-Yqb" kind="push" id="yXf-EU-Url"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="资产变更流程" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="60" translatesAutoresizingMaskIntoConstraints="NO" id="cem-fa-SgI">
-                                <rect key="frame" x="173" y="344" width="60" height="50"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                <color key="textColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
@@ -397,18 +401,14 @@
                             <constraint firstAttribute="centerX" secondItem="Upz-L3-yAE" secondAttribute="centerX" id="MTu-go-jVt"/>
                             <constraint firstAttribute="centerY" secondItem="Upz-L3-yAE" secondAttribute="centerY" id="Muh-q2-llR"/>
                             <constraint firstAttribute="centerY" secondItem="Oi4-Tj-Hdm" secondAttribute="centerY" id="PHk-K1-NyU"/>
-                            <constraint firstItem="cem-fa-SgI" firstAttribute="top" secondItem="V1h-UH-DvL" secondAttribute="top" id="XOf-tk-kdp"/>
                             <constraint firstItem="Upz-L3-yAE" firstAttribute="top" secondItem="XJ8-7w-Qia" secondAttribute="bottom" constant="40" id="g5L-AH-xZL"/>
-                            <constraint firstItem="cem-fa-SgI" firstAttribute="trailing" secondItem="V1h-UH-DvL" secondAttribute="trailing" id="jeg-YF-XQ8"/>
                             <constraint firstItem="Upz-L3-yAE" firstAttribute="leading" secondItem="Y67-Br-Rnd" secondAttribute="trailing" constant="40" id="jl8-l8-hUT"/>
                             <constraint firstItem="Cdc-f9-H2a" firstAttribute="top" secondItem="V1h-UH-DvL" secondAttribute="top" id="k1D-fV-PBZ"/>
                             <constraint firstItem="V1h-UH-DvL" firstAttribute="top" secondItem="Upz-L3-yAE" secondAttribute="bottom" constant="40" id="kGp-ez-hYX"/>
                             <constraint firstItem="V1h-UH-DvL" firstAttribute="leading" secondItem="Cdc-f9-H2a" secondAttribute="trailing" constant="26" id="nc3-YM-CXh"/>
                             <constraint firstItem="Oi4-Tj-Hdm" firstAttribute="leading" secondItem="Upz-L3-yAE" secondAttribute="trailing" constant="40" id="oLY-vP-k0Z"/>
-                            <constraint firstItem="cem-fa-SgI" firstAttribute="leading" secondItem="V1h-UH-DvL" secondAttribute="leading" id="qfn-2t-ArA"/>
                             <constraint firstItem="Cdc-f9-H2a" firstAttribute="bottom" secondItem="V1h-UH-DvL" secondAttribute="bottom" id="rFt-vc-TA0"/>
                             <constraint firstAttribute="centerY" secondItem="Y67-Br-Rnd" secondAttribute="centerY" id="x1W-wP-m4q"/>
-                            <constraint firstItem="cem-fa-SgI" firstAttribute="bottom" secondItem="V1h-UH-DvL" secondAttribute="bottom" id="y3J-FI-NtW"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="交通运输部资产管理系统" id="GF1-59-r0N"/>
@@ -483,6 +483,9 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="资产搜索" id="xyk-uX-IYr"/>
+                    <connections>
+                        <outlet property="searchBarButton" destination="AZq-rM-gOK" id="9wU-Lk-BWy"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="o4m-As-GFB" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -956,11 +959,11 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
-                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="AssignmentCheckCell" rowHeight="94" id="KI9-Rq-Fgj" customClass="AssignmentCheckCell">
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="AssignmentCheckCell" rowHeight="94" id="KI9-Rq-Fgj" customClass="AssignmentCheckCell">
                                 <rect key="frame" x="0.0" y="86" width="320" height="94"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KI9-Rq-Fgj" id="9Bx-yr-bXg">
-                                    <rect key="frame" x="0.0" y="0.0" width="287" height="93"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="320" height="93"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="联想" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fF6-hF-mSe">
@@ -983,9 +986,9 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zwe-rI-SnF">
-                                            <rect key="frame" x="266" y="32" width="30" height="30"/>
+                                            <rect key="frame" x="266" y="22" width="30" height="30"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                            <color key="tintColor" red="1" green="0.99155520990000001" blue="0.97443653760000004" alpha="1" colorSpace="calibratedRGB"/>
+                                            <color key="tintColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                             <state key="normal">
                                                 <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                             </state>
@@ -1040,6 +1043,9 @@
                                         </label>
                                     </subviews>
                                 </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="img" destination="2wR-dd-8aq" id="7qN-qr-H0m"/>
+                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <connections>
@@ -1058,8 +1064,13 @@
         <image name="Icon-Small.png" width="29" height="29"/>
         <image name="logo-1.png" width="539" height="172"/>
         <image name="logo.png" width="395" height="110"/>
+        <image name="个人资产.png" width="162" height="111"/>
         <image name="框.png" width="424" height="84"/>
         <image name="登录按钮.png" width="203" height="84"/>
+        <image name="资产变更.png" width="145" height="89"/>
+        <image name="资产查询.png" width="142" height="89"/>
+        <image name="资产申请流程.png" width="134" height="134"/>
+        <image name="资产盘点.png" width="143" height="94"/>
         <image name="选择按钮.png" width="41" height="42"/>
         <image name="选择框.png" width="49" height="48"/>
     </resources>

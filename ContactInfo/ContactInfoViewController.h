@@ -7,12 +7,17 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "MJRefresh.h"
 #import "MBProgressHUD.h"
+
 @interface ContactInfoViewController : UITableViewController
 {
     NSMutableArray * dataSource;
     
     MBProgressHUD * HUD;
+    
+    //下拉和上拉
+    MJRefreshHeaderView *_header;
 }
 
 

@@ -47,7 +47,7 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     UIBarButtonItem *allCheckButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemEdit target:self action:@selector(allCheck:)];
     allCheckButton.tag = 0;
     
-    UIBarButtonItem *submitButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(submit)];
+    UIBarButtonItem *submitButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(submitButton)];
     
     self.navigationItem.rightBarButtonItems = @[submitButton,allCheckButton];
     
@@ -60,19 +60,21 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 
 -(void)getData
 {
+    [dataSource removeAllObjects];
     if ([[CommenData mainShare] isExistsFile:KAssetsListPlist]) {
         NSLog(@"本地");
         [self loadData:[[CommenData mainShare] getInfo:KAssetsListPlist]];
         
     }
     else{
-        
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
+
          NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
          NSString *token = [[UserDefaults userDefaults] getdata:kToken];
-         
-         NSString *url = [NSString stringWithFormat:@"%@uid=%@&token=%@",getAssetsList,uid,token];
      
-        [[JiaoTongBuClient sharedClient] GET:url parameters:nil success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
+        NSDictionary *parameters = @{@"uid":uid,@"token":token};
+        
+        [[JiaoTongBuClient sharedClient] GET:getAssetsList parameters:parameters success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
             
             NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
             if ([dic[@"status"] isEqualToString:@"A0006"])
@@ -87,7 +89,10 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
             
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
             NSLog(@"%@",error);
+            [self showMsg:error.localizedDescription];
+
         }];
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO; //显示
     }
 }
 
@@ -129,18 +134,18 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     cb.tag = (cb.tag + 1) % 2;
     if (cb.tag) {
         for (int i = 0; i < [isSelected count]; i++) {
-            [isSelected replaceObjectAtIndex:i withObject:@"1"];
+            isSelected[i] = @"1";
         }
     }
     else{
         for (int i = 0; i < [isSelected count]; i++) {
-            [isSelected replaceObjectAtIndex:i withObject:@"0"];
+            isSelected[i] = @"0";
         }
     }
     [self.tableView reloadData];
 }
-
--(void)submit
+//获取选择退还的资产
+-(NSString *)getAids
 {
     NSString * aids = [[NSString alloc] init];
     aids = [NSString stringWithFormat:@""];
@@ -150,30 +155,67 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
             aids = [NSString stringWithFormat:@"%@%@,",aids,tmp.assetID];
         }
     }
+    return aids;
+}
+//点击提交按钮
+-(void)submitButton
+{
+    NSString * aids = [self getAids];
+   
     if ([aids isEqualToString:@""]) {
         [self showMsg:@"请选择资产"];
     }
     else{
-        NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
-        NSString *token = [[UserDefaults userDefaults] getdata:kToken];
-        
-        NSString *url = [NSString stringWithFormat:@"%@aids=%@&uid=%@&token=%@",applyRefund,aids,uid,token];
-
-        [[JiaoTongBuClient sharedClient] GET:url parameters:nil success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
-            
-            NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
-            if ([dic[@"status"] isEqualToString:@"A0006"]){
-                [self showMsg:dic[@"msg"]];
-            }
-            else{
-                [self showMsg:dic[@"msg"]];
-            }
-            
-        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-            NSLog(@"%@",error);
-        }];
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"申请退还！" message:nil delegate:self cancelButtonTitle:@"确定" otherButtonTitles:@"取消", nil];
+        [alertView show];
+    
     }
 }
+//弹出确定提示框
+-(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    switch (buttonIndex) {
+        case 0:
+            [self submit];
+            break;
+        case 1:
+            break;
+        default:
+            break;
+    }
+}
+//网络提交
+-(void)submit
+{
+    
+    NSString * aids = [self getAids];
+    
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
+    
+    NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
+    NSString *token = [[UserDefaults userDefaults] getdata:kToken];
+    
+    NSDictionary *parameters = @{@"aids":aids,@"uid":uid,@"token":token};
+    
+    [[JiaoTongBuClient sharedClient] GET:applyRefund parameters:parameters success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
+        
+        NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
+        if ([dic[@"status"] isEqualToString:@"A0006"]){
+            [self showMsg:dic[@"msg"]];
+        }
+        else{
+            [self showMsg:dic[@"msg"]];
+        }
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+        
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"%@",error);
+        [self showMsg:error.localizedDescription];
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+    }];
+}
+
+
 
 - (void)didReceiveMemoryWarning
 {
@@ -231,10 +273,10 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     UIButton * cb= (UIButton *)cell.CheckButton;
     cb.selected = !cb.selected;
     if (cb.selected == 1) {
-        [isSelected replaceObjectAtIndex:cb.tag withObject:@"1"];
+        isSelected[cb.tag] = @"1";
     }
     else{
-        [isSelected replaceObjectAtIndex:cb.tag withObject:@"0"];
+        isSelected[cb.tag] = @"0";
     }
 }
 

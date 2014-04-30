@@ -19,6 +19,7 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
 
 @implementation SearchDetailViewController
 
+@synthesize dataSource;
 @synthesize scrollView;
 @synthesize assetInfo;
 @synthesize currentInfo;
@@ -36,9 +37,8 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
 {
     [super viewDidLoad];
     //一定要初始化
-    dataSource = [[NSMutableArray alloc] initWithCapacity:20];
-    //获取数据
-    [self getData];
+   // dataSource = [[NSMutableArray alloc] initWithCapacity:20];
+
     self.navigationController.navigationBarHidden = NO;
     currentLine = currentInfo.row;
     
@@ -55,12 +55,14 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
 }
 -(void)getData
 {
+    [dataSource removeAllObjects];
+    
     if ([[CommenData mainShare] isExistsFile:KAuthListPlist]) {
         NSLog(@"本地");
         [self loadData:[[CommenData mainShare] getInfo:KAuthListPlist]];
-        
     }
 }
+
 -(void)loadData:(NSDictionary *)dic
 {
     NSArray *arr = dic[@"data"];

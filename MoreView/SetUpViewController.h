@@ -7,8 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "MBProgressHUD.h"
 
-@interface SetUpViewController : UIViewController
+@interface SetUpViewController : UIViewController <UIAlertViewDelegate>
+{
+    MBProgressHUD *HUD;
+}
+
+
 @property (strong, nonatomic) IBOutlet UIButton *receiveButton;
 
 -(IBAction)clearCache:(id)sender;

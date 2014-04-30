@@ -25,6 +25,7 @@
     NSUInteger currentLine;
 }
 
+@property (strong, nonatomic) NSMutableArray *dataSource;
 @property (strong, nonatomic) NSIndexPath *currentInfo;
 @property (strong, nonatomic) IBOutlet UIScrollView *scrollView;
 @property (strong, nonatomic) AssetInfo *assetInfo;

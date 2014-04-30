@@ -20,6 +20,8 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
 
 @implementation AssetsSearchViewController
 
+@synthesize searchBarButton;
+
 - (id)initWithStyle:(UITableViewStyle)style
 {
     self = [super initWithStyle:style];
@@ -29,10 +31,23 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
     return self;
 }
 
+-(void)viewDidDisappear:(BOOL)animated
+{
+    if (searched) {
+        [[CommenData mainShare] DeleteFile:KAuthListPlist];
+    }
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    [self addFooter];
+    
     dataSource = [[NSMutableArray alloc] initWithCapacity:20];
+    
+    searched = NO;
+    size = 20;
     
     //添加左按钮
     UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
@@ -40,6 +55,9 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
                                    target:self
                                    action:@selector(ReplyButton)];
     [self.navigationItem setLeftBarButtonItem:leftButton];
+    
+    searchBarButton.showsCancelButton = YES;
+    searchBarButton.delegate = self;
     
     [self getData:@"" searchItem:@""];
     [self.tableView reloadData];
@@ -53,22 +71,21 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
 //获取数据
 -(void)getData:(NSString *)keywd searchItem:(NSString *)Item
 {
-    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
-
+    [dataSource removeAllObjects];
     if ([[CommenData mainShare] isExistsFile:KAuthListPlist]) {
         NSLog(@"本地");
         [self loadData:[[CommenData mainShare] getInfo:KAuthListPlist]];
     }
     else{
-        /*
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
+
         NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
         NSString *token = [[UserDefaults userDefaults] getdata:kToken];
-        NSString *url = [NSString stringWithFormat:@"%@uid=%@&token=%@",getContactList,uid,token];
-        */
         
-        NSString *url = [[NSString stringWithFormat:@"%@",getAuthList] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        NSDictionary *paramenters = @{@"uid":uid,@"token":token,@"keywd":keywd,
+                                      @"searchItem":Item,@"page":@"1",@"size":[NSString stringWithFormat:@"%d",size]};
         
-        [[JiaoTongBuClient sharedClient] GET:url parameters:nil success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
+        [[JiaoTongBuClient sharedClient] GET:getAuthList parameters:paramenters success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
             
             NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
             if ([dic[@"status"] isEqualToString:@"A0006"])
@@ -80,13 +97,15 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
             else{
                 [self showMsg:dic[@"msg"]];
             }
-            
+            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO; //显示
+
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
             NSLog(@"%@",error);
+            [self showMsg:error.localizedDescription];
+            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO; //显示
+
         }];
     }
-    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-
 }
 
 -(void)loadData:(NSDictionary*)dic
@@ -149,66 +168,65 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
     cell.assetName.text = tmp.assetName;
     cell.assetKind.text = [NSString stringWithFormat:@"种类：%@",tmp.assetCate];
     cell.assetcount.text = [NSString stringWithFormat:@"数量：%@",tmp.assetCount];
-    // Configure the cell...
     
     return cell;
 }
 
-/*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
-}
-*/
-
-/*
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    }   
-    else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }   
-}
-*/
-
-/*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-}
-*/
-
-/*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
-
-
 #pragma mark - Navigation
 
-// In a story board-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
-    [self.searchBar resignFirstResponder];
+    [self.searchBarButton resignFirstResponder];
     UIViewController *view = segue.destinationViewController;
     if ([view respondsToSelector:@selector(setAssetInfo:)])
     {
         NSIndexPath *selectedRowIndex = [self.tableView indexPathForSelectedRow];
+        
+        [view setValue:dataSource forKey:@"dataSource"];
         [view setValue:selectedRowIndex forKey:@"currentInfo"];
         
     }
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+}
+#pragma mark - SearchBar
+
+//点击取消按钮时，隐藏键盘
+-(void)searchBarCancelButtonClicked:(UISearchBar *)searchBar
+{
+    searchBar.text = @"";
+    [searchBar resignFirstResponder];
+}
+//点击搜索按钮时，隐藏键盘，显示搜索内容
+-(void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
+{
+    [[CommenData mainShare] DeleteFile:KAuthListPlist];
+    searched = YES;
+    [self getData:searchBar.text searchItem:@""];
+    [searchBar resignFirstResponder];
+}
+
+//下拉加载更多
+- (void)addFooter
+{
+    __unsafe_unretained AssetsSearchViewController *vc = self;
+    MJRefreshFooterView *footer = [MJRefreshFooterView footer];
+    footer.scrollView = self.tableView;
+    
+    footer.beginRefreshingBlock = ^(MJRefreshBaseView *refreshView) {
+        // 增加5条假数据
+        // 模拟延迟加载数据，因此2秒后才调用）
+        [vc performSelector:@selector(PreviousView:) withObject:refreshView afterDelay:0.2];
+    };
+    _footer = footer;
+}
+
+- (void)PreviousView:(MJRefreshBaseView *)refreshView
+{
+    [[CommenData mainShare] DeleteFile:KAuthListPlist];
+    
+    size += 20;
+    [self getData:searchBarButton.text searchItem:@""];
+    
+    [refreshView endRefreshing];
 }
 
 

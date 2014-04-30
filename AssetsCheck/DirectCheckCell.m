@@ -12,6 +12,7 @@
 
 @synthesize isCheckButton;
 @synthesize assetName;
+@synthesize img;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
 {
@@ -21,7 +22,6 @@
     }
     return self;
 }
-
 - (void)awakeFromNib
 {
     // Initialization code

@@ -35,34 +35,43 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
     [super viewDidLoad];
     dataSource = [[NSMutableArray alloc] initWithCapacity:20];
     isChecked = [[NSMutableArray alloc] initWithCapacity:20];
+    assetsPath = [[NSMutableArray alloc] initWithCapacity:20];
     
     [self getData];
     //添加左按钮
     UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
                                    initWithBarButtonSystemItem:UIBarButtonSystemItemReply
                                    target:self
-                                   action:@selector(back)];
-    [self.navigationItem setLeftBarButtonItem:leftButton];
+                                   action:@selector(ReplyButton)];
+    self.navigationItem.leftBarButtonItem = leftButton;
+    
+    UIBarButtonItem *rightButton = [[UIBarButtonItem alloc]
+                                    initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+                                    target:self
+                                    action:@selector(submitButton)];
+    self.navigationItem.rightBarButtonItem = rightButton;
 }
--(IBAction)back
+-(IBAction)ReplyButton
 {
     [self.navigationController popViewControllerAnimated:YES];
 }
 
 -(void)getData
 {
+    [dataSource removeAllObjects];
     if ([[CommenData mainShare] isExistsFile:KCheckListPlist]) {
         NSLog(@"本地");
         [self loadData:[[CommenData mainShare] getInfo:KCheckListPlist]];
     }
     else{
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
+
         NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
         NSString *token = [[UserDefaults userDefaults] getdata:kToken];
+
+        NSDictionary *parameters = @{@"uid":uid,@"token":token};
         
-        NSString *url = [[NSString stringWithFormat:@"%@uid=%@&token=%@",getCheckList,uid,token] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-        NSLog(@"%@",url);
-        
-        [[JiaoTongBuClient sharedClient] GET:url parameters:nil success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
+        [[JiaoTongBuClient sharedClient] GET:getCheckList parameters:parameters success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
             
             NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
             if ([dic[@"status"] isEqualToString:@"A0006"])
@@ -74,9 +83,13 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
             else{
                 [self showMsg:dic[@"msg"]];
             }
+            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
             
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
             NSLog(@"%@",error);
+            [self showMsg:error.localizedDescription];
+            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+
         }];
     }
 }
@@ -88,6 +101,7 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
         AssetInfo *tmp = [[AssetInfo alloc] initWithCheckData:arr[i]];
         [dataSource addObject:tmp];
         [isChecked addObject:@"0"];
+        [assetsPath addObject:@"0"];
     }
     [self.tableView reloadData];
 }
@@ -142,8 +156,10 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
     else{
         cell.isCheckButton.selected = 0;
     }
-
+    cell.accessoryType = UITableViewCellAccessoryNone;
+    
     [cell.isCheckButton setBackgroundImage:[UIImage imageNamed:@"选择框"] forState:UIControlStateNormal];
+    [cell.isCheckButton setBackgroundImage:[UIImage imageNamed:@"选择框-1"] forState:UIControlStateSelected];
     
     [cell setData:tmp];
     // Configure the cell...
@@ -167,125 +183,109 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
 }
 -(void)imagePickerController:(UIImagePickerController *)reader didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
+    //当前选中行
     NSIndexPath *selectedRowIndex = [self.tableView indexPathForSelectedRow];
     
-    AssetInfo *tmp = dataSource[selectedRowIndex.row];
+    //长传标记
+    isChecked[selectedRowIndex.row] = @"1";
     
-    AssignmentCheckCell *cell = (AssignmentCheckCell *)[self.tableView cellForRowAtIndexPath:selectedRowIndex];
+    
+    AssetInfo *tmp = dataSource[selectedRowIndex.row];
+
     id<NSFastEnumeration> results = [info objectForKey: ZBarReaderControllerResults];
     ZBarSymbol *symbol = nil;
     for(symbol in results)
         break;
     //加上是否是正确的资产
     
-    //此图片要上传
-    [cell.isCheckButton setBackgroundImage:[info objectForKey: UIImagePickerControllerOriginalImage] forState:UIControlStateNormal];
-    
     UIImage * image = [info objectForKey: UIImagePickerControllerOriginalImage];
-    
-    NSData *data;
-    if (UIImagePNGRepresentation(image) == nil)
-    {
-        data = UIImageJPEGRepresentation(image, 1.0);
-    }
-    else
-    {
-        data = UIImagePNGRepresentation(image);
-    }
-    [reader dismissViewControllerAnimated:YES completion:nil];
+    NSData *data = UIImagePNGRepresentation(image);
 
-    [self upLoadImage:data  assetID:tmp.assetID];
-    
-   // [self upLoadCheckList:tmp.assetID path:@""];
+    [reader dismissViewControllerAnimated:YES completion:nil];
+    [self upLoadImage:data  assetID:tmp.assetID IndexPath:selectedRowIndex];
 }
 
--(void)upLoadImage:(NSData *)imageData assetID:(NSString *)aid
+-(void)upLoadImage:(NSData *)imageData assetID:(NSString *)aid IndexPath:(NSIndexPath *)indexPath
 {
     NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
     NSString *token = [[UserDefaults userDefaults] getdata:kToken];
     
-    NSString *url = [[NSString stringWithFormat:@"%@b=%@&token=%@&uid=%@",getAssetsList,uid,imageData,token] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *parameters = @{@"b":imageData,@"token":token,@"uid":uid};
     
-    [[JiaoTongBuClient sharedClient] GET:url parameters:nil success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
+    [[JiaoTongBuClient sharedClient] POST:uploadImage parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+        
+    } success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
         NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
-        [self upLoadCheckList:aid path:dic[@"data"]];
+        NSLog(@"%@",dic);
+
+        [self upLoadAssetImage:aid path:[dic[@"data"] objectAtIndex:0][@"url"] IndexPath:indexPath];
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        [self showMsg:error.localizedDescription];
+        NSLog(@"%@",error.localizedDescription);
+
+    }];
+}
+
+-(void)upLoadAssetImage:(NSString *)aid path:(NSString *)path IndexPath:(NSIndexPath *)indexPath
+{
+    //设置path
+    assetsPath[indexPath.row] = [NSString stringWithFormat:@"%@",path];
+    
+    NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
+    NSString *token = [[UserDefaults userDefaults] getdata:kToken];
+    NSDictionary *parametes = @{@"uid":uid,@"token":token,@"path":path,@"aid":aid,@"cate":@"0"};
+    
+    [[JiaoTongBuClient sharedClient] GET:uploadAssetImage parameters:parametes success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
+        NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
+        [self showMsg:dic[@"msg"]];
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO; //隐藏
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"%@",error);
+        [self showMsg:error.localizedDescription];
+        NSLog(@"%@",error.localizedDescription);
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO; //隐藏
     }];
-    
-    
 }
+
+
+-(void)submitButton
+{
+    for (int i = 0; i < isChecked.count; i++) {
+        if ([isChecked[i] isEqualToString:@"1"]) {
+            AssetInfo * tmp = dataSource[i];
+            
+            NSIndexPath *selectedRowIndex = [self.tableView indexPathForSelectedRow];
+
+            AssignmentCheckCell *cell = (AssignmentCheckCell *)[self.tableView cellForRowAtIndexPath:selectedRowIndex];
+            
+            cell.isCheckButton.selected = YES;
+            NSLog(@"%@",assetsPath[i]);
+            [self upLoadCheckList:tmp.assetID  path:assetsPath[i]];
+            
+        }
+    }
+}
+
 
 -(void)upLoadCheckList:(NSString *)aid path:(NSString *)path
 {
     NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
     NSString *token = [[UserDefaults userDefaults] getdata:kToken];
+
+    NSDictionary *parameters = @{@"uid":uid,@"token":token,@"path":path,@"aid":aid};
     
-    NSString *url = [[NSString stringWithFormat:@"%@uid=%@&token=%@&path=%@&aid=%@",uploadCheckList,uid,token,path,aid] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-    NSLog(@"%@",url);
-    
-    [[JiaoTongBuClient sharedClient] GET:url parameters:nil success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
+    [[JiaoTongBuClient sharedClient] GET:uploadCheckList parameters:parameters success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
         
         NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
         
         [self showMsg:dic[@"msg"]];
+        [self.tableView reloadData];
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"%@",error);
     }];
 }
 
-/*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
-}
-*/
-
-/*
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    }   
-    else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }   
-}
-*/
-
-/*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-}
-*/
-
-/*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
-
-/*
-#pragma mark - Navigation
-
-// In a story board-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-
- */
 
 @end

@@ -34,6 +34,8 @@ static NSString* const KContactInfoPlist = @"ContactInfo.plist";
 {
     [super viewDidLoad];
     
+    [self addHeader];
+    
     dataSource = [[NSMutableArray alloc] initWithCapacity:20];
     //添加左按钮
     UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
@@ -44,11 +46,6 @@ static NSString* const KContactInfoPlist = @"ContactInfo.plist";
     
     [self getData];
 
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
- 
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
 //返回上一级
 -(IBAction)replyButton
@@ -58,6 +55,7 @@ static NSString* const KContactInfoPlist = @"ContactInfo.plist";
 //获取数据
 -(void)getData
 {
+    [dataSource removeAllObjects];
     if ([[CommenData mainShare] isExistsFile:KContactInfoPlist]) {
         NSLog(@"本地");
        [self loadData:[[CommenData mainShare] getInfo:KContactInfoPlist]];
@@ -66,9 +64,9 @@ static NSString* const KContactInfoPlist = @"ContactInfo.plist";
         NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
         NSString *token = [[UserDefaults userDefaults] getdata:kToken];
     
-        NSString *url = [NSString stringWithFormat:@"%@uid=%@&token=%@",getContactList,uid,token];
-    
-        [[JiaoTongBuClient sharedClient] GET:url parameters:nil success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
+        NSDictionary *parameters = @{@"uid":uid,@"token":token};
+        
+        [[JiaoTongBuClient sharedClient] GET:getContactList parameters:parameters success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
         
             NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
             if ([dic[@"status"] isEqualToString:@"A0006"])
@@ -152,6 +150,32 @@ static NSString* const KContactInfoPlist = @"ContactInfo.plist";
     return cell;
 }
 
+#pragma 下拉刷新
+- (void)addHeader
+{
+    __unsafe_unretained ContactInfoViewController *vc = self;
+    
+    MJRefreshHeaderView *header = [MJRefreshHeaderView header];
+    header.scrollView = self.tableView;
+    header.beginRefreshingBlock = ^(MJRefreshBaseView *refreshView) {
+        
+        // 进入刷新状态就会回调这个Block
+        // 模拟延迟加载数据，因此0.2秒后才调用
+        [vc performSelector:@selector(NextView:) withObject:refreshView afterDelay:0.2];
+        
+    };
 
+    _header = header;
+}
+
+- (void)NextView:(MJRefreshBaseView *)refreshView
+{
+    [[CommenData mainShare] DeleteFile:KContactInfoPlist];    
+    [self getData];
+    
+    [self.tableView reloadData];
+    // (最好在刷新表格后调用)调用endRefreshing可以结束刷新状态
+    [refreshView endRefreshing];
+}
 
 @end

@@ -9,11 +9,22 @@
 #import <UIKit/UIKit.h>
 #import "MBProgressHUD.h"
 #import "AssetInfo.h"
-@interface AssetsSearchViewController : UITableViewController
+#import "MJRefresh.h"
+
+@interface AssetsSearchViewController : UITableViewController <UITextFieldDelegate,UISearchBarDelegate>
 {
     NSMutableArray * dataSource;
     
+    //判断是否经历过搜索
+    BOOL searched;
+
+    NSInteger size;
+    
     MBProgressHUD * HUD;
+    //上拉加载更多
+    MJRefreshFooterView *_footer;
+
 }
-@property (strong, nonatomic) IBOutlet UISearchBar *searchBar;
+@property (strong, nonatomic) IBOutlet UISearchBar *searchBarButton;
+
 @end

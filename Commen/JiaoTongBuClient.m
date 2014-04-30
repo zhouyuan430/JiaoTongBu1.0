@@ -41,9 +41,11 @@ static NSString * const JiaoTongBuBaseURLString = @"https://alpha-api.app.net/";
     
     NSData *tmp2 = [tmp1 dataUsingEncoding:NSUTF8StringEncoding];
     NSDictionary * dic = [NSJSONSerialization JSONObjectWithData:tmp2 options:NSJSONReadingMutableContainers error:nil];
-    
     return dic;
-
 }
+
+
+
+
 
 @end

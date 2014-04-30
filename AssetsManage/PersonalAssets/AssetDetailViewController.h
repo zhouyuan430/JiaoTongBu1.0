@@ -30,5 +30,6 @@
 @property (strong, nonatomic) NSMutableArray *dataSource;
 @property (strong, nonatomic) NSIndexPath *currentInfo;
 @property (strong, nonatomic) AssetInfo *assetInfo;
+
 -(IBAction)imgClick:(id)sender;
 @end

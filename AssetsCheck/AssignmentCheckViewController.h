@@ -15,6 +15,7 @@
     NSMutableArray *dataSource;
     
     NSMutableArray *isChecked;
+    NSMutableArray *assetsPath;
     
     MBProgressHUD *HUD;
 }

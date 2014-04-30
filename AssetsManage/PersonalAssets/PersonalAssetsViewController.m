@@ -51,7 +51,6 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 -(void)viewDidDisappear:(BOOL)animated
 {
     if (searched) {
-        NSLog(@"delete");
         [[CommenData mainShare] DeleteFile:KAssetsListPlist];
     }
 }
@@ -64,35 +63,16 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     
     self.title = [NSString stringWithFormat:@"资产[%@]",[[UserDefaults userDefaults] getdata:kUserName]];
     
-    /*
-    //添加左按钮
-    UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
-                                   initWithImage:[UIImage imageNamed:@"箭头"] style:UIBarButtonItemStylePlain target:self action:@selector(replyButton)];
-    */
     //添加左按钮
     UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
                                    initWithBarButtonSystemItem:UIBarButtonSystemItemReply
                                    target:self
                                    action:@selector(replyButton)];
     [self.navigationItem setLeftBarButtonItem:leftButton];
-/*
-    //添加右按钮
-    UIBarButtonItem *rightButton = [[UIBarButtonItem alloc]
-                                    initWithBarButtonSystemItem:UIBarButtonSystemItemSearch
-                                    target:self
-                                    action:@selector(searchButton)];
-    [self.navigationItem setRightBarButtonItem:rightButton];
-*/
     
     assetSearchBar.showsCancelButton = YES;
     [self getData:@""];
     [self.tableView reloadData];
-    
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
- 
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
 
 //返回上级界面
@@ -114,9 +94,9 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
         NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
         NSString *token = [[UserDefaults userDefaults] getdata:kToken];
         
-        NSString *url = [[NSString stringWithFormat:@"%@uid=%@&keywd=%@&token=%@",getAssetsList,uid,keywd,token] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        NSDictionary *parameters = @{@"uid":uid,@"keywd":keywd,@"token":token};
         
-        [[JiaoTongBuClient sharedClient] GET:url parameters:nil success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
+        [[JiaoTongBuClient sharedClient] GET:getAssetsList parameters:parameters success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
             
             NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
             if ([dic[@"status"] isEqualToString:@"A0006"])
@@ -211,15 +191,14 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 {
     [[CommenData mainShare] DeleteFile:KAssetsListPlist];
     searched = YES;
+    [self searchBarCancelButtonClicked:searchBar];
+
     [self getData:searchBar.text];
 
-    searchBar.text = @"";
-    [self searchBarCancelButtonClicked:searchBar];
-    [searchBar resignFirstResponder];
 }
 
 #pragma mark - Navigation
-// In a story board-based application, you will often want to do a little preparation before navigation
+
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
     [assetSearchBar resignFirstResponder];
@@ -231,8 +210,6 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
         [view setValue:dataSource forKey:@"dataSource"];
         [view setValue:selectedRowIndex forKey:@"currentInfo"];
     }
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
 }
 
 

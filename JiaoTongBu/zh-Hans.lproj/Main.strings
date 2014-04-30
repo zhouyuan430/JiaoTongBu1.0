@@ -1,0 +1,165 @@
+
+/* Class = "IBUILabel"; text = "种类："; ObjectID = "06b-OG-UT5"; */
+"06b-OG-UT5.text" = "种类：";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "1lG-db-pR2"; */
+"1lG-db-pR2.text" = "Label";
+
+/* Class = "IBUINavigationItem"; title = "资产申请流程"; ObjectID = "38Y-TM-kCt"; */
+"38Y-TM-kCt.title" = "资产申请流程";
+
+/* Class = "IBUINavigationItem"; title = "资产盘点"; ObjectID = "3o1-hc-RyT"; */
+"3o1-hc-RyT.title" = "资产盘点";
+
+/* Class = "IBUILabel"; text = "种类："; ObjectID = "4ZZ-h4-709"; */
+"4ZZ-h4-709.text" = "种类：";
+
+/* Class = "IBUILabel"; text = "责任人："; ObjectID = "8nM-67-VDx"; */
+"8nM-67-VDx.text" = "责任人：";
+
+/* Class = "IBUILabel"; text = "联想Thinkpad X230笔记本"; ObjectID = "ABb-1z-SXc"; */
+"ABb-1z-SXc.text" = "联想Thinkpad X230笔记本";
+
+/* Class = "IBUILabel"; text = "开始使用时间："; ObjectID = "Azw-Bz-19L"; */
+"Azw-Bz-19L.text" = "开始使用时间：";
+
+/* Class = "IBUILabel"; text = "种类："; ObjectID = "BRt-KB-7Fw"; */
+"BRt-KB-7Fw.text" = "种类：";
+
+/* Class = "IBUIButton"; normalTitle = "清除缓存"; ObjectID = "C0h-WN-USe"; */
+"C0h-WN-USe.normalTitle" = "清除缓存";
+
+/* Class = "IBUINavigationItem"; title = "资产[张三]"; ObjectID = "F8e-hE-fCb"; */
+"F8e-hE-fCb.title" = "资产[张三]";
+
+/* Class = "IBUINavigationItem"; title = "交通运输部资产管理系统"; ObjectID = "GF1-59-r0N"; */
+"GF1-59-r0N.title" = "交通运输部资产管理系统";
+
+/* Class = "IBUILabel"; text = "名称"; ObjectID = "GfA-8Z-Zqi"; */
+"GfA-8Z-Zqi.text" = "名称";
+
+/* Class = "IBUINavigationItem"; title = "设置"; ObjectID = "Gja-Iq-PsV"; */
+"Gja-Iq-PsV.title" = "设置";
+
+/* Class = "IBUIButton"; normalTitle = "切换用户"; ObjectID = "IPV-dG-aZB"; */
+"IPV-dG-aZB.normalTitle" = "切换用户";
+
+/* Class = "IBUILabel"; text = "XX部门"; ObjectID = "L8n-eP-qJS"; */
+"L8n-eP-qJS.text" = "XX部门";
+
+/* Class = "IBUINavigationItem"; title = "资产信息"; ObjectID = "LZ7-L5-OHY"; */
+"LZ7-L5-OHY.title" = "资产信息";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "NbY-AL-0Md"; */
+"NbY-AL-0Md.text" = "Label";
+
+/* Class = "IBUINavigationItem"; title = "盘点任务"; ObjectID = "Oc7-dM-jd6"; */
+"Oc7-dM-jd6.title" = "盘点任务";
+
+/* Class = "IBUILabel"; text = "类别："; ObjectID = "PWE-PG-tg9"; */
+"PWE-PG-tg9.text" = "类别：";
+
+/* Class = "IBUILabel"; text = "接收推送消息"; ObjectID = "Qz0-RA-COF"; */
+"Qz0-RA-COF.text" = "接收推送消息";
+
+/* Class = "IBUILabel"; text = "数量："; ObjectID = "SVU-OU-a8d"; */
+"SVU-OU-a8d.text" = "数量：";
+
+/* Class = "IBUILabel"; text = "电话：18181818181"; ObjectID = "Wjy-a4-Ejp"; */
+"Wjy-a4-Ejp.text" = "电话：18181818181";
+
+/* Class = "IBUILabel"; text = "联想笔记本电脑"; ObjectID = "XDx-3o-21J"; */
+"XDx-3o-21J.text" = "联想笔记本电脑";
+
+/* Class = "IBUILabel"; text = "种类："; ObjectID = "Xri-zL-X6s"; */
+"Xri-zL-X6s.text" = "种类：";
+
+/* Class = "IBUILabel"; text = "使用期限："; ObjectID = "YaE-vP-6GS"; */
+"YaE-vP-6GS.text" = "使用期限：";
+
+/* Class = "IBUINavigationItem"; title = "资产信息"; ObjectID = "buv-8h-GhY"; */
+"buv-8h-GhY.title" = "资产信息";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "clE-am-PR2"; */
+"clE-am-PR2.text" = "Label";
+
+/* Class = "IBUITextField"; placeholder = "请输入用户名"; ObjectID = "d4l-SP-Qqk"; */
+"d4l-SP-Qqk.placeholder" = "请输入用户名";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "ey4-la-b56"; */
+"ey4-la-b56.text" = "Label";
+
+/* Class = "IBUILabel"; text = "联想"; ObjectID = "fF6-hF-mSe"; */
+"fF6-hF-mSe.text" = "联想";
+
+/* Class = "IBUITextView"; text = "Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda."; ObjectID = "fhd-fa-yR0"; */
+"fhd-fa-yR0.text" = "Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.";
+
+/* Class = "IBUITextField"; placeholder = "请输入密码"; ObjectID = "fjn-dT-fxj"; */
+"fjn-dT-fxj.placeholder" = "请输入密码";
+
+/* Class = "IBUILabel"; text = "邮箱：zhou_yuan1993@163.com"; ObjectID = "g1T-8V-3QU"; */
+"g1T-8V-3QU.text" = "邮箱：zhou_yuan1993@163.com";
+
+/* Class = "IBUILabel"; text = "保存用户信息"; ObjectID = "gWO-aM-trd"; */
+"gWO-aM-trd.text" = "保存用户信息";
+
+/* Class = "IBUIButton"; normalTitle = "盘点任务"; ObjectID = "ggD-gD-XXy"; */
+"ggD-gD-XXy.normalTitle" = "盘点任务";
+
+/* Class = "IBUILabel"; text = "数量："; ObjectID = "gnC-y8-eFC"; */
+"gnC-y8-eFC.text" = "数量：";
+
+/* Class = "IBUINavigationItem"; title = "资产扫描"; ObjectID = "goh-pf-f0d"; */
+"goh-pf-f0d.title" = "资产扫描";
+
+/* Class = "IBUILabel"; text = "姓名：老不死"; ObjectID = "hIJ-nk-XZN"; */
+"hIJ-nk-XZN.text" = "姓名：老不死";
+
+/* Class = "IBUINavigationItem"; title = "帮助"; ObjectID = "hWb-gm-M1w"; */
+"hWb-gm-M1w.title" = "帮助";
+
+/* Class = "IBUILabel"; text = "数量：1"; ObjectID = "i9M-dQ-QdH"; */
+"i9M-dQ-QdH.text" = "数量：1";
+
+/* Class = "IBUIButton"; normalTitle = "登录"; ObjectID = "iZd-33-MJI"; */
+"iZd-33-MJI.normalTitle" = "登录";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "k2T-pO-P1U"; */
+"k2T-pO-P1U.text" = "Label";
+
+/* Class = "IBUILabel"; text = "地址：北航"; ObjectID = "lOe-t7-ZWM"; */
+"lOe-t7-ZWM.text" = "地址：北航";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "m8j-YJ-dV1"; */
+"m8j-YJ-dV1.text" = "Label";
+
+/* Class = "IBUIButton"; normalTitle = "直接盘点"; ObjectID = "mSc-5S-Ert"; */
+"mSc-5S-Ert.normalTitle" = "直接盘点";
+
+/* Class = "IBUILabel"; text = "交通运输部资产管理系统"; ObjectID = "mpJ-CJ-WkV"; */
+"mpJ-CJ-WkV.text" = "交通运输部资产管理系统";
+
+/* Class = "IBUILabel"; text = "数量："; ObjectID = "pht-1w-YjY"; */
+"pht-1w-YjY.text" = "数量：";
+
+/* Class = "IBUILabel"; text = "联想"; ObjectID = "qmm-Pd-bC7"; */
+"qmm-Pd-bC7.text" = "联想";
+
+/* Class = "IBUILabel"; text = "数量：1"; ObjectID = "rEg-Bv-lR3"; */
+"rEg-Bv-lR3.text" = "数量：1";
+
+/* Class = "IBUILabel"; text = "使用人："; ObjectID = "rMr-Az-csw"; */
+"rMr-Az-csw.text" = "使用人：";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "rrD-7O-7wb"; */
+"rrD-7O-7wb.text" = "Label";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "t1B-Na-b58"; */
+"t1B-Na-b58.text" = "Label";
+
+/* Class = "IBUINavigationItem"; title = "资产变更[张三]"; ObjectID = "uTl-WS-qbb"; */
+"uTl-WS-qbb.title" = "资产变更[张三]";
+
+/* Class = "IBUINavigationItem"; title = "资产搜索"; ObjectID = "xyk-uX-IYr"; */
+"xyk-uX-IYr.title" = "资产搜索";

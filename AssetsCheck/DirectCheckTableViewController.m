@@ -37,23 +37,28 @@
                                    action:@selector(replyButton)];
     self.navigationItem.leftBarButtonItem = leftButton;
     
-    UIBarButtonItem *rightButton = [[UIBarButtonItem alloc]
+    UIBarButtonItem *addButton = [[UIBarButtonItem alloc]
                                     initWithBarButtonSystemItem:UIBarButtonSystemItemAdd
                                     target:self
-                                    action:@selector(add)];
+                                    action:@selector(addButton)];
+    UIBarButtonItem *submitButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(submitButton)];
     
-    self.navigationItem.rightBarButtonItem = rightButton;
+    self.navigationItem.rightBarButtonItems = @[addButton,submitButton];
     
     [self scan];
     
 	// Do any additional setup after loading the view.
 }
 
--(void)add
+-(void)addButton
 {
     [self scan];
 }
 
+-(void)submitButton
+{
+    
+}
 -(void)scan
 {
     //扫描
@@ -112,12 +117,13 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    static NSString *CellIdentifier = @"AssignmentCheckCell";
+    static NSString *CellIdentifier = @"DirectCheckCell";
 
     DirectCheckCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
     
     [cell.isCheckButton setBackgroundImage:dataSource[indexPath.row] forState:UIControlStateNormal];
     
+    cell.img.image = dataSource[indexPath.row];
     // Configure the cell...
     
     return cell;

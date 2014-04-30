@@ -10,7 +10,8 @@
 #import "AFHTTPRequestOperationManager.h"
 
 @interface JiaoTongBuClient : AFHTTPRequestOperationManager
-
+{
+}
 +(instancetype)sharedClient;
 
 -(NSDictionary *)XMLParser:(NSData *)data;

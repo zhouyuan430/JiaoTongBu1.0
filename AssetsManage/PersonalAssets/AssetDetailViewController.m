@@ -58,6 +58,7 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     [self.navigationController popViewControllerAnimated:YES];
 }
 
+//上拉加载
 - (void)addFooter
 {
     __unsafe_unretained AssetDetailViewController *vc = self;
@@ -74,7 +75,7 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     _footer = footer;
 }
 
-
+//下拉加载
 - (void)addHeader
 {
     __unsafe_unretained AssetDetailViewController *vc = self;
@@ -83,20 +84,12 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     header.scrollView = self.tableView;
     header.beginRefreshingBlock = ^(MJRefreshBaseView *refreshView) {
         // 进入刷新状态就会回调这个Block
-        
         // 模拟延迟加载数据，因此2秒后才调用）
-        // 这里的refreshView其实就是header
         [vc performSelector:@selector(NextView:) withObject:refreshView afterDelay:0.2];
     };
-    
-    header.endStateChangeBlock = ^(MJRefreshBaseView *refreshView) {
-        // 刷新完毕就会回调这个Block
-       // NSLog(@"%@----刷新完毕", refreshView.class);
-    };
-    
-    //[header beginRefreshing];
     _header = header;
 }
+
 - (void)PreviousView:(MJRefreshBaseView *)refreshView
 {
     if (currentLine>0) {
@@ -132,8 +125,6 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     [myActionSheet showInView:self.view];
 }
 
-
-
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
 {
     
@@ -142,7 +133,6 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     {
         NSLog(@"取消");
     }
-    
     switch (buttonIndex)
     {
         case 0:  //打开照相机拍照
@@ -230,51 +220,53 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
         tmp.assetImgUrl = filePath;
         [self.tableView reloadData];
         
-        [self upLoadImage:data assetID:tmp.assetID cate:tmp.assetCate];
+        [self upLoadImage:data assetID:tmp.assetID];
         //[self.assetImgButton setImage:image forState:UIControlStateNormal];
     }
     
 }
 
--(void)upLoadImage:(NSData *)imageData assetID:(NSString *)aid cate:(NSString *)cate
+-(void)upLoadImage:(NSData *)imageData assetID:(NSString *)aid
 {
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
+
     NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
     NSString *token = [[UserDefaults userDefaults] getdata:kToken];
     
-    //NSLog(@"%@",imageData);
+    NSString *imageString = [imageData base64Encoding];
     
-    NSString *imageString = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-    
-    NSString *url = [[NSString stringWithFormat:@"%@b=%@&token=%@&uid=%@",uploadImage,imageString,token,uid] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-    NSLog(@"\n\n\n\n%@",url);
-    
-    [[JiaoTongBuClient sharedClient] GET:url parameters:nil success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
+  
+     NSDictionary *parameters =@{@"b":imageString,@"token":token ,@"uid":uid};
+    [[JiaoTongBuClient sharedClient] POST:uploadImage parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
         
+    } success:^(AFHTTPRequestOperation *operation, id responseObject) {
+
         NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
-        
-        NSLog(@"%@",[dic[@"data"] objectAtIndex:0][@"url"]);
-        NSLog(@"%@",dic[@"msg"]);
-        [self upLoadAssetImage:aid path:[dic[@"data"] objectAtIndex:0][@"url"] cate:cate];
+        NSLog(@"%@",dic);
+        [self upLoadAssetImage:aid path:[dic[@"data"] objectAtIndex:0][@"url"]];
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"%@",error);
+        [self showMsg:error.localizedDescription];
+        NSLog(@"%@",error.localizedDescription);
     }];
+
 }
 
--(void)upLoadAssetImage:(NSString *)aid path:(NSString *)path cate:(NSString *)cate
+-(void)upLoadAssetImage:(NSString *)aid path:(NSString *)path
 {
     NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
     NSString *token = [[UserDefaults userDefaults] getdata:kToken];
+    NSDictionary *parametes = @{@"uid":uid,@"token":token,@"path":path,@"aid":aid,@"cate":@"1"};
     
-    NSString *url = [[NSString stringWithFormat:@"%@uid=%@&token=%@&path=%@&aic=%@&cate=%@",uploadAssetImage,uid,token,path,aid,cate] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-    NSLog(@"%@",url);
-    
-    [[JiaoTongBuClient sharedClient] GET:url parameters:nil success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
+    [[JiaoTongBuClient sharedClient] GET:uploadAssetImage parameters:parametes success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
         NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
         [self showMsg:dic[@"msg"]];
-         
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO; //隐藏
+        
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"%@",error);
+        [self showMsg:error.localizedDescription];
+        NSLog(@"%@",error.localizedDescription);
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO; //隐藏
     }];
 }
 
@@ -295,7 +287,6 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
-    NSLog(@"您取消了选择图片");
     [picker dismissViewControllerAnimated:YES completion:^{}];
 }
 
@@ -343,18 +334,5 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     return cell;
 }
 
-
-
-/*
-#pragma mark - Navigation
-
-// In a story board-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-
- */
 
 @end

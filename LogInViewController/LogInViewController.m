@@ -77,9 +77,10 @@
 {
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
     //网络请求
-    NSString *loginUrl = [[NSString stringWithFormat:@"%@usrname=%@&password=%@",login,userName,password] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+ 
+    NSDictionary *parameters = @{@"usrname":userName,@"password":password};
     
-    [[JiaoTongBuClient sharedClient] GET:loginUrl parameters:nil success:^(AFHTTPRequestOperation *operation, NSData *XMLParser) {
+    [[JiaoTongBuClient sharedClient] GET:login parameters:parameters success:^(AFHTTPRequestOperation *operation, NSData *XMLParser) {
         
         //XML解析
         NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:XMLParser];
@@ -102,12 +103,12 @@
         else{
             [self showMsg:dic[@"msg"]];
         }
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         [self showMsg:error.localizedDescription];
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     }];
-    
-    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO; //显示
 }
 
 //弹出提示框
