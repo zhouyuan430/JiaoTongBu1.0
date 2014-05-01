@@ -8,8 +8,8 @@
 #import "PersonalAssetsViewController.h"
 #import "AssetCell.h"
 #import "AssetInfo.h"
+#import "TMDiskCache.h"
 #import "AssetDetailViewController.h"
-#import "CommenData.h"
 #import "JiaoTongBuClient.h"
 @interface PersonalAssetsViewController ()
 
@@ -58,7 +58,7 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 -(void)viewDidDisappear:(BOOL)animated
 {
     if (searched) {
-        [[CommenData mainShare] DeleteFile:KAssetsListPlist];
+        [[TMDiskCache sharedCache] removeObjectForKey:KAssetsListPlist];
     }
 }
 
@@ -96,10 +96,9 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     [self.tableView reloadData];
 
     
-    if ([[CommenData mainShare] isExistsFile:KAssetsListPlist]) {
+    if ([[TMDiskCache sharedCache] objectForKey:KAssetsListPlist] != nil) {
         NSLog(@"本地");
-        [self loadData:[[CommenData mainShare] getInfo:KAssetsListPlist]];
-        
+        [self loadData:(NSDictionary *)[[TMDiskCache sharedCache] objectForKey:KAssetsListPlist]];
     }
     else{
         
@@ -114,7 +113,8 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
             if ([dic[@"status"] isEqualToString:@"A0006"])
             {
                 //存储数据,历史缓存类型
-                [[CommenData mainShare] saveInfo:dic fileName:KAssetsListPlist];
+                [[TMDiskCache sharedCache] setObject:dic forKey:KAssetsListPlist];
+                
                 [self loadData:dic];
             }
             else{
@@ -201,7 +201,7 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 //点击搜索按钮时，隐藏键盘，显示搜索内容
 -(void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
 {
-    [[CommenData mainShare] DeleteFile:KAssetsListPlist];
+    [[TMDiskCache sharedCache] removeObjectForKey:KAssetsListPlist];
     searched = YES;
     [self searchBarCancelButtonClicked:searchBar];
 
@@ -243,7 +243,7 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 
 - (void)NextView:(MJRefreshBaseView *)refreshView
 {
-    [[CommenData mainShare] DeleteFile:KAssetsListPlist];
+    [[TMDiskCache sharedCache] removeObjectForKey:KAssetsListPlist];
     [self getData:assetSearchBar.text];
     
     // (最好在刷新表格后调用)调用endRefreshing可以结束刷新状态

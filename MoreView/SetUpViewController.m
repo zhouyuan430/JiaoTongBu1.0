@@ -7,9 +7,8 @@
 //
 
 #import "SetUpViewController.h"
-#import "CommenData.h"
 #import "DiskCache.h"
-
+#import "TMDiskCache.h"
 @interface SetUpViewController ()
 
 @end
@@ -82,10 +81,7 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
 
 -(void)clear
 {
-    [[CommenData mainShare] DeleteFile:KAuthListPlist];
-    [[CommenData mainShare] DeleteFile:KContactInfoPlist];
-    [[CommenData mainShare] DeleteFile:KAssetsListPlist];
-    [[CommenData mainShare] DeleteFile:KCheckListPlist];
+    [[TMDiskCache sharedCache] removeAllObjects];
 }
 
 -(void)showMsg:(NSString *)msg

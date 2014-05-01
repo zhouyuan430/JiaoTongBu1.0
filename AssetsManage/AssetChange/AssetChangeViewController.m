@@ -9,8 +9,8 @@
 #import "AssetChangeViewController.h"
 #import "AssetChangeCell.h"
 #import "JiaoTongBuClient.h"
-#import "CommenData.h"
 #import "AssetInfo.h"
+#import "TMDiskCache.h"
 @interface AssetChangeViewController ()
 
 @end
@@ -68,9 +68,9 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     [dataSource removeAllObjects];
     [self.tableView reloadData];
 
-    if ([[CommenData mainShare] isExistsFile:KAssetsListPlist]) {
+    if ([[TMDiskCache sharedCache] objectForKey:KAssetsListPlist] != nil) {
         NSLog(@"本地");
-        [self loadData:[[CommenData mainShare] getInfo:KAssetsListPlist]];
+        [self loadData:(NSDictionary *)[[TMDiskCache sharedCache] objectForKey:KAssetsListPlist]];
         
     }
     else{
@@ -87,7 +87,7 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
             if ([dic[@"status"] isEqualToString:@"A0006"])
             {
                 //存储数据,历史缓存类型
-                [[CommenData mainShare] saveInfo:dic fileName:KAssetsListPlist];
+                [[TMDiskCache sharedCache] setObject:dic forKey:KAssetsListPlist];
                 [self loadData:dic];
             }
             else{
@@ -307,7 +307,7 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 
 - (void)NextView:(MJRefreshBaseView *)refreshView
 {
-    [[CommenData mainShare] DeleteFile:KAssetsListPlist];
+    [[TMDiskCache sharedCache] removeObjectForKey:KAssetsListPlist];
     [self getData];
     // (最好在刷新表格后调用)调用endRefreshing可以结束刷新状态
     [refreshView endRefreshing];

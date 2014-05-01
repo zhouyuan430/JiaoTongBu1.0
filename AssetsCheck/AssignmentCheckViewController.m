@@ -9,7 +9,7 @@
 #import "AssignmentCheckViewController.h"
 #import "AssignmentCheckCell.h"
 #import "AssetInfo.h"
-#import "CommenData.h"
+#import "TMDiskCache.h"
 #import "JiaoTongBuClient.h"
 #import "ZBarSDK.h"
 @interface AssignmentCheckViewController ()
@@ -73,9 +73,9 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
     
     [self.tableView reloadData];
 
-    if ([[CommenData mainShare] isExistsFile:KCheckListPlist]) {
+    if ([[TMDiskCache sharedCache] objectForKey:KCheckListPlist] != nil) {
         NSLog(@"本地");
-        [self loadData:[[CommenData mainShare] getInfo:KCheckListPlist]];
+        [self loadData:(NSDictionary *)[[TMDiskCache sharedCache] objectForKey:KCheckListPlist]];
     }
     else{
         [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
@@ -91,7 +91,7 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
             if ([dic[@"status"] isEqualToString:@"A0006"])
             {
                 //存储数据,历史缓存类型
-                [[CommenData mainShare] saveInfo:dic fileName:KCheckListPlist];
+                [[TMDiskCache sharedCache] setObject:dic forKey:KCheckListPlist];
                 [self loadData:dic];
             }
             else{
@@ -305,8 +305,6 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
         NSLog(@"%@",error);
     }];
 }
-
-
 #pragma 下拉刷新
 - (void)addHeader
 {
@@ -326,8 +324,7 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
 
 - (void)NextView:(MJRefreshBaseView *)refreshView
 {
-    [[CommenData mainShare] DeleteFile:KCheckListPlist];
-    
+    [[TMDiskCache sharedCache] removeObjectForKey:KCheckListPlist];
     [self getData];
 
     //结束刷新状态

@@ -9,8 +9,7 @@
 #import "AssetDetailViewController.h"
 #import "AssetDetailCell.h"
 #import "AssetInfo.h"
-#import "TMCache.h"
-#import "CommenData.h"
+#import "TMDiskCache.h"
 #import "JiaoTongBuClient.h"
 @interface AssetDetailViewController ()
 

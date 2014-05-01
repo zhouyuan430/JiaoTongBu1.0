@@ -102,7 +102,6 @@
 		C02BE8C1190948E300A697BD /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C02BE8C0190948E300A697BD /* libiconv.dylib */; };
 		C03B26FF1908EC6600479408 /* SearchDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C03B26FE1908EC6600479408 /* SearchDetailViewController.m */; };
 		C03B27021908EDB100479408 /* SearchDetailCell.m in Sources */ = {isa = PBXBuildFile; fileRef = C03B27011908EDB100479408 /* SearchDetailCell.m */; };
-		C03F593818FEE6C20041E417 /* CommenData.m in Sources */ = {isa = PBXBuildFile; fileRef = C03F593718FEE6C20041E417 /* CommenData.m */; };
 		C064A97C18F78B6E004C8774 /* AssetCell.m in Sources */ = {isa = PBXBuildFile; fileRef = C064A97B18F78B6E004C8774 /* AssetCell.m */; };
 		C0702BDE1904B47A00C095EB /* GDataXMLNode.m in Sources */ = {isa = PBXBuildFile; fileRef = C0702BDD1904B47A00C095EB /* GDataXMLNode.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		C0702BE01904B4B200C095EB /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C0702BDF1904B4B200C095EB /* libxml2.dylib */; };
@@ -281,8 +280,6 @@
 		C03B26FE1908EC6600479408 /* SearchDetailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SearchDetailViewController.m; sourceTree = "<group>"; };
 		C03B27001908EDB100479408 /* SearchDetailCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchDetailCell.h; sourceTree = "<group>"; };
 		C03B27011908EDB100479408 /* SearchDetailCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SearchDetailCell.m; sourceTree = "<group>"; };
-		C03F593618FEE6C20041E417 /* CommenData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommenData.h; sourceTree = "<group>"; };
-		C03F593718FEE6C20041E417 /* CommenData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CommenData.m; sourceTree = "<group>"; };
 		C064A97A18F78B6E004C8774 /* AssetCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetCell.h; sourceTree = "<group>"; };
 		C064A97B18F78B6E004C8774 /* AssetCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetCell.m; sourceTree = "<group>"; };
 		C0702BDC1904B47A00C095EB /* GDataXMLNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GDataXMLNode.h; sourceTree = "<group>"; };
@@ -727,8 +724,6 @@
 				C00EA52C18FC0C4C0093BC20 /* DiskCache.m */,
 				C00EA53118FC18060093BC20 /* AssetImage.h */,
 				C00EA53218FC18060093BC20 /* AssetImage.m */,
-				C03F593618FEE6C20041E417 /* CommenData.h */,
-				C03F593718FEE6C20041E417 /* CommenData.m */,
 				C0EEE6751902EF480093B619 /* JiaoTongBuClient.h */,
 				C0EEE6761902EF480093B619 /* JiaoTongBuClient.m */,
 				C0702BF819062FB600C095EB /* ServerAddr.h */,
@@ -985,7 +980,6 @@
 				C0702BE61905046F00C095EB /* AssetChangeCell.m in Sources */,
 				C0C7B9D118F7B3F300566E3E /* AssetInfo.m in Sources */,
 				C00D1EE918F6CFF60026D610 /* LogInViewController.m in Sources */,
-				C03F593818FEE6C20041E417 /* CommenData.m in Sources */,
 				C00E5B4418FAD45700C8AA43 /* ContactInfoCell.m in Sources */,
 				C00D1C8018F6784F0026D610 /* ViewController.m in Sources */,
 				C00D1E3B18F67CA90026D610 /* AFHTTPRequestOperationManager.m in Sources */,

@@ -8,7 +8,7 @@
 
 #import "AssetsSearchViewController.h"
 #import "AssetInfo.h"
-#import "CommenData.h"
+#import "TMDiskCache.h"
 #import "JiaoTongBuClient.h"
 #import "AssetCell.h"
 #import "SearchDetailViewController.h"
@@ -39,7 +39,7 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
 -(void)viewDidDisappear:(BOOL)animated
 {
     if (searched) {
-        [[CommenData mainShare] DeleteFile:KAuthListPlist];
+        [[TMDiskCache sharedCache] removeObjectForKey:KAuthListPlist];
     }
 }
 
@@ -79,9 +79,9 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
     [dataSource removeAllObjects];
    // [self.tableView reloadData];
 
-    if ([[CommenData mainShare] isExistsFile:KAuthListPlist]) {
+    if ([[TMDiskCache sharedCache] objectForKey:KAuthListPlist]!= nil) {
         NSLog(@"本地");
-        [self loadData:[[CommenData mainShare] getInfo:KAuthListPlist]];
+        [self loadData:(NSDictionary *)[[TMDiskCache sharedCache] objectForKey:KAuthListPlist]];
     }
     else{
         [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
@@ -98,7 +98,7 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
             if ([dic[@"status"] isEqualToString:@"A0006"])
             {
                 //存储数据,历史缓存类型
-                [[CommenData mainShare] saveInfo:dic fileName:KAuthListPlist];
+                [[TMDiskCache sharedCache] setObject:dic forKey:KAuthListPlist];
                 [self loadData:dic];
             }
             else{
@@ -205,7 +205,7 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
 //点击搜索按钮时，隐藏键盘，显示搜索内容
 -(void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
 {
-    [[CommenData mainShare] DeleteFile:KAuthListPlist];
+    [[TMDiskCache sharedCache] removeObjectForKey:KAuthListPlist];
     searched = YES;
     [self getData:searchBar.text searchItem:@""];
     [searchBar resignFirstResponder];
@@ -228,7 +228,7 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
 
 - (void)PreviousView:(MJRefreshBaseView *)refreshView
 {
-    [[CommenData mainShare] DeleteFile:KAuthListPlist];
+    [[TMDiskCache sharedCache] removeObjectForKey:KAuthListPlist];
     size += 20;
     [self getData:searchBarButton.text searchItem:@""];
     [refreshView endRefreshing];

@@ -9,8 +9,7 @@
 #import "SearchDetailViewController.h"
 #import "SearchDetailCell.h"
 #import "AssetInfo.h"
-#import "TMCache.h"
-#import "CommenData.h"
+#import "TMDiskCache.h"
 @interface SearchDetailViewController ()
 
 @end
@@ -68,9 +67,9 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
     [dataSource removeAllObjects];
     [self.tableView reloadData];
 
-    if ([[CommenData mainShare] isExistsFile:KAuthListPlist]) {
+    if ([[TMDiskCache sharedCache] objectForKey:KAuthListPlist] != nil) {
         NSLog(@"本地");
-        [self loadData:[[CommenData mainShare] getInfo:KAuthListPlist]];
+        [self loadData:(NSDictionary *)[[TMDiskCache sharedCache] objectForKey:KAuthListPlist]];
     }
 }
 

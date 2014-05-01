@@ -9,9 +9,10 @@
 #import "ContactInfoViewController.h"
 #import "JiaoTongBuClient.h"
 #import "ServerAddr.h"
-#import "CommenData.h"
 #import "ContactInfo.h"
 #import "ContactInfoCell.h"
+#import "TMDiskCache.h"
+
 @interface ContactInfoViewController ()
 
 @end
@@ -62,12 +63,14 @@ static NSString* const KContactInfoPlist = @"ContactInfo.plist";
 {
     [dataSource removeAllObjects];
     [self.tableView reloadData];
-
-    if ([[CommenData mainShare] isExistsFile:KContactInfoPlist]) {
+    
+    if ([[TMDiskCache sharedCache] objectForKey:KContactInfoPlist] != nil) {
         NSLog(@"本地");
-       [self loadData:[[CommenData mainShare] getInfo:KContactInfoPlist]];
+       [self loadData:(NSDictionary *)[[TMDiskCache sharedCache] objectForKey:KContactInfoPlist]];
     }
     else{
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
+        
         NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
         NSString *token = [[UserDefaults userDefaults] getdata:kToken];
     
@@ -78,8 +81,8 @@ static NSString* const KContactInfoPlist = @"ContactInfo.plist";
             NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
             if ([dic[@"status"] isEqualToString:@"A0006"])
             {
-                //存储数据,历史缓存类型
-                [[CommenData mainShare] saveInfo:dic fileName:KContactInfoPlist];
+                [[TMDiskCache sharedCache] setObject:dic forKey:KContactInfoPlist];
+                
                 [self loadData:dic];
             }
             else{
@@ -89,6 +92,9 @@ static NSString* const KContactInfoPlist = @"ContactInfo.plist";
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
             NSLog(@"%@",error);
         }];
+        
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+
     }
 }
 
@@ -175,7 +181,7 @@ static NSString* const KContactInfoPlist = @"ContactInfo.plist";
 
 - (void)NextView:(MJRefreshBaseView *)refreshView
 {
-    [[CommenData mainShare] DeleteFile:KContactInfoPlist];
+    [[TMDiskCache sharedCache] removeObjectForKey:KContactInfoPlist];
     [self getData];
     
     

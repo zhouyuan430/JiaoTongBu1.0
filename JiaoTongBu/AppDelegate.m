@@ -7,15 +7,13 @@
 //
 
 #import "AppDelegate.h"
-#import "CommenData.h"
-
-static NSString* const KAssetsListPlist = @"AssetsList.plist";
-static NSString* const KContactInfoPlist = @"ContactInfo.plist";
-
+#import "TMDiskCache.h"
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    //设置缓存存储时间，自动清除缓存
+    //[TMDiskCache sharedCache].ageLimit = 259200;
     // Override point for customization after application launch.
     return YES;
 }

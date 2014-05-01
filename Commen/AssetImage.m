@@ -43,7 +43,6 @@
                         placeholderImage:[UIImage imageNamed:@"placeholder.png"]
                                  success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image){
                                      weakCell.image = image;
-                                     //only required if no placeholder is set to force the imageview on the cell to be laid out to house the new image.
                                      //图片缓存
                                      NSData* data = UIImageJPEGRepresentation(weakCell.image, 1.0);
                                      weakCell.img = data;
