@@ -9,11 +9,13 @@
 #import "DirectCheckTableViewController.h"
 #import "ZBarSDK.h"
 #import "DirectCheckCell.h"
+#import "ReadViewController.h"
 @interface DirectCheckTableViewController ()
 
 @end
 
 @implementation DirectCheckTableViewController
+
 @synthesize imageview;
 
 - (id)initWithStyle:(UITableViewStyle)style
@@ -24,7 +26,6 @@
     }
     return self;
 }
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -44,9 +45,6 @@
     UIBarButtonItem *submitButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(submitButton)];
     
     self.navigationItem.rightBarButtonItems = @[addButton,submitButton];
-    
-    [self scan];
-    
 	// Do any additional setup after loading the view.
 }
 
@@ -61,36 +59,21 @@
 }
 -(void)scan
 {
-    //扫描
-    ZBarReaderViewController *reader = [ZBarReaderViewController new];
-    reader.readerDelegate = self;
-    reader.supportedOrientationsMask = ZBarOrientationMaskAll;
-    
-    ZBarImageScanner *scanner = reader.scanner;
-    
-    [scanner setSymbology: ZBAR_I25
-                   config: ZBAR_CFG_ENABLE
-                       to: 0];
-    [self presentViewController:reader animated:YES completion:nil];
+    ReadViewController *readerView = [[ReadViewController alloc] init];
+    readerView.delegate = self;
+    [self.navigationController pushViewController:readerView animated:NO];
 }
 
-
-
--(void)imagePickerController:(UIImagePickerController *)reader didFinishPickingMediaWithInfo:(NSDictionary *)info
+-(void)getReadSymbolStr:(NSString *)symbolStr fromImage:(UIImage *)image
 {
-    id<NSFastEnumeration> results = [info objectForKey: ZBarReaderControllerResults];
-    ZBarSymbol *symbol = nil;
-    for(symbol in results)
-        break;
-    
-    //此图片要上传
-    imageview.image = [info objectForKey: UIImagePickerControllerOriginalImage];
-    
-    [dataSource addObject:[info objectForKey: UIImagePickerControllerOriginalImage]];
+    AssetInfo * tmp = [[AssetInfo alloc] init];
+    tmp.assetImg = image;
+    tmp.assetName = symbolStr;
+     [dataSource addObject:tmp];
     [self.tableView reloadData];
-    [reader dismissViewControllerAnimated:YES completion:nil];
+    
+    //[self upLoadImage:data  assetID:tmp.assetID IndexPath:selectedRowIndex];
 }
-
 -(IBAction)replyButton
 {
     [self.navigationController popViewControllerAnimated:YES];
@@ -105,13 +88,11 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    // Return the number of sections.
     return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    // Return the number of rows in the section.
     return [dataSource count];
 }
 
@@ -122,61 +103,13 @@
     DirectCheckCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
     
     [cell.isCheckButton setBackgroundImage:dataSource[indexPath.row] forState:UIControlStateNormal];
+    AssetInfo *tmp = dataSource[indexPath.row];
     
-    cell.img.image = dataSource[indexPath.row];
+    cell.assetName.text = tmp.assetName;
+    cell.img.image = tmp.assetImg;
+    
     // Configure the cell...
     
     return cell;
 }
-
-
-/*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
-}
-*/
-
-/*
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    } else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }   
-}
-*/
-
-/*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-}
-*/
-
-/*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
-
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
-
 @end

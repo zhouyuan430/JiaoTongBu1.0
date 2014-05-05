@@ -8,9 +8,9 @@
 
 #import <UIKit/UIKit.h>
 #import "MBProgressHUD.h"
-
 @interface LogInViewController : UIViewController <UITextFieldDelegate,NSXMLParserDelegate>
 {
+    //提示框
     MBProgressHUD * HUD;
 }
 
@@ -21,4 +21,5 @@
 
 -(IBAction)logInButton:(id)sender;
 -(IBAction)saveButton:(id)sender;
+
 @end

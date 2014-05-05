@@ -77,7 +77,7 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
 -(void)getData:(NSString *)keywd searchItem:(NSString *)Item
 {
     [dataSource removeAllObjects];
-   // [self.tableView reloadData];
+    [self.tableView reloadData];
 
     if ([[TMDiskCache sharedCache] objectForKey:KAuthListPlist]!= nil) {
         NSLog(@"本地");

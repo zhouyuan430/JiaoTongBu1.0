@@ -35,7 +35,7 @@
     [self.navigationItem setLeftBarButtonItem:leftButton];
     // Do any additional setup after loading the view.
 }
--(IBAction)ReplyButton
+-(void)ReplyButton
 {
     [self.navigationController popViewControllerAnimated:YES];
 }

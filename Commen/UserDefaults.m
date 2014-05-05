@@ -9,14 +9,25 @@
 #import "UserDefaults.h"
 
 @implementation UserDefaults
-static UserDefaults *_userDefaults;
+__strong static UserDefaults *singleton = nil;
 
 +(instancetype)userDefaults
 {
-    if(nil == _userDefaults){
-        _userDefaults = [[UserDefaults alloc] init];
-    }
-    return _userDefaults;
+    static dispatch_once_t pred = 0;
+    dispatch_once(&pred, ^{
+        singleton = [[super allocWithZone:NULL] init];
+    });
+    return singleton;
+}
+
++(id)allocWithZone:(NSZone *)zone
+{
+    return [self userDefaults];
+}
+
+-(id)copyWithZone:(NSZone *)zone
+{
+    return self;
 }
 
 -(void)setdata:(id)_data key:(NSString *)_key

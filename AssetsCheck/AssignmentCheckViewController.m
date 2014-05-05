@@ -11,7 +11,8 @@
 #import "AssetInfo.h"
 #import "TMDiskCache.h"
 #import "JiaoTongBuClient.h"
-#import "ZBarSDK.h"
+#import "ReadViewController.h"
+
 @interface AssignmentCheckViewController ()
 
 @end
@@ -185,47 +186,32 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
     return cell;
 }
 
+#pragma ------ 二维码扫描
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    //扫描
-    ZBarReaderViewController *reader = [ZBarReaderViewController new];
-    reader.readerDelegate = self;
-    reader.supportedOrientationsMask = ZBarOrientationMaskAll;
-    
-    ZBarImageScanner *scanner = reader.scanner;
-    
-    [scanner setSymbology: ZBAR_I25
-                   config: ZBAR_CFG_ENABLE
-                       to: 0];
-
-    [self presentViewController:reader animated:YES completion:nil];
+    ReadViewController *readerView = [[ReadViewController alloc] init];
+    readerView.delegate = self;
+    [self.navigationController pushViewController:readerView animated:YES];
 }
--(void)imagePickerController:(UIImagePickerController *)reader didFinishPickingMediaWithInfo:(NSDictionary *)info
+
+-(void)getReadSymbolStr:(NSString *)symbolStr fromImage:(UIImage *)image
 {
     //当前选中行
     NSIndexPath *selectedRowIndex = [self.tableView indexPathForSelectedRow];
-    
-    //长传标记
+    //选中标记
     isChecked[selectedRowIndex.row] = @"1";
-    
-    
     AssetInfo *tmp = dataSource[selectedRowIndex.row];
-
-    id<NSFastEnumeration> results = [info objectForKey: ZBarReaderControllerResults];
-    ZBarSymbol *symbol = nil;
-    for(symbol in results)
-        break;
-    //加上是否是正确的资产
     
-    UIImage * image = [info objectForKey: UIImagePickerControllerOriginalImage];
     NSData *data = UIImagePNGRepresentation(image);
-
-    [reader dismissViewControllerAnimated:YES completion:nil];
+    
     [self upLoadImage:data  assetID:tmp.assetID IndexPath:selectedRowIndex];
 }
 
+#pragma ----- 数据上传
 -(void)upLoadImage:(NSData *)imageData assetID:(NSString *)aid IndexPath:(NSIndexPath *)indexPath
 {
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
+
     NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
     NSString *token = [[UserDefaults userDefaults] getdata:kToken];
     
@@ -239,17 +225,18 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
         NSLog(@"%@",dic);
 
         [self upLoadAssetImage:aid path:[dic[@"data"] objectAtIndex:0][@"url"] IndexPath:indexPath];
+        
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         [self showMsg:error.localizedDescription];
         NSLog(@"%@",error.localizedDescription);
-
     }];
+    
 }
 
 -(void)upLoadAssetImage:(NSString *)aid path:(NSString *)path IndexPath:(NSIndexPath *)indexPath
 {
     //设置path
-    assetsPath[indexPath.row] = [NSString stringWithFormat:@"%@",path];
+    assetsPath[indexPath.row] = path;
     
     NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
     NSString *token = [[UserDefaults userDefaults] getdata:kToken];
@@ -258,15 +245,14 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
     [[JiaoTongBuClient sharedClient] GET:uploadAssetImage parameters:parametes success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
         NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
         [self showMsg:dic[@"msg"]];
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO; //隐藏
-        
+        [self.tableView reloadData];
+
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         [self showMsg:error.localizedDescription];
         NSLog(@"%@",error.localizedDescription);
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO; //隐藏
     }];
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO; //隐藏
 }
-
 
 -(void)submitButton
 {
@@ -279,7 +265,7 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
             AssignmentCheckCell *cell = (AssignmentCheckCell *)[self.tableView cellForRowAtIndexPath:selectedRowIndex];
             
             cell.isCheckButton.selected = YES;
-            NSLog(@"%@",assetsPath[i]);
+            
             [self upLoadCheckList:tmp.assetID  path:assetsPath[i]];
             
         }
@@ -293,12 +279,13 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
     NSString *token = [[UserDefaults userDefaults] getdata:kToken];
 
     NSDictionary *parameters = @{@"uid":uid,@"token":token,@"path":path,@"aid":aid};
-    
+   
     [[JiaoTongBuClient sharedClient] GET:uploadCheckList parameters:parameters success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
         
         NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
         
         [self showMsg:dic[@"msg"]];
+        
         [self.tableView reloadData];
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {

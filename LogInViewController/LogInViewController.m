@@ -34,6 +34,11 @@
 -(void)viewDidAppear:(BOOL)animated
 {
     if ([[UserDefaults userDefaults] getdata:kUserName]) {
+        
+        passwordTextField.text = @"111111";
+        userNameTextField.text = [[UserDefaults userDefaults] getdata:kUserName];
+        isSaveButton.selected = YES;
+        
         [self logIn:[[UserDefaults userDefaults] getdata:kUserName] password:[[UserDefaults userDefaults] getdata:kPassword ]];
     }
 }
@@ -75,6 +80,9 @@
 //登录
 -(void)logIn:(NSString *)userName password:(NSString *)password
 {
+    HUD = [[MBProgressHUD alloc] initWithView:self.view];
+    [self showLogIn];
+    
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
     //网络请求
     NSDictionary *parameters = @{@"usrname":userName,@"password":password};
@@ -96,15 +104,21 @@
                 [[UserDefaults userDefaults] setdata:dict[@"uid"] key:kUserID];
                 [[UserDefaults userDefaults] setdata:password key:kPassword];
             }
+            [HUD removeFromSuperview];
+            HUD = nil;
             //跳转
             [self toRootView];
         }
         else{
+            [HUD removeFromSuperview];
+            HUD = nil;
             [self showMsg:dic[@"msg"]];
         }
         [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        [HUD removeFromSuperview];
+        HUD = nil;
         [self showMsg:error.localizedDescription];
         [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     }];
@@ -113,16 +127,24 @@
 //弹出提示框
 -(void)showMsg:(NSString*)msg
 {
-    HUD = [[MBProgressHUD alloc] initWithView:self.view];
     [self.view addSubview:HUD];
     HUD.labelText = msg;
     HUD.mode = MBProgressHUDModeText;
     [HUD showAnimated:YES whileExecutingBlock:^{
-        sleep(2);
+        //sleep(2);
     } completionBlock:^{
         [HUD removeFromSuperview];
         HUD = nil;
     }];
+}
+
+-(void)showLogIn
+{
+    HUD = [[MBProgressHUD alloc] initWithView:self.view];
+    [self.view addSubview:HUD];
+    HUD.dimBackground = YES;
+    HUD.labelText = @"请稍等";
+    [HUD show:YES];
 }
 
 //跳转界面

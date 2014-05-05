@@ -7,11 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "ZBarSDK.h"
+#import "ReadViewController.h"
 
-@interface DirectCheckTableViewController : UITableViewController <ZBarReaderDelegate>
+@interface DirectCheckTableViewController : UITableViewController <getReaderViewDelegate>
 {
-    NSMutableArray *dataSource;
+     NSMutableArray *dataSource;
 }
 
 @property (strong, nonatomic) IBOutlet UIImageView *imageview;

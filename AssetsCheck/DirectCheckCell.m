@@ -22,6 +22,7 @@
     }
     return self;
 }
+
 - (void)awakeFromNib
 {
     // Initialization code

@@ -123,6 +123,7 @@
 		C0BE81431900199F00AE1B1A /* HelpViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C0BE81421900199F00AE1B1A /* HelpViewController.m */; };
 		C0C7B9D118F7B3F300566E3E /* AssetInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = C0C7B9D018F7B3F300566E3E /* AssetInfo.m */; };
 		C0EEE6771902EF480093B619 /* JiaoTongBuClient.m in Sources */ = {isa = PBXBuildFile; fileRef = C0EEE6761902EF480093B619 /* JiaoTongBuClient.m */; };
+		C0FD63771912A9AD003088A6 /* ReadViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C0FD63761912A9AD003088A6 /* ReadViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -336,6 +337,8 @@
 		C0E6D998190E8A300087C1D3 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		C0EEE6751902EF480093B619 /* JiaoTongBuClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JiaoTongBuClient.h; sourceTree = "<group>"; };
 		C0EEE6761902EF480093B619 /* JiaoTongBuClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JiaoTongBuClient.m; sourceTree = "<group>"; };
+		C0FD63751912A9AD003088A6 /* ReadViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReadViewController.h; sourceTree = "<group>"; };
+		C0FD63761912A9AD003088A6 /* ReadViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReadViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -599,6 +602,8 @@
 				C072493A190A4CE600881EC9 /* DirectCheckTableViewController.m */,
 				C072493C190A731A00881EC9 /* DirectCheckCell.h */,
 				C072493D190A731A00881EC9 /* DirectCheckCell.m */,
+				C0FD63751912A9AD003088A6 /* ReadViewController.h */,
+				C0FD63761912A9AD003088A6 /* ReadViewController.m */,
 			);
 			path = AssetsCheck;
 			sourceTree = "<group>";
@@ -1025,6 +1030,7 @@
 				C00D1ED418F6A4C30026D610 /* MJRefreshBaseView.m in Sources */,
 				C00D1EDF18F6AEF40026D610 /* TMCache.m in Sources */,
 				C00D1ED618F6A4C30026D610 /* MJRefreshFooterView.m in Sources */,
+				C0FD63771912A9AD003088A6 /* ReadViewController.m in Sources */,
 				C00EA52D18FC0C4C0093BC20 /* DiskCache.m in Sources */,
 				C00D1C7A18F6784F0026D610 /* AppDelegate.m in Sources */,
 				C00D1EED18F6DCF90026D610 /* AssetsCheckViewController.m in Sources */,

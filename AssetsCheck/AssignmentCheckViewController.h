@@ -8,9 +8,10 @@
 
 #import <UIKit/UIKit.h>
 #import "MBProgressHUD.h"
-#import "ZBarSDK.h"
 #import "MJRefresh.h"
-@interface AssignmentCheckViewController : UITableViewController <ZBarReaderDelegate>
+#import "ReadViewController.h"
+
+@interface AssignmentCheckViewController : UITableViewController <getReaderViewDelegate>
 {
     NSMutableArray *dataSource;
     
