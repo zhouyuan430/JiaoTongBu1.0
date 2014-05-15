@@ -7,7 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "AssetInfo.h"
+@interface CheckAssetInfo : AssetInfo
 
-@interface CheckAssetInfo : NSObject
+@property (strong, nonatomic) NSString *checkFlag;
+
+
+-(CheckAssetInfo *)initWithCheckData:(NSDictionary *)dic;
 
 @end

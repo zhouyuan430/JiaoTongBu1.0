@@ -12,6 +12,8 @@
 #import "JiaoTongBuClient.h"
 #import "AssetCell.h"
 #import "SearchDetailViewController.h"
+#import "CloCombox.h"
+
 @interface AssetsSearchViewController ()
 
 @end
@@ -47,9 +49,13 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
 {
     [super viewDidLoad];
     
+    HHUD = [[MessageBox alloc] init];
+    
     [self addFooter];
+    [self addHeader];
     
     dataSource = [[NSMutableArray alloc] initWithCapacity:20];
+    searchItermArr = [[NSMutableArray alloc] initWithObjects:@"名称",@"使用人",@"处室",@"类别", nil];
     
     searched = NO;
     size = 20;
@@ -64,19 +70,28 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
     searchBarButton.showsCancelButton = YES;
     searchBarButton.delegate = self;
     
+    comBox = [[CloCombox alloc] initWithFrame:CGRectMake(100, 44, 120, 44) items:searchItermArr inView:self.view];
+    
+    self.navigationItem.titleView = comBox;
+    
     [self getData:@"" searchItem:@""];
     [self.tableView reloadData];
+}
+
+-(void)itemDidSelected:(NSInteger)index
+{
+    [comBox setTitle:searchItermArr[index]];
 }
 
 -(IBAction)ReplyButton
 {
     [self.navigationController popViewControllerAnimated:YES];
 }
-
 //获取数据
 -(void)getData:(NSString *)keywd searchItem:(NSString *)Item
 {
     [dataSource removeAllObjects];
+    
     [self.tableView reloadData];
 
     if ([[TMDiskCache sharedCache] objectForKey:KAuthListPlist]!= nil) {
@@ -88,9 +103,14 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
 
         NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
         NSString *token = [[UserDefaults userDefaults] getdata:kToken];
+        NSString *sizeStr = [NSString stringWithFormat:@"%d",size];
         
-        NSDictionary *paramenters = @{@"uid":uid,@"token":token,@"keywd":keywd,
-                                      @"searchItem":Item,@"page":@"1",@"size":[NSString stringWithFormat:@"%d",size]};
+        NSDictionary *paramenters = @{@"uid":uid,
+                                      @"token":token,
+                                      @"keywd":keywd,
+                                      @"searchItem":Item,
+                                      @"page":@"1",
+                                      @"size":sizeStr};
         
         [[JiaoTongBuClient sharedClient] GET:getAuthList parameters:paramenters success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
             
@@ -102,16 +122,15 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
                 [self loadData:dic];
             }
             else{
-                [self showMsg:dic[@"msg"]];
+                [HHUD showMsg:dic[@"msg"] viewController:self];
             }
-            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO; //显示
-
+          
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
             NSLog(@"%@",error);
-            [self showMsg:error.localizedDescription];
-            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO; //显示
-
+            [HHUD showMsg:error.localizedDescription viewController:self];
+            
         }];
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO; //隐藏
     }
 }
 
@@ -124,23 +143,6 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
     }
     [self.tableView reloadData];
 }
-
-//弹出提示框
--(void)showMsg:(NSString*)msg
-{
-    HUD = [[MBProgressHUD alloc] initWithView:self.view];
-    [self.view addSubview:HUD];
-    HUD.labelText = msg;
-    HUD.mode = MBProgressHUDModeText;
-    [HUD showAnimated:YES whileExecutingBlock:^{
-        sleep(2);
-    } completionBlock:^{
-        [HUD removeFromSuperview];
-        HUD = nil;
-    }];
-}
-
-
 
 - (void)didReceiveMemoryWarning
 {
@@ -169,12 +171,11 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
     if (cell == nil) {
         cell = [[AssetCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
-    cell.selectionStyle = UITableViewCellSelectionStyleNone;
     
     AssetInfo *tmp = dataSource[indexPath.row];
-    cell.assetName.text = tmp.assetName;
-    cell.assetKind.text = [NSString stringWithFormat:@"种类：%@",tmp.assetCate];
-    cell.assetcount.text = [NSString stringWithFormat:@"数量：%@",tmp.assetCount];
+    
+    [cell loadimg:tmp.assetImgPath];
+    [cell setData:tmp];
     
     return cell;
 }
@@ -185,13 +186,11 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
 {
     [self.searchBarButton resignFirstResponder];
     UIViewController *view = segue.destinationViewController;
-    if ([view respondsToSelector:@selector(setAssetInfo:)])
+    if ([view respondsToSelector:@selector(setCurrentInfo:)])
     {
         NSIndexPath *selectedRowIndex = [self.tableView indexPathForSelectedRow];
-        
         [view setValue:dataSource forKey:@"dataSource"];
         [view setValue:selectedRowIndex forKey:@"currentInfo"];
-        
     }
 }
 #pragma mark - SearchBar
@@ -207,7 +206,7 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
 {
     [[TMDiskCache sharedCache] removeObjectForKey:KAuthListPlist];
     searched = YES;
-    [self getData:searchBar.text searchItem:@""];
+    [self getData:searchBar.text searchItem:comBox.titleLable];
     [searchBar resignFirstResponder];
 }
 
@@ -225,12 +224,35 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
     };
     _footer = footer;
 }
+//下拉加载
+- (void)addHeader
+{
+    __unsafe_unretained AssetsSearchViewController *vc = self;
+    
+    MJRefreshHeaderView *header = [MJRefreshHeaderView header];
+    header.scrollView = self.tableView;
+    header.beginRefreshingBlock = ^(MJRefreshBaseView *refreshView) {
+        // 进入刷新状态就会回调这个Block
+        // 模拟延迟加载数据，因此2秒后才调用）
+        [vc performSelector:@selector(NextView:) withObject:refreshView afterDelay:0.2];
+    };
+    _header = header;
+}
+
 
 - (void)PreviousView:(MJRefreshBaseView *)refreshView
 {
     [[TMDiskCache sharedCache] removeObjectForKey:KAuthListPlist];
     size += 20;
-    [self getData:searchBarButton.text searchItem:@""];
+    [self getData:searchBarButton.text searchItem:comBox.titleLable];
+    [refreshView endRefreshing];
+}
+
+- (void)NextView:(MJRefreshBaseView *)refreshView
+{
+    // 刷新表格
+    [[TMDiskCache sharedCache] removeObjectForKey:KAuthListPlist];
+    [self getData:searchBarButton.text searchItem:comBox.titleLable];
     [refreshView endRefreshing];
 }
 

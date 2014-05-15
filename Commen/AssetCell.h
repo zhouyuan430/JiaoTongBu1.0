@@ -13,7 +13,9 @@
 @property (strong, nonatomic) IBOutlet UILabel *assetName;
 @property (strong, nonatomic) IBOutlet UILabel *assetKind;
 @property (strong, nonatomic) IBOutlet UILabel *assetcount;
+@property (strong, nonatomic) IBOutlet UIImageView *assetImg;
 
 -(void)setData:(AssetInfo *)tmp;
 
+-(void)loadimg:(NSString *)_url;
 @end

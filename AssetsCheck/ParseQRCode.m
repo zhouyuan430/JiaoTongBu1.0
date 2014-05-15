@@ -9,5 +9,42 @@
 #import "ParseQRCode.h"
 
 @implementation ParseQRCode
+@synthesize assetCate;
+@synthesize assetID;
+@synthesize assetName;
+@synthesize assetNum;
+@synthesize userName;
+@synthesize assetCardID;
+@synthesize parseInfo;
+
+-(ParseQRCode *)initWithData:(NSString *)str
+{
+    ParseQRCode *tmp = [[ParseQRCode alloc] init];
+    tmp.parseInfo = [[NSMutableDictionary alloc] init];
+    int begin = 0;
+    NSString *key, *object;
+    for (int i = 0;i < str.length; i++)
+    {
+        char t = [str characterAtIndex:i];
+        if (t == '=') {
+            
+            key = [str substringWithRange:NSMakeRange(begin, i - begin)];
+            
+            begin = i+1;
+            while ([str characterAtIndex:i] != ',') {
+                i++;
+                if (i == str.length) {
+                    break;
+                }
+            }
+            object = [str substringWithRange:NSMakeRange(begin, i - begin)];
+            begin = i+1;
+            
+            [tmp.parseInfo setObject:object forKey:key];
+        }
+    }
+    return tmp;
+}
+
 
 @end

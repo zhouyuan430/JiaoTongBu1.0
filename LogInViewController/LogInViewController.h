@@ -7,11 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "MBProgressHUD.h"
+#import "MessageBox.h"
+
 @interface LogInViewController : UIViewController <UITextFieldDelegate,NSXMLParserDelegate>
 {
     //提示框
-    MBProgressHUD * HUD;
+    MessageBox *HHUD;
 }
 
 @property (strong, nonatomic) IBOutlet UITextField *passwordTextField;

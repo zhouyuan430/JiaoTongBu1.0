@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "MBProgressHUD.h"
+#import "MessageBox.h"
 #import "MJRefresh.h"
 #import "ReadViewController.h"
 #import "ZBarSDK.h"
@@ -15,9 +15,7 @@
 @interface AssignmentCheckViewController : UITableViewController <getReaderViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate>
 {
     NSMutableArray *dataSource;
-    
-    NSMutableArray *isChecked;
-    
+        
     int submitCount;
     
     int checkedCount;
@@ -25,7 +23,7 @@
     int unCheckedCount;
     //NSMutableArray *assetsPath;
     
-    MBProgressHUD *HUD;
+    MessageBox *HHUD;
     
     MJRefreshHeaderView *_header;
     

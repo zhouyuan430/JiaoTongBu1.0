@@ -21,11 +21,15 @@
 
 #define uploadImage      @"http://health.lekangba.cn/axis2/services/AssetManageInter/uploadImage"
 
+#define uploadAssetImages @"http://health.lekangba.cn/axis2/services/AssetManageInter/uploadAssetImages"
+
 #define uploadCheckList  @"http://health.lekangba.cn/axis2/services/AssetManageInter/uploadCheckList"
+
+#define uploadCheckLists @"http://health.lekangba.cn/axis2/services/AssetManageInter/uploadCheckLists"
 
 #define uploadAssetImage @"http://health.lekangba.cn/axis2/services/AssetManageInter/uploadAssetImage"
 
 #define applyRefund      @"http://health.lekangba.cn/axis2/services/AssetManageInter/applyRefund"
-
+#define imagePath        @"health.lekangba.cn/axis2/AssetImage/"
 
 #endif

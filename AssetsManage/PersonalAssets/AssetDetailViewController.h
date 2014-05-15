@@ -9,17 +9,14 @@
 #import <UIKit/UIKit.h>
 #import "MJRefresh.h"
 #import "AssetInfo.h"
-#import "MBProgressHUD.h"
+#import "MessageBox.h"
 @interface AssetDetailViewController : UITableViewController <UIActionSheetDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate>
 {
-    MBProgressHUD *HUD;
+    MessageBox *HHUD;
     
     NSMutableArray *dataSource;
     //图片选择器
     UIActionSheet *myActionSheet;
-    
-    //图片2进制路径
-    NSString* filePath;
     
     //下拉和上拉
     MJRefreshHeaderView *_header;
@@ -29,7 +26,8 @@
 }
 @property (strong, nonatomic) NSMutableArray *dataSource;
 @property (strong, nonatomic) NSIndexPath *currentInfo;
-@property (strong, nonatomic) AssetInfo *assetInfo;
+
+//@property (strong, nonatomic) AssetInfo *assetInfo;
 
 -(IBAction)imgClick:(id)sender;
 @end

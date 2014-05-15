@@ -8,17 +8,16 @@
 
 #import <UIKit/UIKit.h>
 #import "AssetInfo.h"
-#import "MBProgressHUD.h"
+#import "MessageBox.h"
 #import "MJRefresh.h"
 
-@interface PersonalAssetsViewController : UITableViewController <UITextFieldDelegate,UISearchBarDelegate>
+@interface PersonalAssetsViewController : UITableViewController <UITextFieldDelegate,UISearchBarDelegate,UINavigationControllerDelegate>
 {
     NSMutableArray *dataSource;
     
     //判断是否经历过搜索
     BOOL searched;
-    
-    MBProgressHUD * HUD;
+    MessageBox *HHUD;
     
     MJRefreshHeaderView *_header;
 }

@@ -18,9 +18,11 @@
 @synthesize userName;
 @synthesize directorName;
 @synthesize useDeadline;
-@synthesize assetImgUrl;
+@synthesize assetImgPath;
 @synthesize assetImg;
 @synthesize assetValue;
+@synthesize assetCardID;
+@synthesize upLoadPath;
 
 -(AssetInfo *)initWithData:(NSDictionary *)dic
 {
@@ -33,6 +35,8 @@
         tmp.userName = dic[@"username"];
         tmp.assetCount = dic[@"count"];
         tmp.directorName = dic[@"useDepartment"];
+        tmp.assetCardID = dic[@"assetCardId"];
+        tmp.assetImgPath = dic[@"image"];
     }
     return tmp;
 }
@@ -48,6 +52,8 @@
         tmp.userName = dic[@"username"];
         tmp.assetCount = dic[@"num"];
         tmp.directorName = dic[@"name_department"];
+        tmp.assetCardID = dic[@"assetsId"];
+        tmp.assetImgPath = dic[@"image"];
     }
     return tmp;
 }

@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "MBProgressHUD.h"
+#import "MessageBox.h"
 #import "MJRefresh.h"
 @interface AssetChangeViewController : UITableViewController<UIAlertViewDelegate>
 {
@@ -16,8 +16,11 @@
     //选中框
     NSMutableArray *isSelected;
     //提示框
-    MBProgressHUD * HUD;
+    MessageBox * HHUD;
     //下拉刷新
     MJRefreshHeaderView *_header;
 }
+
+-(IBAction)selectButton:(id)sender;
+
 @end

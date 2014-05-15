@@ -20,50 +20,41 @@
     return self;
 }
 
-//AFNetworking异步下载图片
+
+//自己的一部下载图片
 -(void)loadimg:(NSString *)_url
 {
-    if(_url)
+    if (_url)
     {
-        url = _url;
-        //图片缓存查找
-        NSString *cpic_spath=[[DiskCache sharedSearchCateLoad]cachePathForKey:_url];
+        _url = [NSString stringWithFormat:@"http://%@",_url];        
+        NSString *cpic_spath=[[DiskCache sharedSearchCateLoad] cachePathForKey:_url];
         if([[NSFileManager defaultManager]fileExistsAtPath:cpic_spath])
         {
             imageData =[NSData dataWithContentsOfFile:cpic_spath];
             UIImage *aa=[UIImage imageWithData:imageData];
             [self setImage:aa];
-            NSLog(@"本地");
         }
         else{
-            //异步下载图片
             NSLog(@"下载");
-            __weak AssetImage *weakCell = self;
-            [self setImageWithURLRequest:[[NSURLRequest alloc] initWithURL:[NSURL URLWithString:_url]]
-                        placeholderImage:[UIImage imageNamed:@"placeholder.png"]
-                                 success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image){
-                                     weakCell.image = image;
-                                     //图片缓存
-                                     NSData* data = UIImageJPEGRepresentation(weakCell.image, 1.0);
-                                     weakCell.img = data;
-                                     [[DiskCache sharedSearchCateLoad] storeData:data forKey:_url];
-                                 }
-                                 failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error){
-                                     
-                                 }];
-            
+            __block NSData *DATA = imageData;
+            dispatch_queue_t  Queue=dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+            dispatch_async(Queue, ^{
+                NSURL * URL=[NSURL URLWithString:_url];
+                DATA =[[NSData alloc]initWithContentsOfURL:URL];
+                UIImage * image=[[UIImage alloc]initWithData:DATA];
+                if (DATA!=nil)
+                {
+                    //通知主线程更新界面
+                    dispatch_async(dispatch_get_main_queue(),
+                                   ^{
+                                       self.image = image;
+                                       [[DiskCache sharedSearchCateLoad]storeData:DATA forKey:_url];
+                                   });
+                }
+            });
         }
     }
 }
 
-
-/*
-// Only override drawRect: if you perform custom drawing.
-// An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect
-{
-    // Drawing code
-}
-*/
 
 @end

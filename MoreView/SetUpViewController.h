@@ -7,11 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "MBProgressHUD.h"
+#import "MessageBox.h"
 
 @interface SetUpViewController : UIViewController <UIAlertViewDelegate>
 {
-    MBProgressHUD *HUD;
+    MessageBox * HHUD;
 }
 
 

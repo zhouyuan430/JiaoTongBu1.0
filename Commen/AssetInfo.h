@@ -20,10 +20,11 @@
 @property (strong, nonatomic) NSString *userName;
 @property (strong, nonatomic) NSString *directorName;
 @property (strong, nonatomic) NSString *useDeadline;
-@property (strong, nonatomic) NSString *assetImgUrl;
+@property (strong, nonatomic) NSString *assetImgPath;
 @property (strong, nonatomic) UIImage *assetImg;
 @property (strong, nonatomic) NSString *assetValue;
-
+@property (strong, nonatomic) NSString *assetCardID;
+@property (strong, nonatomic) NSString *upLoadPath;
 
 -(AssetInfo *)initWithData:(NSDictionary *)dic;
 

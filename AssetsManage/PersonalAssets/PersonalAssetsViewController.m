@@ -34,27 +34,6 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     [self.tableView removeObserver:_header forKeyPath:@"contentOffset"];
 }
 
-
-/*
-//隐藏搜索框
--(void)viewWillAppear:(BOOL)animated
-{
-    self.tableView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
-    self.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(0, 0, 0, 0);
-    self.tableView.contentOffset = CGPointMake(0, 0);
-    self.searchBar.hidden = YES;
-}
-//显示搜索框
--(void)searchButton
-{
-    self.navigationController.navigationBarHidden = YES;
-    self.searchBar.hidden = NO;
-    
-    self.tableView.contentInset = UIEdgeInsetsMake(44+20, 0, 0, 0);
-    self.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(44+20, 0, 0, 0);
-    self.tableView.contentOffset = CGPointMake(0, -(44+20));
-}
-*/
 -(void)viewDidDisappear:(BOOL)animated
 {
     if (searched) {
@@ -62,9 +41,17 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     }
 }
 
+-(void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
+{
+    [self getData:@""];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    HHUD = [[MessageBox alloc] init];
+   // self.navigationController.delegate = self;
     
     [self addHeader];
     searched = NO;
@@ -95,13 +82,13 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     [dataSource removeAllObjects];
     [self.tableView reloadData];
 
-    
     if ([[TMDiskCache sharedCache] objectForKey:KAssetsListPlist] != nil) {
         NSLog(@"本地");
         [self loadData:(NSDictionary *)[[TMDiskCache sharedCache] objectForKey:KAssetsListPlist]];
     }
     else{
-        
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+
         NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
         NSString *token = [[UserDefaults userDefaults] getdata:kToken];
         
@@ -114,16 +101,16 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
             {
                 //存储数据,历史缓存类型
                 [[TMDiskCache sharedCache] setObject:dic forKey:KAssetsListPlist];
-                
                 [self loadData:dic];
             }
             else{
-                [self showMsg:dic[@"msg"]];
+                [HHUD showMsg:dic[@"msg"] viewController:self];
             }
-            
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
             NSLog(@"%@",error);
         }];
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO; //隐藏
+
     }
 }
 
@@ -132,23 +119,9 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     NSArray *arr = dic[@"data"];
     for (int i = 0 ; i < [arr count]; i++) {
         AssetInfo *tmp = [[AssetInfo alloc] initWithData:arr[i]];
-        
         [dataSource addObject:tmp];
     }
     [self.tableView reloadData];
-}
--(void)showMsg:(NSString *)msg
-{
-    HUD = [[MBProgressHUD alloc] initWithView:self.view];
-    [self.view addSubview:HUD];
-    HUD.labelText = msg;
-    HUD.mode = MBProgressHUDModeText;
-    [HUD showAnimated:YES whileExecutingBlock:^{
-        sleep(2);
-    } completionBlock:^{
-        [HUD removeFromSuperview];
-        HUD = nil;
-    }];
 }
 
 - (void)didReceiveMemoryWarning
@@ -180,11 +153,12 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     }
     
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
-    AssetInfo *tmp = [dataSource objectAtIndex:indexPath.row];
     
-    cell.assetName.text = tmp.assetName;
-    cell.assetKind.text = [NSString stringWithFormat:@"种类：%@",tmp.assetCate];
-    cell.assetcount.text = [NSString stringWithFormat:@"数量：%@",tmp.assetCount];
+    if (indexPath.row < dataSource.count) {
+        AssetInfo *tmp = dataSource[indexPath.row];
+        [cell setData:tmp];
+        [cell loadimg:tmp.assetImgPath];
+    }
     // Configure the cell...
     
     return cell;
@@ -215,7 +189,7 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 {
     [assetSearchBar resignFirstResponder];
     UIViewController *view = segue.destinationViewController;
-    if ([view respondsToSelector:@selector(setAssetInfo:)])
+    if ([view respondsToSelector:@selector(setCurrentInfo:)])
     {
         NSIndexPath *selectedRowIndex = [self.tableView indexPathForSelectedRow];
         //传递数据

@@ -70,7 +70,7 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
     switch (buttonIndex) {
         case 0:
             [self clear];
-            [self showMsg:@"缓存清除完毕！"];
+            [HHUD showMsg:@"缓存清除完毕" viewController:self];
             break;
         case 1:
             break;
@@ -81,22 +81,11 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
 
 -(void)clear
 {
+    [[DiskCache sharedSearchCateLoad] cleanDisk];
     [[TMDiskCache sharedCache] removeAllObjects];
 }
 
--(void)showMsg:(NSString *)msg
-{
-    HUD = [[MBProgressHUD alloc] initWithView:self.view];
-    [self.view addSubview:HUD];
-    HUD.labelText = msg;
-    HUD.mode = MBProgressHUDModeText;
-    [HUD showAnimated:YES whileExecutingBlock:^{
-        sleep(2);
-    } completionBlock:^{
-        [HUD removeFromSuperview];
-        HUD = nil;
-    }];
-}
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];

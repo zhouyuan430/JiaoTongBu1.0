@@ -37,13 +37,29 @@
     // Configure the view for the selected state
 }
 
--(void)loadImg:(NSString *)_url
+-(void)loadImgDetail:(NSString *)_url
 {
-    if (_url) {
-        AssetImage *img = [[AssetImage alloc] initWithFrame:CGRectMake(0,0,self.assetImg.frame.size.width,self.assetImg.frame.size.height)];
-        [img loadimg:_url];
-        [self.assetImg setImage:img.image forState:UIControlStateNormal];
+    AssetImage *img = [[AssetImage alloc] initWithFrame:CGRectMake(0,0,self.assetImg.frame.size.width,self.assetImg.frame.size.height)];
+    if ([_url isEqualToString:@""]) {
+        img.image = [UIImage imageNamed:@"Icon"];
     }
+    else{
+        [img loadimg:_url];
+        if (!img.image) {
+            img.image = [UIImage imageNamed:@"Icon"];
+        }
+    }
+    [self.assetImg addSubview:img];
+}
+
+-(void)setData:(AssetInfo *)tmp
+{
+    self.assetName.text = tmp.assetName;
+    self.assetkind.text = [NSString stringWithFormat:@"种类：%@", tmp.assetCate];
+    self.asserCount.text = [NSString stringWithFormat:@"数量：%@", tmp.assetCount];
+    self.userName.text = [NSString stringWithFormat:@"使用人：%@", tmp.userName];
+    self.directorName.text = [NSString stringWithFormat:@"监管部门：%@", tmp.directorName];
+  //  [self.assetImg setImage:tmp.assetImg forState:UIControlStateNormal];
 }
 
 @end

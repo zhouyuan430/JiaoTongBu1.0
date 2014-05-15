@@ -7,7 +7,13 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#import "MessageBox.h"
+#import "AssetInfo.h"
 @interface UpLoadImage : NSObject
+{
+    MessageBox *HHUD;
+}
+
+-(void)upLoadImage:(NSData *)imageData viewController:(UIViewController*)view info:(AssetInfo*)tmp;
 
 @end

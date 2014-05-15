@@ -8,12 +8,13 @@
 
 #import "AssignmentCheckViewController.h"
 #import "AssignmentCheckCell.h"
-#import "AssetInfo.h"
+#import "CheckAssetInfo.h"
 #import "TMDiskCache.h"
 #import "JiaoTongBuClient.h"
 #import "ReadViewController.h"
 #import "ZBarSDK.h"
 #import "ParseQRCode.h"
+#import "DiskCache.h"
 
 @interface AssignmentCheckViewController ()
 
@@ -21,6 +22,8 @@
 
 static NSString* const KCheckListPlist = @"CheckList.plist";
 static NSString* const KCheckFlag = @"CheckFlag.plist";
+static NSString* const KCheckSource = @"CheckSource";
+
 
 @implementation AssignmentCheckViewController
 
@@ -42,8 +45,9 @@ static NSString* const KCheckFlag = @"CheckFlag.plist";
 {
     [super viewDidLoad];
     
+    HHUD = [[MessageBox alloc] init];
     //下拉刷新
-   // [self addHeader];
+    //[self addHeader];
     
     [self initData];
     
@@ -61,18 +65,35 @@ static NSString* const KCheckFlag = @"CheckFlag.plist";
     self.navigationItem.rightBarButtonItem = rightButton;
     
     [self getData];
-
+    
 }
 
 -(void)initData
 {
     dataSource = [[NSMutableArray alloc] initWithCapacity:20];
-    isChecked = [[NSMutableArray alloc] initWithCapacity:20];
     submitCount =  0;
     checkedCount = 0;
     unCheckedCount = 0;
 }
 
+-(void)initDataWithDataSource
+{
+    for (int i = 0; i < dataSource.count; i++) {
+        CheckAssetInfo *tmp = dataSource[i];
+        if ([tmp.checkFlag isEqualToString:@"2"]) {
+            submitCount++;
+        }
+        else if([tmp.checkFlag isEqualToString:@"1"])
+        {
+            checkedCount++;
+        }
+        else
+        {
+            unCheckedCount++;
+        }
+    }
+    NSLog(@"%d %d %d",submitCount,checkedCount,unCheckedCount);
+}
 
 -(IBAction)ReplyButton
 {
@@ -82,46 +103,52 @@ static NSString* const KCheckFlag = @"CheckFlag.plist";
 -(void)getData
 {
     [dataSource removeAllObjects];
-    [isChecked removeAllObjects];
-    //[assetsPath removeAllObjects];
     
     [self.tableView reloadData];
-
-    if ([[TMDiskCache sharedCache] objectForKey:KCheckListPlist] != nil) {
-        NSLog(@"本地");
-        //isChecked = (NSMutableArray*)[[TMDiskCache sharedCache] objectForKey:KCheckFlag];
+    
+    //restore data
+    NSData *savedEncodedData = [[UserDefaults userDefaults] getdata:KCheckSource];
+    if(savedEncodedData != nil)
+    {
+        dataSource = (NSMutableArray *)[NSKeyedUnarchiver unarchiveObjectWithData:savedEncodedData];
         
+        [self initDataWithDataSource];
         
-        [self loadData:(NSDictionary *)[[TMDiskCache sharedCache] objectForKey:KCheckListPlist]];
+        [self.tableView reloadData];
     }
     else{
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
-
-        NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
-        NSString *token = [[UserDefaults userDefaults] getdata:kToken];
-
-        NSDictionary *parameters = @{@"uid":uid,@"token":token};
-
-        [[JiaoTongBuClient sharedClient] GET:getCheckList parameters:parameters success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
+        if ([[TMDiskCache sharedCache] objectForKey:KCheckListPlist] != nil) {
+            [self loadData:(NSDictionary *)[[TMDiskCache sharedCache] objectForKey:KCheckListPlist]];
+        }
+        else{
+            [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
             
-            NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
-            if ([dic[@"status"] isEqualToString:@"A0006"])
-            {
-                //存储数据,历史缓存类型
-                [[TMDiskCache sharedCache] setObject:dic forKey:KCheckListPlist];
-                [self loadData:dic];
-            }
-            else{
-                [self showMsg:dic[@"msg"]];
-            }
-            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+            NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
+            NSString *token = [[UserDefaults userDefaults] getdata:kToken];
             
-        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-            NSLog(@"%@",error);
-            [self showMsg:error.localizedDescription];
-            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-
-        }];
+            NSDictionary *parameters = @{@"uid":uid,@"token":token};
+            
+            [[JiaoTongBuClient sharedClient] GET:getCheckList parameters:parameters success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
+                
+                NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
+                if ([dic[@"status"] isEqualToString:@"A0006"])
+                {
+                    //存储数据,历史缓存类型
+                    [[TMDiskCache sharedCache] setObject:dic forKey:KCheckListPlist];
+                    [self loadData:dic];
+                }
+                else{
+                    [HHUD showMsg:dic[@"msg"] viewController:self];
+                }
+                [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+                
+            } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                NSLog(@"%@",error);
+                [HHUD showMsg:error.localizedDescription viewController:self];
+                [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+                
+            }];
+        }
     }
 }
 
@@ -129,42 +156,18 @@ static NSString* const KCheckFlag = @"CheckFlag.plist";
 {
     NSArray *arr = dic[@"data"];
     for (int i = 0 ; i < [arr count]; i++) {
-        AssetInfo *tmp = [[AssetInfo alloc] initWithCheckData:arr[i]];
-        
+        CheckAssetInfo *tmp = [[CheckAssetInfo alloc] initWithCheckData:arr[i]];
         [dataSource addObject:tmp];
-        
-        [isChecked addObject:@"0"];
     }
+    [self saveData];
     [self.tableView reloadData];
 }
 
--(void)showMsg:(NSString *)msg
+-(void)saveData
 {
-    HUD = [[MBProgressHUD alloc] initWithView:self.view];
-    [self.view addSubview:HUD];
-    HUD.labelText = msg;
-    HUD.mode = MBProgressHUDModeText;
-    [HUD showAnimated:YES whileExecutingBlock:^{
-        sleep(2);
-    } completionBlock:^{
-        [self showHide];
-    }];
+    NSData *encodedDataSource = [NSKeyedArchiver archivedDataWithRootObject:dataSource];
+    [[UserDefaults userDefaults] setdata:encodedDataSource key:KCheckSource];
 }
--(void)showSubmit
-{
-    HUD = [[MBProgressHUD alloc] initWithView:self.view];
-    [self.view addSubview:HUD];
-    HUD.dimBackground = YES;
-    HUD.labelText = @"正在上传...";
-    [HUD show:YES];
-}
-//隐藏提示框
--(void)showHide
-{
-    [HUD removeFromSuperview];
-    HUD = nil;
-}
-
 
 - (void)didReceiveMemoryWarning
 {
@@ -183,6 +186,7 @@ static NSString* const KCheckFlag = @"CheckFlag.plist";
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
+    [HHUD showHide:self];
     return [dataSource count];
 }
 
@@ -193,24 +197,23 @@ static NSString* const KCheckFlag = @"CheckFlag.plist";
     if (cell == nil) {
         cell = [[AssignmentCheckCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
-    
-    AssetInfo *tmp = dataSource[indexPath.row];
-    
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
-    
-    if ([isChecked[indexPath.row] isEqualToString:@"2"]) {
-        [cell.isCheckButton setBackgroundImage:[UIImage imageNamed:@"check"] forState:UIControlStateNormal];
-    }
-    else if([isChecked[indexPath.row] isEqualToString:@"1"]){
-        [cell.isCheckButton setBackgroundImage:[UIImage imageNamed:@"uncheck"] forState:UIControlStateNormal];
-    }
-    else{
-        [cell.isCheckButton setBackgroundImage:[UIImage imageNamed:@"选择框"] forState:UIControlStateNormal];
-    }
-    
     cell.accessoryType = UITableViewCellAccessoryNone;
     
-    [cell setData:tmp];
+    if (indexPath.row < dataSource.count) {
+        CheckAssetInfo *tmp = dataSource[indexPath.row];
+        if ([tmp.checkFlag isEqualToString:@"2"]) {
+            [cell.isCheckButton setBackgroundImage:[UIImage imageNamed:@"check"] forState:UIControlStateNormal];
+        }
+        else if([tmp.checkFlag isEqualToString:@"1"]){
+            [cell.isCheckButton setBackgroundImage:[UIImage imageNamed:@"uncheck"] forState:UIControlStateNormal];
+        }
+        else{
+            [cell.isCheckButton setBackgroundImage:[UIImage imageNamed:@"选择框"] forState:UIControlStateNormal];
+        }
+        [cell loadimg:tmp.assetImgPath];
+        [cell setData:tmp];
+    }
     // Configure the cell...
     return cell;
 }
@@ -218,7 +221,8 @@ static NSString* const KCheckFlag = @"CheckFlag.plist";
 #pragma ------ 二维码扫描
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (![isChecked[indexPath.row] isEqualToString:@"0"]) {
+    CheckAssetInfo *tmp = dataSource[indexPath.row];
+    if (![tmp.checkFlag isEqualToString:@"0"]) {
         return;
     }
     ReadViewController *readerView = [[ReadViewController alloc] init];
@@ -230,121 +234,99 @@ static NSString* const KCheckFlag = @"CheckFlag.plist";
 {
     //当前选中行
     NSIndexPath *selectedRowIndex = [self.tableView indexPathForSelectedRow];
-    AssignmentCheckCell *cell = (AssignmentCheckCell *)[self.tableView cellForRowAtIndexPath:selectedRowIndex];
-
+    
     ParseQRCode * parse = [[ParseQRCode alloc] initWithData:symbolStr];
-    AssetInfo *tmp = dataSource[selectedRowIndex.row];
-
-    if (![parse.assetCardID isEqualToString:tmp.assetCardID]) {
-        [self showMsg:@"扫描资产不匹配"];
+    CheckAssetInfo *tmp = dataSource[selectedRowIndex.row];
+    
+    if (![parse.parseInfo[@"cardid"] isEqualToString:tmp.assetCardID]) {
+        [HHUD showMsg:@"扫描资产不匹配" viewController:self];
         return;
     }
     
-    
-    
-    cell.assetImg.image = image;
     tmp.assetImg = image;
-    
-    [dataSource insertObject:tmp atIndex:checkedCount];
+    tmp.checkFlag = @"1";
+
+    [dataSource insertObject:tmp atIndex:checkedCount + submitCount];
     [dataSource removeObjectAtIndex:selectedRowIndex.row+1];
-    //选中标记
-    isChecked[checkedCount] = @"1";
+    
     checkedCount++;
     
+    [self saveData];
     [self.tableView reloadData];
     
-    //NSData *data = UIImagePNGRepresentation(image);
-    //[self upLoadImage:data  assetID:tmp.assetID IndexPath:selectedRowIndex];
+    self.tableView.scrollsToTop = YES;
 }
 
-#pragma ----- 数据上传
--(void)upLoadImage:(NSData *)imageData assetID:(NSString *)aid IndexPath:(NSIndexPath *)indexPath
+#pragma 上传图片
+
+-(void)upLoadCheckLists:(NSData *)imageData info:(CheckAssetInfo*)tmp
 {
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
-
+        
     NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
     NSString *token = [[UserDefaults userDefaults] getdata:kToken];
     
-    NSDictionary *parameters = @{@"b":imageData,@"token":token,@"uid":uid};
+    NSString *imageString = [imageData base64Encoding];
     
-    [[JiaoTongBuClient sharedClient] POST:uploadImage parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+    NSDictionary *parameters =@{@"uid":uid,@"token":token ,@"aid":tmp.assetID,@"qrBase64":imageString};
+    
+    [[JiaoTongBuClient sharedClient] POST:uploadCheckLists parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
         
     } success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
         NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
-        NSLog(@"%@",dic);
-
-        [self upLoadAssetImage:aid path:[dic[@"data"] objectAtIndex:0][@"url"] IndexPath:indexPath];
+        
+        tmp.assetImgPath = [NSString stringWithFormat:@"%@",tmp.assetCardID];
+        NSString *key = [NSString stringWithFormat:@"http://%@",tmp.assetImgPath];
+        [[DiskCache sharedSearchCateLoad] storeData:imageData forKey:key];
+        
+        [HHUD showHide:self];
+        [HHUD showMsg:dic[@"msg"] viewController:self];
+        
+        //保存信息
+        [self saveData];
+        [self.tableView reloadData];
+        
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+        
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        [self showMsg:error.localizedDescription];
-        NSLog(@"%@",error.localizedDescription);
+        
+        [HHUD showHide:self];
+        [HHUD showMsg:error.localizedDescription viewController:self];
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     }];
-}
-
--(void)upLoadAssetImage:(NSString *)aid path:(NSString *)path IndexPath:(NSIndexPath *)indexPath
-{
-    //设置path
-    AssetInfo *tmp = dataSource[indexPath.row];
-    tmp.upLoadPath = path;
-    
-    NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
-    NSString *token = [[UserDefaults userDefaults] getdata:kToken];
-    NSDictionary *parametes = @{@"uid":uid,@"token":token,@"path":path,@"aid":aid,@"cate":@"0"};
-    
-    [[JiaoTongBuClient sharedClient] GET:uploadAssetImage parameters:parametes success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
-        NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
-        [self showMsg:dic[@"msg"]];
-        [self upLoadCheckList:aid  path:path];
-
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        [self showMsg:error.localizedDescription];
-        NSLog(@"%@",error.localizedDescription);
-    }];
-    [UIApplication sharedApplication].networkActivityIndicatorVisible = NO; //隐藏
 }
 
 -(void)submitButton
 {
-    int sum = 0;
-    for (int i = 0; i < isChecked.count; i++) {
-        if ([isChecked[i] isEqualToString:@"1"]) {
-            
-            //[self showSubmit];
-            sum++;
-            AssetInfo * tmp = dataSource[i];
-            
-            NSIndexPath *selectedRowIndex = [self.tableView indexPathForSelectedRow];
-            
-            NSData *data = UIImagePNGRepresentation(tmp.assetImg);
-            [self upLoadImage:data  assetID:tmp.assetID IndexPath:selectedRowIndex];
-            [self.tableView reloadData];
+    if (checkedCount == 0) {
+        [HHUD showMsg:@"请先盘点资产" viewController:self];
+    }
+    else{
+        [HHUD showWait:@"正在上传..." viewController:self];
+        for (int i = 0; i < dataSource.count; i++)
+        {
+            CheckAssetInfo *tmp = dataSource[i];
+            if ([tmp.checkFlag isEqualToString:@"1"]) {
+                tmp.checkFlag = @"2";
+                CheckAssetInfo * tmp = dataSource[i];
+                NSData *data = UIImageJPEGRepresentation(tmp.assetImg,0.000001);
+                [self upLoadCheckLists:data info:tmp];
+            }
+        }
+        int begin = submitCount;
+        for (int i = begin; i <dataSource.count; i++) {
+            CheckAssetInfo *tmp = dataSource[i];
+            if ([tmp.checkFlag isEqualToString:@"2"]) {
+                [dataSource insertObject:tmp atIndex:submitCount];
+                [dataSource removeObjectAtIndex:i+1];
+                submitCount ++;
+            }
         }
     }
-   //[self showHide];
-    if (sum == 0) {
-        [self showMsg:@"请先盘点资产"];
-    }
+    checkedCount = 0;
 }
-
--(void)upLoadCheckList:(NSString *)aid path:(NSString *)path
-{
-    NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
-    NSString *token = [[UserDefaults userDefaults] getdata:kToken];
-
-    NSDictionary *parameters = @{@"uid":uid,@"token":token,@"path":path,@"aid":aid};
-   
-    [[JiaoTongBuClient sharedClient] GET:uploadCheckList parameters:parameters success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
-        
-        NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
-        
-        //[self showMsg:dic[@"msg"]];
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"%@",error);
-    }];
-}
-
-
 #pragma 下拉刷新
 - (void)addHeader
 {
@@ -365,7 +347,7 @@ static NSString* const KCheckFlag = @"CheckFlag.plist";
 {
     [[TMDiskCache sharedCache] removeObjectForKey:KCheckListPlist];
     [self getData];
-
+    
     //结束刷新状态
     [refreshView endRefreshing];
 }

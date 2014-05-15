@@ -11,15 +11,18 @@
 #import "AssetInfo.h"
 #import "TMDiskCache.h"
 #import "JiaoTongBuClient.h"
+#import "DiskCache.h"
+#import "UpLoadImage.h"
+
 @interface AssetDetailViewController ()
 
 @end
 
 static NSString* const KAssetsListPlist = @"AssetsList.plist";
+static CGFloat const KQuality = 0.0000001;
 
 @implementation AssetDetailViewController
 
-@synthesize assetInfo;
 @synthesize currentInfo;
 @synthesize dataSource;
 - (id)initWithStyle:(UITableViewStyle)style
@@ -42,6 +45,8 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    HHUD = [[MessageBox alloc] init];
     //一定要初始化
     //dataSource = [[NSMutableArray alloc] initWithCapacity:20];
     
@@ -65,6 +70,7 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     [self.navigationController popViewControllerAnimated:YES];
 }
 
+#pragma ------下拉上拉刷新
 //上拉加载
 - (void)addFooter
 {
@@ -105,6 +111,7 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     }
     [refreshView endRefreshing];
 }
+
 - (void)NextView:(MJRefreshBaseView *)refreshView
 {
     // 刷新表格
@@ -128,7 +135,6 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
                      cancelButtonTitle:@"取消"
                      destructiveButtonTitle:nil
                      otherButtonTitles: @"打开照相机", @"从手机相册获取",nil];
-    
     [myActionSheet showInView:self.view];
 }
 
@@ -196,110 +202,60 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
         //先把图片转成NSData
         UIImage* image = [info objectForKey:@"UIImagePickerControllerOriginalImage"];
         NSData *data;
-        if (UIImagePNGRepresentation(image) == nil)
-        {
-            data = UIImageJPEGRepresentation(image, 1.0);
-        }
-        else
-        {
-            data = UIImagePNGRepresentation(image);
-        }
-        
-        //图片保存的路径
-        //这里将图片放在沙盒的documents文件夹中
-        NSString * DocumentsPath = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents"];
-        
-        //文件管理器
-        NSFileManager *fileManager = [NSFileManager defaultManager];
-        
-        //把刚刚图片转换的data对象拷贝至沙盒中 并保存为image.png
-        [fileManager createDirectoryAtPath:DocumentsPath withIntermediateDirectories:YES attributes:nil error:nil];
-        [fileManager createFileAtPath:[DocumentsPath stringByAppendingString:@"/image.png"] contents:data attributes:nil];
-        
-        //得到选择后沙盒中图片的完整路径
-        filePath = [[NSString alloc]initWithFormat:@"%@%@",DocumentsPath,  @"/image.png"];
+      
+        data = UIImageJPEGRepresentation(image, KQuality);
         
         //关闭相册界面
         [picker dismissViewControllerAnimated:YES completion:^{}];
         
-        AssetInfo *tmp = [dataSource objectAtIndex:currentLine];
-        tmp.assetImg = image;
-        tmp.assetImgUrl = filePath;
-        [self.tableView reloadData];
+        AssetInfo *tmp = dataSource[currentLine];
         
-        [self upLoadImage:data assetID:tmp.assetID];
-        //[self.assetImgButton setImage:image forState:UIControlStateNormal];
+        [self upLoadImage:data info:tmp];
     }
-    
 }
-
--(void)upLoadImage:(NSData *)imageData assetID:(NSString *)aid
-{
-    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
-
-    NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
-    NSString *token = [[UserDefaults userDefaults] getdata:kToken];
-    
-    NSString *imageString = [imageData base64Encoding];
-    
-  
-     NSDictionary *parameters =@{@"b":imageString,@"token":token ,@"uid":uid};
-    [[JiaoTongBuClient sharedClient] POST:uploadImage parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
-        
-    } success:^(AFHTTPRequestOperation *operation, id responseObject) {
-
-        NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
-        NSLog(@"%@",dic);
-        [self upLoadAssetImage:aid path:[dic[@"data"] objectAtIndex:0][@"url"]];
-        
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        [self showMsg:error.localizedDescription];
-        NSLog(@"%@",error.localizedDescription);
-    }];
-
-}
-
--(void)upLoadAssetImage:(NSString *)aid path:(NSString *)path
-{
-    NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
-    NSString *token = [[UserDefaults userDefaults] getdata:kToken];
-    NSDictionary *parametes = @{@"uid":uid,@"token":token,@"path":path,@"aid":aid,@"cate":@"1"};
-    
-    [[JiaoTongBuClient sharedClient] GET:uploadAssetImage parameters:parametes success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
-        NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
-        [self showMsg:dic[@"msg"]];
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO; //隐藏
-        
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        [self showMsg:error.localizedDescription];
-        NSLog(@"%@",error.localizedDescription);
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO; //隐藏
-    }];
-}
-
--(void)showMsg:(NSString *)msg
-{
-    HUD = [[MBProgressHUD alloc] initWithView:self.view];
-    [self.view addSubview:HUD];
-    HUD.labelText = msg;
-    HUD.mode = MBProgressHUDModeText;
-    [HUD showAnimated:YES whileExecutingBlock:^{
-        sleep(2);
-    } completionBlock:^{
-        [HUD removeFromSuperview];
-        HUD = nil;
-    }];
-}
-
-
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
     [picker dismissViewControllerAnimated:YES completion:^{}];
 }
 
--(void)sendInfo
+#pragma 上传图片
+
+-(void)upLoadImage:(NSData *)imageData info:(AssetInfo*)tmp
 {
-    NSLog(@"图片的路径是：%@", filePath);
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
+    
+    [HHUD showWait:@"正在上传图片..." viewController:self];
+    
+    NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
+    NSString *token = [[UserDefaults userDefaults] getdata:kToken];
+    
+    NSString *imageString = [imageData base64Encoding];
+    
+    
+    NSDictionary *parameters =@{@"base64":imageString,@"uid":uid,@"token":token ,@"aid":tmp.assetID};
+    [[JiaoTongBuClient sharedClient] POST:uploadAssetImages parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+        
+    } success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        
+        NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
+        
+        tmp.assetImgPath = [NSString stringWithFormat:@"%@",tmp.assetCardID];
+        NSString *key = [NSString stringWithFormat:@"http://%@",tmp.assetImgPath];
+        [[DiskCache sharedSearchCateLoad] storeData:imageData forKey:key];
+        
+        [HHUD showHide:self];
+        [HHUD showMsg:dic[@"msg"] viewController:self];
+        
+        [self.tableView reloadData];
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+        
+        
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        
+        [HHUD showHide:self];
+        [HHUD showMsg:error.localizedDescription viewController:self];
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+    }];
 }
 
 - (void)didReceiveMemoryWarning
@@ -327,19 +283,74 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
 
-    assetInfo = [dataSource objectAtIndex:currentLine];
+    AssetInfo *tmp = dataSource[currentLine];
     
-    if (assetInfo.assetImgUrl) {
-        
-    }
+    [cell loadImgDetail:tmp.assetImgPath];
     
-    [cell.assetImg setImage:assetInfo.assetImg forState:UIControlStateNormal];
-    
-    [cell setdata:assetInfo];
+    [cell setdata:tmp];
     // Configure the cell...
     
     return cell;
 }
 
+/*
+ -(void)upLoadImage:(NSData *)imageData assetID:(NSString *)aid
+ {
+ [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
+ [HHUD showWait:@"正在上传图片..." viewController:self];
+ 
+ NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
+ NSString *token = [[UserDefaults userDefaults] getdata:kToken];
+ 
+ NSString *imageString = [imageData base64Encoding];
+ 
+ 
+ NSDictionary *parameters =@{@"b":imageString,@"token":token ,@"uid":uid};
+ [[JiaoTongBuClient sharedClient] POST:uploadImage parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+ 
+ } success:^(AFHTTPRequestOperation *operation, id responseObject) {
+ 
+ NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
+ 
+ [self upLoadAssetImage:aid path:[dic[@"data"] objectAtIndex:0][@"url"] imageData:imageData];
+ 
+ } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+ [HHUD showHide:self];
+ [HHUD showMsg:error.localizedDescription viewController:self];
+ }];
+ 
+ }
+ 
+ -(void)upLoadAssetImage:(NSString *)aid path:(NSString *)path imageData:(NSData *)imageData
+ {
+ //缓存图片
+ AssetInfo *tmp = dataSource[currentLine];
+ 
+ tmp.assetImgPath = [NSString stringWithFormat:@"%@%@",imagePath,path];
+ 
+ NSString *key = [NSString stringWithFormat:@"http://%@",tmp.assetImgPath];
+ 
+ [[DiskCache sharedSearchCateLoad] storeData:imageData forKey:key];
+ 
+ NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
+ NSString *token = [[UserDefaults userDefaults] getdata:kToken];
+ 
+ NSDictionary *parametes = @{@"uid":uid,@"token":token,@"path":path,@"aid":aid,@"cate":@"1"};
+ 
+ [[JiaoTongBuClient sharedClient] GET:uploadAssetImage parameters:parametes success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
+ NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
+ [HHUD showHide:self];
+ [HHUD showMsg:dic[@"msg"] viewController:self];
+ 
+ [self.tableView reloadData];
+ [[TMDiskCache sharedCache] removeObjectForKey:KAssetsListPlist];
+ 
+ } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+ [HHUD showHide:self];
+ [HHUD showMsg:error.localizedDescription viewController:self];
+ }];
+ [UIApplication sharedApplication].networkActivityIndicatorVisible = NO; //隐藏
+ }
+ */
 
 @end

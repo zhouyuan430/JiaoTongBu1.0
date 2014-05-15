@@ -39,6 +39,7 @@ static NSString* const KContactInfoPlist = @"ContactInfo.plist";
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    HHUD = [[MessageBox alloc] init];
     
     [self addHeader];
     
@@ -86,15 +87,13 @@ static NSString* const KContactInfoPlist = @"ContactInfo.plist";
                 [self loadData:dic];
             }
             else{
-                [self showMsg:dic[@"msg"]];
+                [HHUD showMsg:dic[@"msg"] viewController:self];
             }
         
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
             NSLog(@"%@",error);
         }];
-        
         [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-
     }
 }
 
@@ -107,21 +106,6 @@ static NSString* const KContactInfoPlist = @"ContactInfo.plist";
         [dataSource addObject:tmp];
     }
     [self.tableView reloadData];
-}
-
-//弹出提示框
--(void)showMsg:(NSString*)msg
-{
-    HUD = [[MBProgressHUD alloc] initWithView:self.view];
-    [self.view addSubview:HUD];
-    HUD.labelText = msg;
-    HUD.mode = MBProgressHUDModeText;
-    [HUD showAnimated:YES whileExecutingBlock:^{
-        sleep(2);
-    } completionBlock:^{
-        [HUD removeFromSuperview];
-        HUD = nil;
-    }];
 }
 
 

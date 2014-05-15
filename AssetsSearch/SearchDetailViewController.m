@@ -10,17 +10,19 @@
 #import "SearchDetailCell.h"
 #import "AssetInfo.h"
 #import "TMDiskCache.h"
+#import "JiaoTongBuClient.h"
+#import "DiskCache.h"
+
 @interface SearchDetailViewController ()
 
 @end
 
 static NSString* const KAuthListPlist = @"AuthList.plist";
+static CGFloat const KQuality = 0.0000001;
 
 @implementation SearchDetailViewController
 
 @synthesize dataSource;
-@synthesize scrollView;
-@synthesize assetInfo;
 @synthesize currentInfo;
 
 - (id)initWithStyle:(UITableViewStyle)style
@@ -45,6 +47,8 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    HHUD = [[MessageBox alloc] init];
     //一定要初始化
    // dataSource = [[NSMutableArray alloc] initWithCapacity:20];
 
@@ -61,27 +65,6 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
     [self.navigationItem setLeftBarButtonItem:leftButton];
     
     [self.tableView reloadData];
-}
--(void)getData
-{
-    [dataSource removeAllObjects];
-    [self.tableView reloadData];
-
-    if ([[TMDiskCache sharedCache] objectForKey:KAuthListPlist] != nil) {
-        NSLog(@"本地");
-        [self loadData:(NSDictionary *)[[TMDiskCache sharedCache] objectForKey:KAuthListPlist]];
-    }
-}
-
--(void)loadData:(NSDictionary *)dic
-{
-    NSArray *arr = dic[@"data"];
-    for (int i = 0 ; i < [arr count]; i++) {
-        AssetInfo *tmp = [[AssetInfo alloc] initWithData:arr[i]];
-        [dataSource addObject:tmp];
-    }
-    [self.tableView reloadData];
-    
 }
 
 -(void)replyButton
@@ -237,39 +220,16 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
         //先把图片转成NSData
         UIImage* image = [info objectForKey:@"UIImagePickerControllerOriginalImage"];
         NSData *data;
-        if (UIImagePNGRepresentation(image) == nil)
-        {
-            data = UIImageJPEGRepresentation(image, 1.0);
-        }
-        else
-        {
-            data = UIImagePNGRepresentation(image);
-        }
-        
-        //图片保存的路径
-        //这里将图片放在沙盒的documents文件夹中
-        NSString * DocumentsPath = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents"];
-        
-        //文件管理器
-        NSFileManager *fileManager = [NSFileManager defaultManager];
-        
-        //把刚刚图片转换的data对象拷贝至沙盒中 并保存为image.png
-        [fileManager createDirectoryAtPath:DocumentsPath withIntermediateDirectories:YES attributes:nil error:nil];
-        [fileManager createFileAtPath:[DocumentsPath stringByAppendingString:@"/image.png"] contents:data attributes:nil];
-        
-        //得到选择后沙盒中图片的完整路径
-        filePath = [[NSString alloc]initWithFormat:@"%@%@",DocumentsPath,  @"/image.png"];
+        data = UIImageJPEGRepresentation(image, KQuality);
         
         //关闭相册界面
         [picker dismissViewControllerAnimated:YES completion:^{}];
         
-        AssetInfo *tmp = [dataSource objectAtIndex:currentLine];
-        tmp.assetImg = image;
-        tmp.assetImgUrl = filePath;
+        AssetInfo *tmp = dataSource[currentLine];
         
-        
+        [self upLoadImage:data info:tmp];
+
         [self.tableView reloadData];
-        //[self.assetImgButton setImage:image forState:UIControlStateNormal];
     }
     
 }
@@ -280,10 +240,47 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
     [picker dismissViewControllerAnimated:YES completion:^{}];
 }
 
--(void)sendInfo
+#pragma 上传图片
+
+-(void)upLoadImage:(NSData *)imageData info:(AssetInfo*)tmp
 {
-    NSLog(@"图片的路径是：%@", filePath);
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
+    
+    [HHUD showWait:@"正在上传图片..." viewController:self];
+    
+    NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
+    NSString *token = [[UserDefaults userDefaults] getdata:kToken];
+    
+    NSString *imageString = [imageData base64Encoding];
+    
+    
+    NSDictionary *parameters =@{@"base64":imageString,@"uid":uid,@"token":token ,@"aid":tmp.assetID};
+    [[JiaoTongBuClient sharedClient] POST:uploadAssetImages parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+        
+    } success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        
+        NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
+        
+        tmp.assetImgPath = [NSString stringWithFormat:@"%@",tmp.assetCardID];
+        NSString *key = [NSString stringWithFormat:@"http://%@",tmp.assetImgPath];
+        [[DiskCache sharedSearchCateLoad] storeData:imageData forKey:key];
+        
+        [HHUD showHide:self];
+        [HHUD showMsg:dic[@"msg"] viewController:self];
+        
+        [self.tableView reloadData];
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+        
+        
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        
+        [HHUD showHide:self];
+        [HHUD showMsg:error.localizedDescription viewController:self];
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+    }];
 }
+
+
 
 
 - (void)didReceiveMemoryWarning
@@ -311,18 +308,12 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
     static NSString *CellIdentifier = @"SearchDetailCell";
     SearchDetailCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
-    assetInfo = [dataSource objectAtIndex:currentLine];
-    if (assetInfo.assetImgUrl) {
-        
-    }
-    cell.assetName.text = assetInfo.assetName;
     
-    cell.assetkind.text = [NSString stringWithFormat:@"种类：%@", assetInfo.assetCate];
-    cell.asserCount.text = [NSString stringWithFormat:@"数量：%@", assetInfo.assetCount];
-    cell.userName.text = [NSString stringWithFormat:@"使用人：%@", assetInfo.userName];
-    cell.directorName.text = [NSString stringWithFormat:@"监管部门：%@", assetInfo.directorName];
-    [cell.assetImg setImage:assetInfo.assetImg forState:UIControlStateNormal];
-    // Configure the cell...
+    AssetInfo *tmp = dataSource[currentLine];
+    
+    [cell loadImgDetail:tmp.assetImgPath];
+    
+    [cell setData:tmp];
     
     return cell;
 }

@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "AssetInfo.h"
 
 @interface SearchDetailCell : UITableViewCell
 
@@ -22,8 +23,9 @@
 @property (strong, nonatomic) IBOutlet UILabel *useDeadline;
 @property (strong, nonatomic) NSString *assetImgUrl;
 
--(void)loadImg:(NSString *)_url;
+-(void)loadImgDetail:(NSString *)_url;
 
+-(void)setData:(AssetInfo *)tmp;
 
 
 @end

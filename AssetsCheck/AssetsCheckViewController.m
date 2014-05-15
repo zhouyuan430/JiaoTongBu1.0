@@ -7,7 +7,7 @@
 //
 
 #import "AssetsCheckViewController.h"
-
+#import "DirectCheckTableViewController.h"
 @interface AssetsCheckViewController ()
 
 @end
@@ -44,5 +44,13 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+-(void)directCheck:(id)sender
+{
+    DirectCheckTableViewController *directVC = [[DirectCheckTableViewController alloc] init];
+    
+    [self.navigationController pushViewController:directVC animated:NO];
+}
+
 
 @end

@@ -8,14 +8,14 @@
 
 #import <UIKit/UIKit.h>
 #import "MJRefresh.h"
-#import "MBProgressHUD.h"
+#import "MessageBox.h"
 
 @interface ContactInfoViewController : UITableViewController
 {
     //数据源
     NSMutableArray * dataSource;
     //提示框
-    MBProgressHUD * HUD;
+    MessageBox * HHUD;
     //下拉刷新
     MJRefreshHeaderView *_header;
 }

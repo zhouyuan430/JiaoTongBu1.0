@@ -8,5 +8,10 @@
 
 #import <UIKit/UIKit.h>
 @interface AssetsCheckViewController : UIViewController
+{
+}
+@property (strong, nonatomic) IBOutlet UIButton *DirectCheckButton;
+
+-(IBAction)directCheck:(id)sender;
 
 @end

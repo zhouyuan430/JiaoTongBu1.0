@@ -35,17 +35,19 @@
 {
     if ([[UserDefaults userDefaults] getdata:kUserName]) {
         
-        passwordTextField.text = @"111111";
+        passwordTextField.text = [[UserDefaults userDefaults] getdata:kPassword];
         userNameTextField.text = [[UserDefaults userDefaults] getdata:kUserName];
         isSaveButton.selected = YES;
         
-        [self logIn:[[UserDefaults userDefaults] getdata:kUserName] password:[[UserDefaults userDefaults] getdata:kPassword ]];
+        [self logIn:[[UserDefaults userDefaults] getdata:kUserName] password:[[UserDefaults userDefaults] getdata:kPassword]];
     }
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    HHUD = [[MessageBox alloc] init];
+    
     
     [isSaveButton setBackgroundImage:[UIImage imageNamed:@"选择框"] forState:UIControlStateNormal];
     [isSaveButton setBackgroundImage:[UIImage imageNamed:@"选择框-1"] forState:UIControlStateSelected];
@@ -80,8 +82,7 @@
 //登录
 -(void)logIn:(NSString *)userName password:(NSString *)password
 {
-    HUD = [[MBProgressHUD alloc] initWithView:self.view];
-    [self showLogIn];
+    [HHUD showWait:@"请稍等" viewController:self];
     
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
     //网络请求
@@ -91,6 +92,8 @@
         
         //XML解析
         NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:XMLParser];
+        
+        [HHUD showHide:self];
         
         if ([dic[@"status"] isEqualToString:@"A0006"]) {
             
@@ -104,48 +107,21 @@
                 [[UserDefaults userDefaults] setdata:dict[@"uid"] key:kUserID];
                 [[UserDefaults userDefaults] setdata:password key:kPassword];
             }
-            [HUD removeFromSuperview];
-            HUD = nil;
             //跳转
             [self toRootView];
         }
         else{
-            [HUD removeFromSuperview];
-            HUD = nil;
-            [self showMsg:dic[@"msg"]];
+            [HHUD showMsg:dic[@"msg"] viewController:self];
         }
         [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        [HUD removeFromSuperview];
-        HUD = nil;
-        [self showMsg:error.localizedDescription];
+        [HHUD showHide:self];
+        [HHUD showMsg:error.localizedDescription viewController:self];
         [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     }];
 }
 
-//弹出提示框
--(void)showMsg:(NSString*)msg
-{
-    [self.view addSubview:HUD];
-    HUD.labelText = msg;
-    HUD.mode = MBProgressHUDModeText;
-    [HUD showAnimated:YES whileExecutingBlock:^{
-        //sleep(2);
-    } completionBlock:^{
-        [HUD removeFromSuperview];
-        HUD = nil;
-    }];
-}
-
--(void)showLogIn
-{
-    HUD = [[MBProgressHUD alloc] initWithView:self.view];
-    [self.view addSubview:HUD];
-    HUD.dimBackground = YES;
-    HUD.labelText = @"请稍等";
-    [HUD show:YES];
-}
 
 //跳转界面
 -(void)toRootView

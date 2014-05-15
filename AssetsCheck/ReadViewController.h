@@ -11,20 +11,20 @@
 
 //实现委托回调功能
 @protocol getReaderViewDelegate <NSObject>
-
 @optional
-
 -(void)getReadSymbolStr:(NSString *)symbolStr fromImage:(UIImage *)image;
-
 @end
 
-
-@interface ReadViewController : UIViewController<ZBarReaderViewDelegate>
+@interface ReadViewController : UIViewController<ZBarReaderDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate>
 {
-    ZBarReaderView *ReaderView;
+    int num;
+    BOOL upOrdown;
+    NSTimer * timer;
 }
 
 @property (nonatomic, assign) id<getReaderViewDelegate> delegate;
+@property (nonatomic, strong) UIImageView * line;
+
 
 @end
 

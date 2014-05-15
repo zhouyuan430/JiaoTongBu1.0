@@ -7,7 +7,16 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "MBProgressHUD.h"
 
 @interface MessageBox : NSObject
+{
+    MBProgressHUD *HUD;
+}
+-(void)showMsg:(NSString*)msg viewController:(UIViewController *)view;
+
+-(void)showWait:(NSString*)msg viewController:(UIViewController *)view;
+
+-(void)showHide:(UIViewController *)view;
 
 @end

@@ -38,6 +38,8 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    HHUD = [[MessageBox alloc] init];
     //添加下拉刷新
     [self addHeader];
     
@@ -91,12 +93,12 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
                 [self loadData:dic];
             }
             else{
-                [self showMsg:dic[@"msg"]];
+                [HHUD showMsg:dic[@"msg"] viewController:self];
             }
             
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
             NSLog(@"%@",error);
-            [self showMsg:error.localizedDescription];
+            [HHUD showMsg:error.localizedDescription viewController:self];
 
         }];
         [UIApplication sharedApplication].networkActivityIndicatorVisible = NO; //显示
@@ -115,19 +117,7 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     [self.tableView reloadData];
 }
 
--(void)showMsg:(NSString *)msg
-{
-    HUD = [[MBProgressHUD alloc] initWithView:self.view];
-    [self.view addSubview:HUD];
-    HUD.labelText = msg;
-    HUD.mode = MBProgressHUDModeText;
-    [HUD showAnimated:YES whileExecutingBlock:^{
-        sleep(2);
-    } completionBlock:^{
-        [HUD removeFromSuperview];
-        HUD = nil;
-    }];
-}
+
 
 //返回上级界面
 -(void)replyButton
@@ -162,6 +152,7 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
             aids = [NSString stringWithFormat:@"%@%@,",aids,tmp.assetID];
         }
     }
+    NSLog(@"%@",aids);
     return aids;
 }
 //点击提交按钮
@@ -170,7 +161,7 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     NSString * aids = [self getAids];
    
     if ([aids isEqualToString:@""]) {
-        [self showMsg:@"请选择资产"];
+        [HHUD showMsg:@"请选择资产" viewController:self];
     }
     else{
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"申请退还！" message:nil delegate:self cancelButtonTitle:@"确定" otherButtonTitles:@"取消", nil];
@@ -208,16 +199,16 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
         
         NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
         if ([dic[@"status"] isEqualToString:@"A0006"]){
-            [self showMsg:dic[@"msg"]];
+            [HHUD showMsg:dic[@"msg"] viewController:self];
         }
         else{
-            [self showMsg:dic[@"msg"]];
+            [HHUD showMsg:dic[@"msg"] viewController:self];
         }
         [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"%@",error);
-        [self showMsg:error.localizedDescription];
+        [HHUD showMsg:error.localizedDescription viewController:self];
         [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     }];
 }
@@ -256,21 +247,30 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
         cell = [[AssetChangeCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
     
-    AssetInfo *tmp = dataSource[indexPath.row];
     //没有选中样式
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
-    //自定义单选框
-    if ([isSelected[indexPath.row] isEqualToString:@"1"]) {
-        cell.CheckButton.selected = 1;
-    }
-    else{
-        cell.CheckButton.selected = 0;
+    if (indexPath.row < dataSource.count) {
+        
+        AssetInfo *tmp = dataSource[indexPath.row];
+        //自定义单选框
+        if ([isSelected[indexPath.row] isEqualToString:@"1"]) {
+            cell.CheckButton.selected = 1;
+        }
+        else{
+            cell.CheckButton.selected = 0;
+        }
+        //标记
+        cell.CheckButton.tag = indexPath.row;
+        
+        [cell.CheckButton setBackgroundImage:[UIImage imageNamed:@"选择框"] forState:UIControlStateNormal];
+        [cell.CheckButton setBackgroundImage:[UIImage imageNamed:@"选择框-1"] forState:UIControlStateSelected];
+        
+        [cell setData:tmp];
+
+        [cell loadimg:tmp.assetImgPath];
+        
     }
     
-    [cell.CheckButton setBackgroundImage:[UIImage imageNamed:@"选择框"] forState:UIControlStateNormal];
-    [cell.CheckButton setBackgroundImage:[UIImage imageNamed:@"选择框-1"] forState:UIControlStateSelected];
-    
-    [cell setData:tmp];
     return cell;
 }
 
@@ -287,6 +287,17 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     }
 }
 
+-(IBAction)selectButton:(id)sender
+{
+    UIButton *cb = (UIButton*)sender;
+    cb.selected = !cb.selected;
+    if (cb.selected == 1) {
+        isSelected[cb.tag] = @"1";
+    }
+    else{
+        isSelected[cb.tag] = @"0";
+    }
+}
 
 #pragma 下拉刷新
 - (void)addHeader

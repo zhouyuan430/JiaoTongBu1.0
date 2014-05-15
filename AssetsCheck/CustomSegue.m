@@ -10,4 +10,10 @@
 
 @implementation CustomSegue
 
+-(void)perform
+{
+    UIViewController *current = self.sourceViewController;
+    UIViewController *next = self.destinationViewController;
+    [current.navigationController pushViewController:next animated:NO];
+}
 @end

@@ -70,7 +70,7 @@
 -(void)getReadSymbolStr:(NSString *)symbolStr fromImage:(UIImage *)image
 {
     AssetInfo * tmp = [[AssetInfo alloc] init];
-    tmp.assetImg = image;
+   // tmp.assetImg = image;
     tmp.assetName = symbolStr;
      [dataSource addObject:tmp];
     [self.tableView reloadData];
@@ -109,8 +109,7 @@
     AssetInfo *tmp = dataSource[indexPath.row];
     
     cell.assetName.text = tmp.assetName;
-    cell.img.image = tmp.assetImg;
-    
+
     // Configure the cell...
     
     return cell;
