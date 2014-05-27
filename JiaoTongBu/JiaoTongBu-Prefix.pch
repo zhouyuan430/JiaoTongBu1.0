@@ -15,8 +15,13 @@
     #import <Foundation/Foundation.h>
     #import "UserDefaults.h"
     #import "ServerAddr.h"
+    #import "AppCode.h"
+    #import "Navbar.h"
 #endif
 
+
+#define kLogCount         @"kLogCount"
+#define kLogDate          @"kLogDate"
 
 #define kPassword         @"kPassword"
 #define kUserID           @"kUserID"
@@ -24,5 +29,28 @@
 #define kToken            @"kToken" 
 #define kDataKey          @"kDataKey"
 
+#define KNoMoreData    @"没有更多的数据"
+#define KUpLoading     @"正在上传..."
+
+#define KImageCacheCode     0
+#define KImageCacheName      @"ImageCache"
+
+#define KContactInfoCode    1
+#define KContactInfoName     @"ContactInfo"
+
+#define KPersonAssetCode    2
+#define KPersonAssetName     @"PersonAsset"
+
+#define KAssetChangeCode    3
+#define KAssetChangeName     @"AssetChange"
+
+#define KAuthAssetCode      4
+#define KAuthAssetName       @"AuthAsset"
+
+#define KAssetCheckCode     5
+#define KAssetCheckName      @"AssetCheck"
+
+#define KAssetDirectCheckCode 6
+#define KAssetDirectChechName @"AssetDirectCheck"
 
 #define BaseURLString     @"http://health.lekangba.cn/axis2/services/"

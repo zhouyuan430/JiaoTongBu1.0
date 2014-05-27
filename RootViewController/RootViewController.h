@@ -19,6 +19,9 @@
 @property (strong, nonatomic) IBOutlet UIButton *ContactInfo;
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *BarItem;
 
--(void)moreView:(id)sender;
+@property (strong, nonatomic) IBOutlet UILabel *LogCount;
+@property (strong, nonatomic) IBOutlet UILabel *logDate;
+
+-(void)moreView;
 
 @end

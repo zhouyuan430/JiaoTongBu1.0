@@ -12,10 +12,14 @@
 
 @interface AssetChange : NSManagedObject
 
+@property (nonatomic, retain) NSNumber * assetID;
 @property (nonatomic, retain) NSString * assetCardID;
 @property (nonatomic, retain) NSString * assetCate;
 @property (nonatomic, retain) NSString * assetImgPath;
 @property (nonatomic, retain) NSString * assetName;
-@property (nonatomic, retain) NSNumber * isChecked;
+@property (nonatomic) BOOL  isChecked;
+
+-(void)initWithData:(NSDictionary *)data;
+
 
 @end

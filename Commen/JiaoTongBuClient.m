@@ -8,6 +8,8 @@
 
 #import "JiaoTongBuClient.h"
 #import "GDataXMLNode.h"
+#import "AppCode.h"
+
 static NSString * const JiaoTongBuBaseURLString = @"https://alpha-api.app.net/";
 
 @implementation JiaoTongBuClient
@@ -44,7 +46,108 @@ static NSString * const JiaoTongBuBaseURLString = @"https://alpha-api.app.net/";
     return dic;
 }
 
+-(void)startGet:(NSInteger)_code parameters:(NSDictionary *)para withCallBack:(completCallBack)callBack
+{
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
+    
+    NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
+    NSString *token = [[UserDefaults userDefaults] getdata:kToken];
+    
+    NSDictionary *parameters;
+    NSString *URL;
+    
+    switch (_code)
+    {
+        case getContactPageListCode:
+            parameters = @{@"uid":uid,@"token":token,@"page":para[@"page"],@"size":para[@"size"]};
+            URL = getContactPageListURL;
+            break;
+        case loginCode:
+            parameters = @{@"usrname":para[@"userName"],@"password":para[@"password"]};
+            URL = loginURL;
+            break;
+        case getAssetPageListCode:
+            parameters = @{@"uid":uid,@"keywd":para[@"keywd"],@"token":token,@"page":para[@"page"],@"size":para[@"size"]};
+            URL = getAssetPageListURL;
+            break;
+        case getAuthListCode:
+            parameters = @{@"uid":uid,
+                            @"token":token,
+                            @"keywd":para[@"keywd"],
+                            @"searchItem":para[@"Item"],
+                            @"page":para[@"page"],
+                            @"size":para[@"size"]};
+            URL = getAuthListURL;
+            break;
+        case applyRefundCode:
+            parameters = @{@"aids":para[@"aids"],@"uid":uid,@"token":token};
+            URL = applyRefundURL;
+            break;
+        case getCheckPageListCode:
+            parameters = @{@"uid":uid,@"token":token,@"page":para[@"page"],@"size":para[@"size"]};
+            URL = getCheckPageListURL;
+            break;
+        default:
+            break;
+    }
+    
+    [[JiaoTongBuClient sharedClient] GET:URL parameters:parameters success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
+        NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
+        if ([dic[@"status"] isEqualToString:@"A0006"])
+        {
+            callBack(0,dic,nil);
+        }
+        else{
+            callBack(1,dic,nil);
+        }
+        
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        callBack(2,nil,error);
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+
+    }];
+}
+
+-(void)startPost:(NSInteger)_code parameters:(NSDictionary *)para withCallBack:(completCallBack)callBack
+{
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
+    
+    NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
+    NSString *token = [[UserDefaults userDefaults] getdata:kToken];
+    
+    NSDictionary *parameters;
+    NSString *URL;
+    
+    switch (_code) {
+        case uploadAssetImagesCode:
+            parameters =@{@"base64":para[@"base64"],@"uid":uid,@"token":token ,@"aid":para[@"aid"]};
+            URL = uploadAssetImagesURL;
+            break;
+        case uploadCheckListsCode:
+            parameters =@{@"uid":uid,@"token":token ,@"aid":para[@"aid"],@"qrBase64":para[@"qrBase64"]};
+            URL = uploadCheckListsURL;
+            break;
+        default:
+            break;
+    }
+    
+    [[JiaoTongBuClient sharedClient] POST:URL parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+        
+    } success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        
+        NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
+        callBack(0,dic,nil);
+        
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        callBack(1,nil,error);
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+    }];
+
+}
 
 
 

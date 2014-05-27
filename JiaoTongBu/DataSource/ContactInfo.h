@@ -12,9 +12,12 @@
 
 @interface ContactInfo : NSManagedObject
 
-@property (nonatomic, retain) NSString * contactName;
-@property (nonatomic, retain) NSString * contactEmail;
-@property (nonatomic, retain) NSString * contactImg;
-@property (nonatomic, retain) NSString * contactDepartment;
+@property (nonatomic, strong) NSString * contactName;
+@property (nonatomic, strong) NSString * contactEmail;
+@property (nonatomic, strong) NSString * contactImg;
+@property (nonatomic, strong) NSString * contactDepartment;
+
+
+-(void)initWithData:(NSDictionary *)data;
 
 @end

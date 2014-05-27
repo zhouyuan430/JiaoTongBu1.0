@@ -7,18 +7,20 @@
 //
 #import "PersonalAssetsViewController.h"
 #import "AssetCell.h"
-#import "AssetInfo.h"
-#import "TMDiskCache.h"
 #import "AssetDetailViewController.h"
 #import "JiaoTongBuClient.h"
+#import "CommentData.h"
+#import "PersonAsset.h"
+
 @interface PersonalAssetsViewController ()
 
 @end
 
-static NSString* const KAssetsListPlist = @"AssetsList.plist";
-
 @implementation PersonalAssetsViewController
 @synthesize assetSearchBar;
+@synthesize dataSource = _dataSource;
+
+static int page = 1;
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -32,40 +34,47 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 -(void)dealloc
 {
     [self.tableView removeObserver:_header forKeyPath:@"contentOffset"];
+    [self.tableView removeObserver:_footer forKeyPath:@"contentSize" ];
+    [self.tableView removeObserver:_footer forKeyPath:@"contentOffset"];
+}
+
+-(void)viewWillAppear:(BOOL)animated
+{
+    [self.navigationController.navigationBar setTintColor:[UIColor colorWithWhite:1 alpha:1]];
+    
 }
 
 -(void)viewDidDisappear:(BOOL)animated
 {
     if (searched) {
-        [[TMDiskCache sharedCache] removeObjectForKey:KAssetsListPlist];
+        [[CommentData sharedInstance] delete:KPersonAssetName entityName:KPersonAssetCode];
     }
 }
 
--(void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
+
+-(void)initData
 {
-    [self getData:@""];
+    self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+
+    HHUD = [[MessageBox alloc] init];
+
+    [self addHeader];
+    [self addFooter];
+    
+    searched = NO;
+    getMore = NO;
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     
-    HHUD = [[MessageBox alloc] init];
-   // self.navigationController.delegate = self;
-    
-    [self addHeader];
-    searched = NO;
-    dataSource = [[NSMutableArray alloc] initWithCapacity:20];
+    [self initData];
     
     self.title = [NSString stringWithFormat:@"资产[%@]",[[UserDefaults userDefaults] getdata:kUserName]];
     
-    //添加左按钮
-    UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
-                                   initWithBarButtonSystemItem:UIBarButtonSystemItemReply
-                                   target:self
-                                   action:@selector(replyButton)];
-    [self.navigationItem setLeftBarButtonItem:leftButton];
-    
+    [self.navigationItem setBackItemWithTarget:self action:@selector(replyButton)];
+
     assetSearchBar.showsCancelButton = YES;
     [self getData:@""];
     [self.tableView reloadData];
@@ -77,40 +86,35 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     [self.navigationController popViewControllerAnimated:YES];
 }
 
+-(void)connect:(NSString *)keywd
+{
+    NSDictionary *para = @{@"page":[NSString stringWithFormat:@"%d",page],@"size":@"10",@"keywd":keywd};
+    [[JiaoTongBuClient sharedClient] startGet:getAssetPageListCode parameters:para withCallBack:^(int flag, NSDictionary *dic,NSError *error) {
+        if (flag == 0) {
+            [self loadData:dic];
+        }
+        else if (flag == 1){
+            [HHUD showMsg:KNoMoreData viewController:self];
+        }
+        else{
+            [HHUD showMsg:error.localizedDescription viewController:self];
+        }
+    }];
+}
+
 -(void)getData:(NSString *)keywd
 {
-    [dataSource removeAllObjects];
-    [self.tableView reloadData];
-
-    if ([[TMDiskCache sharedCache] objectForKey:KAssetsListPlist] != nil) {
-        NSLog(@"本地");
-        [self loadData:(NSDictionary *)[[TMDiskCache sharedCache] objectForKey:KAssetsListPlist]];
+    [self.dataSource removeAllObjects];
+    
+    if (getMore) {
+        [self connect:keywd];
+        getMore = NO;
+    }
+    if ([[CommentData sharedInstance] getData:KPersonAssetName].count != 0) {
+        self.dataSource = [[CommentData sharedInstance] getData:KPersonAssetName];
     }
     else{
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-
-        NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
-        NSString *token = [[UserDefaults userDefaults] getdata:kToken];
-        
-        NSDictionary *parameters = @{@"uid":uid,@"keywd":keywd,@"token":token};
-        
-        [[JiaoTongBuClient sharedClient] GET:getAssetsList parameters:parameters success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
-            
-            NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
-            if ([dic[@"status"] isEqualToString:@"A0006"])
-            {
-                //存储数据,历史缓存类型
-                [[TMDiskCache sharedCache] setObject:dic forKey:KAssetsListPlist];
-                [self loadData:dic];
-            }
-            else{
-                [HHUD showMsg:dic[@"msg"] viewController:self];
-            }
-        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-            NSLog(@"%@",error);
-        }];
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO; //隐藏
-
+        [self connect:keywd];
     }
 }
 
@@ -118,9 +122,10 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 {
     NSArray *arr = dic[@"data"];
     for (int i = 0 ; i < [arr count]; i++) {
-        AssetInfo *tmp = [[AssetInfo alloc] initWithData:arr[i]];
-        [dataSource addObject:tmp];
+        [[CommentData sharedInstance] insertData:arr[i] entityName:KPersonAssetCode];
     }
+    
+    self.dataSource = [[CommentData sharedInstance] getData:KPersonAssetName];
     [self.tableView reloadData];
 }
 
@@ -141,7 +146,7 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    return [dataSource count];
+    return [self.dataSource count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -152,11 +157,24 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
           cell = [[AssetCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
     
-    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    if (indexPath.row%2 == 0) {
+        UIImageView *tt = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"PersonAssetBG-0"]];
+        [cell setBackgroundView:tt];
+    }
+    else{
+        UIImageView *tt = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"PersonAssetBG-1"]];
+        [cell setBackgroundView:tt];
+    }
     
-    if (indexPath.row < dataSource.count) {
-        AssetInfo *tmp = dataSource[indexPath.row];
-        [cell setData:tmp];
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        
+    if (indexPath.row < self.dataSource.count) {
+        PersonAsset *tmp = self.dataSource[indexPath.row];
+        
+        cell.assetName.text = tmp.assetName;
+        cell.assetKind.text = [NSString stringWithFormat:@"类型：%@",tmp.assetCate];
+        cell.assetCardID.text = [NSString stringWithFormat:@"固定资产编号：%@",tmp.assetCardID];
+        
         [cell loadimg:tmp.assetImgPath];
     }
     // Configure the cell...
@@ -164,7 +182,9 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     return cell;
 }
 
+
 #pragma mark - SearchBar
+
 
 //点击取消按钮时，隐藏键盘
 -(void)searchBarCancelButtonClicked:(UISearchBar *)searchBar
@@ -175,13 +195,12 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 //点击搜索按钮时，隐藏键盘，显示搜索内容
 -(void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
 {
-    [[TMDiskCache sharedCache] removeObjectForKey:KAssetsListPlist];
+    [[CommentData sharedInstance] delete:KPersonAssetName entityName:KPersonAssetCode];
     searched = YES;
-    [self searchBarCancelButtonClicked:searchBar];
-
     [self getData:searchBar.text];
-
+    [searchBar resignFirstResponder];
 }
+
 
 #pragma mark - Navigation
 
@@ -193,7 +212,7 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     {
         NSIndexPath *selectedRowIndex = [self.tableView indexPathForSelectedRow];
         //传递数据
-        [view setValue:dataSource forKey:@"dataSource"];
+        [view setValue:self.dataSource forKey:@"dataSource"];
         [view setValue:selectedRowIndex forKey:@"currentInfo"];
     }
 }
@@ -217,13 +236,36 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 
 - (void)NextView:(MJRefreshBaseView *)refreshView
 {
-    [[TMDiskCache sharedCache] removeObjectForKey:KAssetsListPlist];
+    [[CommentData sharedInstance] delete:KPersonAssetName entityName:KPersonAssetCode];
+    
+    page = 1;
     [self getData:assetSearchBar.text];
     
     // (最好在刷新表格后调用)调用endRefreshing可以结束刷新状态
     [refreshView endRefreshing];
 }
 
+
+#pragma 上拉加载
+- (void)addFooter
+{
+    __unsafe_unretained PersonalAssetsViewController *vc = self;
+    MJRefreshFooterView *footer = [MJRefreshFooterView footer];
+    footer.scrollView = self.tableView;
+    
+    footer.beginRefreshingBlock = ^(MJRefreshBaseView *refreshView) {
+        // 模拟延迟加载数据，因此0.2秒后才调用）
+        [vc performSelector:@selector(PreviousView:) withObject:refreshView afterDelay:0.2];
+    };
+    _footer = footer;
+}
+- (void)PreviousView:(MJRefreshBaseView *)refreshView
+{
+    getMore = YES;
+    page ++;
+    [self getData:assetSearchBar.text];
+    [refreshView endRefreshing];
+}
 
 
 @end

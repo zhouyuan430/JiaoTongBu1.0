@@ -7,141 +7,143 @@
 //
 
 #import "AssetsSearchViewController.h"
-#import "AssetInfo.h"
-#import "TMDiskCache.h"
 #import "JiaoTongBuClient.h"
 #import "AssetCell.h"
 #import "SearchDetailViewController.h"
-#import "CloCombox.h"
+#import "CommentData.h"
+#import "AuthAsset.h"
 
 @interface AssetsSearchViewController ()
 
 @end
 
-static NSString* const KAuthListPlist = @"AuthList.plist";
+static int page = 1;
 
 @implementation AssetsSearchViewController
 
+@synthesize dataSource = _dataSource;
 @synthesize searchBarButton;
+@synthesize searchItemBt;
+@synthesize MyTableView;
 
-- (id)initWithStyle:(UITableViewStyle)style
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
-    self = [super initWithStyle:style];
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
     }
     return self;
 }
+
 -(void)dealloc
 {
-    [self.tableView removeObserver:_footer forKeyPath:@"contentOffset"];
-    [self.tableView removeObserver:_footer forKeyPath:@"contentSize"];
+    [self.MyTableView removeObserver:_footer forKeyPath:@"contentOffset"];
+    [self.MyTableView removeObserver:_footer forKeyPath:@"contentSize"];
+    [self.MyTableView removeObserver:_header forKeyPath:@"contentOffset"];
 }
 
+-(void)viewWillAppear:(BOOL)animated
+{
+    self.navigationController.navigationBar.translucent = NO;
+    
+    [self.navigationController.navigationBar setTintColor:[UIColor colorWithWhite:1 alpha:1]];
+}
+
+-(void)viewDidAppear:(BOOL)animated
+{
+    [self.MyTableView setFrame:CGRectMake(44,5, 320, 400)];
+}
 -(void)viewDidDisappear:(BOOL)animated
 {
     if (searched) {
-        [[TMDiskCache sharedCache] removeObjectForKey:KAuthListPlist];
+        [[CommentData sharedInstance] delete:KAuthAssetName entityName:KAuthAssetCode];
     }
 }
 
-- (void)viewDidLoad
+-(void)initData
 {
-    [super viewDidLoad];
-    
     HHUD = [[MessageBox alloc] init];
     
     [self addFooter];
     [self addHeader];
     
-    dataSource = [[NSMutableArray alloc] initWithCapacity:20];
     searchItermArr = [[NSMutableArray alloc] initWithObjects:@"名称",@"使用人",@"处室",@"类别", nil];
     
     searched = NO;
-    size = 20;
+    getMore = NO;
     
-    //添加左按钮
-    UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
-                                   initWithBarButtonSystemItem:UIBarButtonSystemItemReply
-                                   target:self
-                                   action:@selector(ReplyButton)];
-    [self.navigationItem setLeftBarButtonItem:leftButton];
-    
-    searchBarButton.showsCancelButton = YES;
-    searchBarButton.delegate = self;
-    
-    comBox = [[CloCombox alloc] initWithFrame:CGRectMake(100, 44, 120, 44) items:searchItermArr inView:self.view];
-    
-    self.navigationItem.titleView = comBox;
-    
-    [self getData:@"" searchItem:@""];
-    [self.tableView reloadData];
+
+    [self.MyTableView setContentInset:UIEdgeInsetsMake(44, 0, 64, 0)];
+    self.MyTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
 }
 
--(void)itemDidSelected:(NSInteger)index
+
+-(IBAction)searchItemBt:(id)sender
 {
-    [comBox setTitle:searchItermArr[index]];
 }
 
--(IBAction)ReplyButton
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    
+
+    [self initData];
+    
+    [self.navigationItem setBackItemWithTarget:self action:@selector(replyButton)];
+        
+    [self getData:@"" searchItem:@""];
+}
+
+-(IBAction)replyButton
 {
     [self.navigationController popViewControllerAnimated:YES];
 }
 //获取数据
 -(void)getData:(NSString *)keywd searchItem:(NSString *)Item
 {
-    [dataSource removeAllObjects];
-    
-    [self.tableView reloadData];
-
-    if ([[TMDiskCache sharedCache] objectForKey:KAuthListPlist]!= nil) {
-        NSLog(@"本地");
-        [self loadData:(NSDictionary *)[[TMDiskCache sharedCache] objectForKey:KAuthListPlist]];
+    [self.dataSource removeAllObjects];
+    if (getMore) {
+        [self connect:keywd searchItem:Item];
+        getMore = NO;
+    }
+    else if ([[CommentData sharedInstance] getData:KAuthAssetName].count != 0) {
+        self.dataSource = [[CommentData sharedInstance] getData:KAuthAssetName];
     }
     else{
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
-
-        NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
-        NSString *token = [[UserDefaults userDefaults] getdata:kToken];
-        NSString *sizeStr = [NSString stringWithFormat:@"%d",size];
-        
-        NSDictionary *paramenters = @{@"uid":uid,
-                                      @"token":token,
-                                      @"keywd":keywd,
-                                      @"searchItem":Item,
-                                      @"page":@"1",
-                                      @"size":sizeStr};
-        
-        [[JiaoTongBuClient sharedClient] GET:getAuthList parameters:paramenters success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
-            
-            NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
-            if ([dic[@"status"] isEqualToString:@"A0006"])
-            {
-                //存储数据,历史缓存类型
-                [[TMDiskCache sharedCache] setObject:dic forKey:KAuthListPlist];
-                [self loadData:dic];
-            }
-            else{
-                [HHUD showMsg:dic[@"msg"] viewController:self];
-            }
-          
-        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-            NSLog(@"%@",error);
-            [HHUD showMsg:error.localizedDescription viewController:self];
-            
-        }];
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO; //隐藏
+        [self connect:keywd searchItem:Item];
     }
+}
+
+-(void)connect:(NSString *)keywd searchItem:(NSString *)Item
+{
+    NSDictionary *para = @{@"keywd":keywd,
+                           @"Item":Item,
+                           @"page":[NSString stringWithFormat:@"%d",page],
+                           @"size":@"10"};
+    [[JiaoTongBuClient sharedClient] startGet:getAuthListCode parameters:para withCallBack:^(int flag, NSDictionary *dic, NSError *error) {
+        if (flag == 0) {
+            [self loadData:dic];
+        }
+        else if(flag == 1){
+            self.dataSource = [[CommentData sharedInstance] getData:KAuthAssetName];
+            [HHUD showMsg:KNoMoreData viewController:self];
+            [self.MyTableView reloadData];
+        }
+        else{
+            [HHUD showMsg:error.localizedDescription viewController:self];
+        }
+    }];
 }
 
 -(void)loadData:(NSDictionary*)dic
 {
     NSArray *arr = dic[@"data"];
     for (int i = 0 ; i < [arr count]; i++) {
-        AssetInfo *tmp = [[AssetInfo alloc] initWithData:arr[i]];
-        [dataSource addObject:tmp];
+        [[CommentData sharedInstance] insertData:arr[i] entityName:KAuthAssetCode];
     }
-    [self.tableView reloadData];
+    self.dataSource = [[CommentData sharedInstance] getData:KAuthAssetName];
+    [self.MyTableView reloadData];
 }
 
 - (void)didReceiveMemoryWarning
@@ -161,7 +163,7 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    return [dataSource count];
+    return [self.dataSource count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -172,10 +174,23 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
         cell = [[AssetCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
     
-    AssetInfo *tmp = dataSource[indexPath.row];
+    if (indexPath.row%2 == 0) {
+        UIImageView *tt = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"PersonAssetBG-0"]];
+        [cell setBackgroundView:tt];
+    }
+    else{
+        UIImageView *tt = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"PersonAssetBG-1"]];
+        [cell setBackgroundView:tt];
+    }
     
-    [cell loadimg:tmp.assetImgPath];
-    [cell setData:tmp];
+    if(indexPath.row < self.dataSource.count)
+    {
+        AuthAsset *tmp = self.dataSource[indexPath.row];
+        [cell loadimg:tmp.assetImgPath];
+        cell.assetName.text = tmp.assetName;
+        cell.assetKind.text = [NSString stringWithFormat:@"类型：%@",tmp.assetCate];
+        cell.assetCardID.text = [NSString stringWithFormat:@"固定资产编号：%@",tmp.assetCardID];
+    }
     
     return cell;
 }
@@ -188,8 +203,8 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
     UIViewController *view = segue.destinationViewController;
     if ([view respondsToSelector:@selector(setCurrentInfo:)])
     {
-        NSIndexPath *selectedRowIndex = [self.tableView indexPathForSelectedRow];
-        [view setValue:dataSource forKey:@"dataSource"];
+        NSIndexPath *selectedRowIndex = [self.MyTableView indexPathForSelectedRow];
+        [view setValue:self.dataSource forKey:@"dataSource"];
         [view setValue:selectedRowIndex forKey:@"currentInfo"];
     }
 }
@@ -204,22 +219,49 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
 //点击搜索按钮时，隐藏键盘，显示搜索内容
 -(void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
 {
-    [[TMDiskCache sharedCache] removeObjectForKey:KAuthListPlist];
+    [[CommentData sharedInstance] delete:KAuthAssetName entityName:KAuthAssetCode];
     searched = YES;
-    [self getData:searchBar.text searchItem:comBox.titleLable];
+    [self getData:searchBar.text searchItem:searchItemBt.titleLabel.text];
     [searchBar resignFirstResponder];
 }
+-(BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar
+{
+    searchBar.layer.zPosition = 1;
 
-//下拉加载更多
+    searchBar.showsScopeBar = YES;
+    [self.MyTableView setContentInset:UIEdgeInsetsMake(88, 0, 0, 0)];
+    [searchBar sizeToFit];
+    [searchBar setShowsCancelButton:YES animated:YES];
+    
+    return YES;
+}
+
+-(BOOL)searchBarShouldEndEditing:(UISearchBar *)searchBar
+{
+    searchBar.showsScopeBar = NO;
+    [self.MyTableView setContentInset:UIEdgeInsetsMake(44, 0, 0, 0)];
+
+    [searchBar sizeToFit];
+    [searchBar setShowsCancelButton:NO animated:YES];
+    return YES;
+}
+-(void)searchBar:(UISearchBar *)searchBar selectedScopeButtonIndexDidChange:(NSInteger)selectedScope
+{
+    [searchItemBt setTitle:searchItermArr[selectedScope] forState:UIControlStateNormal];
+}
+
+
+
+//上拉加载更多
 - (void)addFooter
 {
     __unsafe_unretained AssetsSearchViewController *vc = self;
     MJRefreshFooterView *footer = [MJRefreshFooterView footer];
-    footer.scrollView = self.tableView;
+    footer.scrollView = self.MyTableView;
     
     footer.beginRefreshingBlock = ^(MJRefreshBaseView *refreshView) {
         // 增加5条假数据
-        // 模拟延迟加载数据，因此2秒后才调用）
+        // 模拟延迟加载数据，因此0.2秒后才调用）
         [vc performSelector:@selector(PreviousView:) withObject:refreshView afterDelay:0.2];
     };
     _footer = footer;
@@ -230,10 +272,10 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
     __unsafe_unretained AssetsSearchViewController *vc = self;
     
     MJRefreshHeaderView *header = [MJRefreshHeaderView header];
-    header.scrollView = self.tableView;
+    header.scrollView = self.MyTableView;
     header.beginRefreshingBlock = ^(MJRefreshBaseView *refreshView) {
         // 进入刷新状态就会回调这个Block
-        // 模拟延迟加载数据，因此2秒后才调用）
+        // 模拟延迟加载数据，因此0.2秒后才调用）
         [vc performSelector:@selector(NextView:) withObject:refreshView afterDelay:0.2];
     };
     _header = header;
@@ -242,17 +284,18 @@ static NSString* const KAuthListPlist = @"AuthList.plist";
 
 - (void)PreviousView:(MJRefreshBaseView *)refreshView
 {
-    [[TMDiskCache sharedCache] removeObjectForKey:KAuthListPlist];
-    size += 20;
-    [self getData:searchBarButton.text searchItem:comBox.titleLable];
+    getMore = YES;
+    page ++;
+    [self getData:searchBarButton.text searchItem:searchItemBt.titleLabel.text];
     [refreshView endRefreshing];
 }
 
 - (void)NextView:(MJRefreshBaseView *)refreshView
 {
     // 刷新表格
-    [[TMDiskCache sharedCache] removeObjectForKey:KAuthListPlist];
-    [self getData:searchBarButton.text searchItem:comBox.titleLable];
+    [[CommentData sharedInstance] delete:KAuthAssetName entityName:KAuthAssetCode];
+    page = 1;
+    [self getData:searchBarButton.text searchItem:searchItemBt.titleLabel.text];
     [refreshView endRefreshing];
 }
 

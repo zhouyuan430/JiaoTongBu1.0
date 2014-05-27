@@ -8,25 +8,28 @@
 
 #import <UIKit/UIKit.h>
 #import "MessageBox.h"
-#import "AssetInfo.h"
 #import "MJRefresh.h"
-#import "CloCombox.h"
 
-@interface AssetsSearchViewController : UITableViewController <UITextFieldDelegate,UISearchBarDelegate,UIAlertViewDelegate,CloComboxDelegate>
-{
-    NSMutableArray * dataSource;
-    
+@interface AssetsSearchViewController : UIViewController <UITextFieldDelegate,UISearchBarDelegate,UIAlertViewDelegate,UITableViewDelegate,UITableViewDataSource>
+{    
     NSMutableArray * searchItermArr;
     //判断是否经历过搜索
     BOOL searched;
-    int size;
+    BOOL getMore;
+    
     MessageBox * HHUD;
     //上拉加载更多
     MJRefreshFooterView *_footer;
-    
     MJRefreshHeaderView *_header;
-    CloCombox *comBox;
 }
+
+@property (strong,nonatomic) NSMutableArray *dataSource;
+
 @property (strong, nonatomic) IBOutlet UISearchBar *searchBarButton;
+@property (strong, nonatomic) IBOutlet UITableView *MyTableView;
+
+@property (strong, nonatomic) IBOutlet UIButton *searchItemBt;
+
+-(IBAction)searchItemBt:(id)sender;
 
 @end

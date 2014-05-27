@@ -33,13 +33,14 @@
 //判断是否已经登录过，是否存在用户信息，如果有就直接跳转到首页
 -(void)viewDidAppear:(BOOL)animated
 {
-    if ([[UserDefaults userDefaults] getdata:kUserName]) {
+    if ( [[UserDefaults userDefaults] getdata:kPassword] ) {
         
         passwordTextField.text = [[UserDefaults userDefaults] getdata:kPassword];
         userNameTextField.text = [[UserDefaults userDefaults] getdata:kUserName];
+        
         isSaveButton.selected = YES;
         
-        [self logIn:[[UserDefaults userDefaults] getdata:kUserName] password:[[UserDefaults userDefaults] getdata:kPassword]];
+        [self logIn:userNameTextField.text password:passwordTextField.text];
     }
 }
 
@@ -48,25 +49,21 @@
     [super viewDidLoad];
     HHUD = [[MessageBox alloc] init];
     
+    UIImageView *img12 = [[UIImageView alloc] initWithFrame:CGRectMake(5, 0, 21, 23)];
+    img12.image = [UIImage imageNamed:@"UserName"];
     
-    [isSaveButton setBackgroundImage:[UIImage imageNamed:@"选择框"] forState:UIControlStateNormal];
-    [isSaveButton setBackgroundImage:[UIImage imageNamed:@"选择框-1"] forState:UIControlStateSelected];
-    
-    UIImageView *img1 = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 25, 25)];
-    img1.image = [UIImage imageNamed:@"用户名"];
-    userNameTextField.leftView = img1;
+    UIView *img11 = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 28, 23)];
+    [img11 addSubview:img12];
+    userNameTextField.leftView = img11;
     userNameTextField.leftViewMode = UITextFieldViewModeAlways;
     
-    UIImageView *img2 = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 25, 25)];
-    img2.image = [UIImage imageNamed:@"密码"];
-    passwordTextField.leftView = img2;
+    UIImageView *img22 = [[UIImageView alloc] initWithFrame:CGRectMake(5, 0, 21, 23)];
+    img22.image = [UIImage imageNamed:@"PassWord"];
+    UIView *img21 = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 28, 23)];
+    [img21 addSubview:img22];
+    passwordTextField.leftView = img21;
     passwordTextField.leftViewMode = UITextFieldViewModeAlways;
-    
-    userNameTextField.disabledBackground = [UIImage imageNamed:@"框选中"];
-    passwordTextField.disabledBackground = [UIImage imageNamed:@"框选中"];
-    
-    
-    [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"LogIn背景"]]];
+        
 	// Do any additional setup after loading the view.
 }
 
@@ -79,49 +76,78 @@
 {
     [self logIn:userNameTextField.text password:passwordTextField.text];
 }
+
+-(void)logInfo
+{
+    if (![[UserDefaults userDefaults] getdata:kLogCount]) {
+        NSNumber * t = @1;
+        [[UserDefaults userDefaults] setdata:t key:kLogCount];
+    }
+    else{
+        NSNumber * t = [[UserDefaults userDefaults] getdata:kLogCount];
+        NSNumber * tt = [NSNumber numberWithInt:t.intValue + 1];
+        [[UserDefaults userDefaults] setdata:tt key:kLogCount];
+    }
+    
+    NSDate * date = [NSDate date];
+    NSDateFormatter *dateformatter=[[NSDateFormatter alloc] init];
+    [dateformatter setDateFormat:@"HH:mm:ss"];
+    NSString * dateString=[dateformatter stringFromDate:date];
+    
+    //获得系统日期
+    NSCalendar * cal=[NSCalendar currentCalendar];
+    NSUInteger unitFlags=NSDayCalendarUnit|NSMonthCalendarUnit|NSYearCalendarUnit;
+    NSDateComponents * conponent= [cal components:unitFlags fromDate:date];
+    NSInteger year=[conponent year];
+    NSInteger month=[conponent month];
+    NSInteger day=[conponent day];
+    
+    NSString *nsDateString;
+    if(month < 10){
+        nsDateString= [NSString stringWithFormat:@"%d-0%d-%d %@",year,month,day,dateString];
+    }
+    else{
+        nsDateString= [NSString stringWithFormat:@"%d-%d-%d %@",year,month,day,dateString];
+    }
+    [[UserDefaults userDefaults] setdata:nsDateString key:kLogDate];
+}
+
 //登录
 -(void)logIn:(NSString *)userName password:(NSString *)password
 {
-    [HHUD showWait:@"请稍等" viewController:self];
+    [self logInfo];
+    [HHUD showWait:@"请稍等..." viewController:self];
     
-    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
-    //网络请求
-    NSDictionary *parameters = @{@"usrname":userName,@"password":password};
-    
-    [[JiaoTongBuClient sharedClient] GET:login parameters:parameters success:^(AFHTTPRequestOperation *operation, NSData *XMLParser) {
-        
-        //XML解析
-        NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:XMLParser];
-        
+    NSDictionary *para = @{@"userName":userName,@"password":password};
+    [[JiaoTongBuClient sharedClient] startGet:loginCode parameters:para withCallBack:^(int flag, NSDictionary *dic,NSError *error) {
         [HHUD showHide:self];
-        
-        if ([dic[@"status"] isEqualToString:@"A0006"]) {
-            
-            NSArray *arr = dic[@"data"];
-            NSDictionary *dict = [arr objectAtIndex:0];
-            
-            if (isSaveButton.selected) {
+        if (flag == 0) {
+            if ([dic[@"status"] isEqualToString:@"A0006"]) {
+                
+                NSArray *arr = dic[@"data"];
+                NSDictionary *dict = [arr objectAtIndex:0];
+                
                 //存储用户信息
                 [[UserDefaults userDefaults] setdata:dict[@"token"] key:kToken];
                 [[UserDefaults userDefaults] setdata:dict[@"name"] key:kUserName];
                 [[UserDefaults userDefaults] setdata:dict[@"uid"] key:kUserID];
-                [[UserDefaults userDefaults] setdata:password key:kPassword];
+                
+                if (isSaveButton.selected) {
+                    [[UserDefaults userDefaults] setdata:password key:kPassword];
+                }
+                //跳转
+               [self toRootView];
             }
-            //跳转
-            [self toRootView];
         }
-        else{
+        else if(flag == 1){
             [HHUD showMsg:dic[@"msg"] viewController:self];
         }
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-        
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        [HHUD showHide:self];
-        [HHUD showMsg:error.localizedDescription viewController:self];
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+        else{
+            [HHUD showHide:self];
+            [HHUD showMsg:error.localizedDescription viewController:self];
+        }
     }];
 }
-
 
 //跳转界面
 -(void)toRootView
@@ -133,6 +159,19 @@
     //跳转
     [self presentViewController:next animated:YES completion:^{}];
 }
+
+-(BOOL)textFieldShouldBeginEditing:(UITextField *)textField
+{
+    textField.background = [UIImage imageNamed:@"Input-1"];
+    return YES;
+}
+
+-(BOOL)textFieldShouldEndEditing:(UITextField *)textField
+{
+    textField.background = [UIImage imageNamed:@"Input"];
+    return YES;
+}
+
 
 #pragma mark -- 触摸其他地方隐藏键盘
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event

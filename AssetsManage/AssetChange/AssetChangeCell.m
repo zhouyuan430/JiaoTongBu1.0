@@ -12,4 +12,14 @@
 
 @synthesize CheckButton;
 
+-(void)setData:(AssetChange *)tmp
+{
+    if (tmp) {
+        self.assetName.text = tmp.assetName;
+        self.assetKind.text = [NSString stringWithFormat:@"类型：%@",tmp.assetCate];
+        self.assetcount.text = [NSString stringWithFormat:@"固定资产编号：%@",tmp.assetCardID];
+        self.assetCardID.text = [NSString stringWithFormat:@"固定资产编号：%@",tmp.assetCardID];
+    }
+}
+
 @end

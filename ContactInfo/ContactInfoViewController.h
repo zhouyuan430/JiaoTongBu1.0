@@ -12,13 +12,15 @@
 
 @interface ContactInfoViewController : UITableViewController
 {
-    //数据源
-    NSMutableArray * dataSource;
     //提示框
     MessageBox * HHUD;
+    
     //下拉刷新
     MJRefreshHeaderView *_header;
-}
+    MJRefreshFooterView *_footer;
 
+    BOOL getMore;
+}
+@property (strong,nonatomic) NSMutableArray *dataSource;
 
 @end

@@ -14,4 +14,10 @@
 @dynamic key;
 @dynamic data;
 
+
+-(void)initWithData:(NSData *)_data key:(NSString *)_key
+{
+    self.key = _key;
+    self.data = _data;
+}
 @end

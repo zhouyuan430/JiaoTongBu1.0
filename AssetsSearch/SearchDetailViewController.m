@@ -8,17 +8,15 @@
 
 #import "SearchDetailViewController.h"
 #import "SearchDetailCell.h"
-#import "AssetInfo.h"
-#import "TMDiskCache.h"
 #import "JiaoTongBuClient.h"
-#import "DiskCache.h"
+#import "CommentData.h"
+#import "AuthAsset.h"
 
 @interface SearchDetailViewController ()
 
 @end
 
 static NSString* const KAuthListPlist = @"AuthList.plist";
-static CGFloat const KQuality = 0.0000001;
 
 @implementation SearchDetailViewController
 
@@ -57,12 +55,8 @@ static CGFloat const KQuality = 0.0000001;
     
     [self addFooter];
     [self addHeader];
-    //添加左按钮
-    UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
-                                   initWithBarButtonSystemItem:UIBarButtonSystemItemReply
-                                   target:self
-                                   action:@selector(replyButton)];
-    [self.navigationItem setLeftBarButtonItem:leftButton];
+    
+    [self.navigationItem setBackItemWithTarget:self action:@selector(replyButton)];
     
     [self.tableView reloadData];
 }
@@ -157,7 +151,6 @@ static CGFloat const KQuality = 0.0000001;
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-    
     //呼出的菜单按钮点击后的响应
     if (buttonIndex == myActionSheet.cancelButtonIndex)
     {
@@ -183,11 +176,13 @@ static CGFloat const KQuality = 0.0000001;
     if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera])
     {
         UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+        picker.sourceType = sourceType;
+
         picker.delegate = self;
-        
+
         //设置拍照后的图片可被编辑
         picker.allowsEditing = YES;
-        picker.sourceType = sourceType;
+        
         [self presentViewController:picker animated:YES completion:^{}];
     }else
     {
@@ -205,9 +200,32 @@ static CGFloat const KQuality = 0.0000001;
     
     //设置选择后的图片可被编辑
     picker.allowsEditing = YES;
+    
     [self presentViewController:picker animated:YES completion:^{}];
     
 }
+
+//对图片尺寸进行压缩--
+-(UIImage*)imageWithImage:(UIImage*)image
+{
+    // Create a graphics image context
+    UIGraphicsBeginImageContext(CGSizeMake(200, 200));
+    
+    // Tell the old image to draw in this new context, with the desired
+    // new size
+    [image drawInRect:CGRectMake(0,0,200,200)];
+    
+    // Get the new image from the context
+    UIImage* newImage = UIGraphicsGetImageFromCurrentImageContext();
+    
+    // End the context
+    UIGraphicsEndImageContext();
+    
+    // Return the new image.
+    return newImage;
+}
+
+
 //当选择一张图片后进入这里
 -(void)imagePickerController:(UIImagePickerController*)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
@@ -218,20 +236,22 @@ static CGFloat const KQuality = 0.0000001;
     if ([type isEqualToString:@"public.image"])
     {
         //先把图片转成NSData
-        UIImage* image = [info objectForKey:@"UIImagePickerControllerOriginalImage"];
+        UIImage* image = [self imageWithImage:[info objectForKey:@"UIImagePickerControllerOriginalImage"]];
         NSData *data;
-        data = UIImageJPEGRepresentation(image, KQuality);
+        data = UIImageJPEGRepresentation(image, 1);
         
         //关闭相册界面
         [picker dismissViewControllerAnimated:YES completion:^{}];
         
-        AssetInfo *tmp = dataSource[currentLine];
+        AuthAsset *tmp = dataSource[currentLine];
+        NSIndexPath *index = [NSIndexPath indexPathForRow:currentLine inSection:0];
+        SearchDetailCell *cell = (SearchDetailCell*)[self.tableView cellForRowAtIndexPath:index];
+        UIImageView *img = [[UIImageView alloc] initWithFrame:CGRectMake(0,0,cell.assetImg.frame.size.width,cell.assetImg.frame.size.height)];
+        img.image = image;
+        [cell.assetImg addSubview:img];
         
         [self upLoadImage:data info:tmp];
-
-        [self.tableView reloadData];
     }
-    
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
@@ -242,41 +262,23 @@ static CGFloat const KQuality = 0.0000001;
 
 #pragma 上传图片
 
--(void)upLoadImage:(NSData *)imageData info:(AssetInfo*)tmp
+-(void)upLoadImage:(NSData *)imageData info:(AuthAsset *)tmp
 {
-    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
-    
-    [HHUD showWait:@"正在上传图片..." viewController:self];
-    
-    NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
-    NSString *token = [[UserDefaults userDefaults] getdata:kToken];
-    
+    [HHUD showWait:KUpLoading viewController:self];
     NSString *imageString = [imageData base64Encoding];
+    NSDictionary *para =@{@"base64":imageString,@"aid":tmp.assetID};
     
-    
-    NSDictionary *parameters =@{@"base64":imageString,@"uid":uid,@"token":token ,@"aid":tmp.assetID};
-    [[JiaoTongBuClient sharedClient] POST:uploadAssetImages parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
-        
-    } success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        
-        NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
-        
-        tmp.assetImgPath = [NSString stringWithFormat:@"%@",tmp.assetCardID];
-        NSString *key = [NSString stringWithFormat:@"http://%@",tmp.assetImgPath];
-        [[DiskCache sharedSearchCateLoad] storeData:imageData forKey:key];
-        
-        [HHUD showHide:self];
-        [HHUD showMsg:dic[@"msg"] viewController:self];
-        
-        [self.tableView reloadData];
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-        
-        
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        
-        [HHUD showHide:self];
-        [HHUD showMsg:error.localizedDescription viewController:self];
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+    [[JiaoTongBuClient sharedClient] startPost:uploadAssetImagesCode parameters:para withCallBack:^(int flag, NSDictionary *dic, NSError *error) {
+        if (flag == 0) {
+            tmp.assetImgPath = [NSString stringWithFormat:@"%@",tmp.assetCardID];
+            [[CommentData sharedInstance] insertImgData:imageData key:tmp.assetImgPath];
+            [HHUD showHide:self];
+            [HHUD showMsg:dic[@"msg"] viewController:self];
+        }
+        else{
+            [HHUD showHide:self];
+            [HHUD showMsg:error.localizedDescription viewController:self];
+        }
     }];
 }
 
@@ -290,6 +292,8 @@ static CGFloat const KQuality = 0.0000001;
 }
 
 #pragma mark - Table view data source
+
+
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
@@ -309,13 +313,26 @@ static CGFloat const KQuality = 0.0000001;
     SearchDetailCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     
-    AssetInfo *tmp = dataSource[currentLine];
+    AuthAsset *tmp = dataSource[currentLine];
     
     [cell loadImgDetail:tmp.assetImgPath];
     
     [cell setData:tmp];
     
     return cell;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPat{
+    return 700;
+}
+
+//对图片尺寸进行压缩--
+-(UIImage*)imageWithImage:(UIImage*)image CGSize:(CGSize)Size{
+    UIGraphicsBeginImageContext(Size);
+    [image drawInRect:CGRectMake(0,0,Size.width,Size.height)];
+    UIImage* newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
 }
 
 @end

@@ -11,16 +11,16 @@
 #import "ServerAddr.h"
 #import "ContactInfo.h"
 #import "ContactInfoCell.h"
-#import "TMDiskCache.h"
+#import "CommentData.h"
 
 @interface ContactInfoViewController ()
 
 @end
 
-static NSString* const KContactInfoPlist = @"ContactInfo.plist";
-
-
 @implementation ContactInfoViewController
+
+@synthesize dataSource = _dataSource;
+static int page = 1;
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -34,6 +34,15 @@ static NSString* const KContactInfoPlist = @"ContactInfo.plist";
 -(void)dealloc
 {
     [self.tableView removeObserver:_header forKeyPath:@"contentOffset"];
+    [self.tableView removeObserver:_footer forKeyPath:@"contentSize"];
+    [self.tableView removeObserver:_footer forKeyPath:@"contentOffset"];
+}
+
+-(void)viewWillAppear:(BOOL)animated
+{
+    [self.navigationController.navigationBar setBackgroundImage:[UIImage imageNamed:@"NavigationBar"] forBarMetrics:UIBarMetricsDefault];
+    self.navigationController.navigationBar.translucent = NO;
+    [self.navigationController.navigationBar setTintColor:[UIColor colorWithWhite:1 alpha:1]];
 }
 
 - (void)viewDidLoad
@@ -41,18 +50,14 @@ static NSString* const KContactInfoPlist = @"ContactInfo.plist";
     [super viewDidLoad];
     HHUD = [[MessageBox alloc] init];
     
+    getMore = NO;
     [self addHeader];
+    [self addFooter];
     
-    dataSource = [[NSMutableArray alloc] initWithCapacity:20];
-    //添加左按钮
-    UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
-                                   initWithBarButtonSystemItem:UIBarButtonSystemItemReply
-                                   target:self
-                                   action:@selector(replyButton)];
-    [self.navigationItem setLeftBarButtonItem:leftButton];
+    [self.navigationItem setBackItemWithTarget:self action:@selector(replyButton)];
+    self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     
     [self getData];
-
 }
 //返回上一级
 -(IBAction)replyButton
@@ -62,52 +67,49 @@ static NSString* const KContactInfoPlist = @"ContactInfo.plist";
 //获取数据
 -(void)getData
 {
-    [dataSource removeAllObjects];
-    [self.tableView reloadData];
-    
-    if ([[TMDiskCache sharedCache] objectForKey:KContactInfoPlist] != nil) {
-        NSLog(@"本地");
-       [self loadData:(NSDictionary *)[[TMDiskCache sharedCache] objectForKey:KContactInfoPlist]];
+    [self.dataSource removeAllObjects];
+    if (getMore) {
+        [self connect];
+        getMore = NO;
+    }
+    else if ([[CommentData sharedInstance] getData:KContactInfoName].count != 0) {
+        self.dataSource = [[CommentData sharedInstance] getData:KContactInfoName];
     }
     else{
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
-        
-        NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
-        NSString *token = [[UserDefaults userDefaults] getdata:kToken];
-    
-        NSDictionary *parameters = @{@"uid":uid,@"token":token};
-        
-        [[JiaoTongBuClient sharedClient] GET:getContactList parameters:parameters success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
-        
-            NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
-            if ([dic[@"status"] isEqualToString:@"A0006"])
-            {
-                [[TMDiskCache sharedCache] setObject:dic forKey:KContactInfoPlist];
-                
-                [self loadData:dic];
-            }
-            else{
-                [HHUD showMsg:dic[@"msg"] viewController:self];
-            }
-        
-        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-            NSLog(@"%@",error);
-        }];
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+        [self connect];
     }
+}
+
+-(void)connect
+{
+    NSDictionary *para = @{@"page":[NSString stringWithFormat:@"%d",page],@"size":[NSString stringWithFormat:@"3"]};
+
+    [[JiaoTongBuClient sharedClient] startGet:getContactPageListCode parameters:para withCallBack:^(int successed, NSDictionary *dic,NSError *error) {
+        if (successed == 0) {
+            [self loadData:dic];
+        }
+        else if(successed == 1){
+            page --;
+            [HHUD showMsg:KNoMoreData viewController:self];
+            self.dataSource = [[CommentData sharedInstance] getData:KContactInfoName];
+            [self.tableView reloadData];
+        }
+        else{
+            [HHUD showMsg:error.localizedDescription viewController:self];
+        }
+    }];
 }
 
 -(void)loadData:(NSDictionary*)dic
 {
+
     NSArray *arr = dic[@"data"];
     for (int i = 0 ; i < [arr count]; i++) {
-        ContactInfo *tmp = [[ContactInfo alloc] initWithData:arr[i]];
-        
-        [dataSource addObject:tmp];
+        [[CommentData sharedInstance] insertData:arr[i] entityName:KContactInfoCode];
     }
+    self.dataSource = [[CommentData sharedInstance] getData:KContactInfoName];
     [self.tableView reloadData];
 }
-
 
 - (void)didReceiveMemoryWarning
 {
@@ -119,16 +121,12 @@ static NSString* const KContactInfoPlist = @"ContactInfo.plist";
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-//#warning Potentially incomplete method implementation.
-    // Return the number of sections.
     return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-//#warning Incomplete method implementation.
-    // Return the number of rows in the section.
-    return [dataSource count];
+    return [self.dataSource count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -139,11 +137,20 @@ static NSString* const KContactInfoPlist = @"ContactInfo.plist";
     {
         cell = [[ContactInfoCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
-
-    // Configure the cell...
-    ContactInfo *tmp = dataSource[indexPath.row];
-    [cell setCellInfo:tmp];
+    if (indexPath.row < self.dataSource.count) {
+        if (indexPath.row %2 == 0) {
+            UIImageView *tt = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"PersonAssetBG-0"]];
+            [cell setBackgroundView:tt];
+        }
+        else{
+            UIImageView *tt = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"PersonAssetBG-1"]];
+            [cell setBackgroundView:tt];
+        }
     
+        // Configure the cell...
+        ContactInfo *tmp = self.dataSource[indexPath.row];
+        [cell setCellInfo:tmp];
+    }
     return cell;
 }
 
@@ -165,12 +172,35 @@ static NSString* const KContactInfoPlist = @"ContactInfo.plist";
 
 - (void)NextView:(MJRefreshBaseView *)refreshView
 {
-    [[TMDiskCache sharedCache] removeObjectForKey:KContactInfoPlist];
+    [[CommentData sharedInstance] delete:KContactInfoName entityName:KContactInfoCode];
+    
+    page = 1;
     [self getData];
-    
-    
     //结束刷新状态
     [refreshView endRefreshing];
 }
+
+#pragma 上拉加载
+
+- (void)addFooter
+{
+    __unsafe_unretained ContactInfoViewController *vc = self;
+    MJRefreshFooterView *footer = [MJRefreshFooterView footer];
+    footer.scrollView = self.tableView;
+    
+    footer.beginRefreshingBlock = ^(MJRefreshBaseView *refreshView) {
+        // 模拟延迟加载数据，因此0.2秒后才调用）
+        [vc performSelector:@selector(PreviousView:) withObject:refreshView afterDelay:0.2];
+    };
+    _footer = footer;
+}
+- (void)PreviousView:(MJRefreshBaseView *)refreshView
+{
+    getMore = YES;
+    page ++ ;
+    [self getData];
+    [refreshView endRefreshing];
+}
+
 
 @end

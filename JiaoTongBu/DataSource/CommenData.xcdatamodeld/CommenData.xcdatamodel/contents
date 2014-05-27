@@ -1,10 +1,48 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="5064" systemVersion="12F45" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
-    <entity name="AssetInfo" representedClassName="" syncable="YES">
+    <entity name="AssetChange" representedClassName="AssetChange" syncable="YES">
+        <attribute name="assetCardID" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="assetCate" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="assetID" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="assetImgPath" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="assetName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="isChecked" optional="YES" attributeType="Boolean" syncable="YES"/>
+    </entity>
+    <entity name="AssetCheck" representedClassName="AssetCheck" parentEntity="PersonAsset" syncable="YES">
+        <attribute name="checkFlag" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+    </entity>
+    <entity name="AssetDirectCheck" representedClassName="AssetDirectCheck" parentEntity="PersonAsset" syncable="YES">
+        <attribute name="checkFlag" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+    </entity>
+    <entity name="AuthAsset" representedClassName="AuthAsset" syncable="YES">
         <attribute name="assetCardID" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="assetCate" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="assetCount" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="assetID" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="assetID" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="assetImgPath" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="assetName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="assetValue" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="id_useOffice" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="upLoadPath" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="useDepartment" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="useOffice" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="userName" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="ContactInfo" representedClassName="ContactInfo" syncable="YES">
+        <attribute name="contactDepartment" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="contactEmail" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="contactImg" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="contactName" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="ImageCache" representedClassName="ImageCache" syncable="YES">
+        <attribute name="data" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="key" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="PersonAsset" representedClassName="PersonAsset" syncable="YES">
+        <attribute name="assetCardID" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="assetCate" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="assetCount" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="assetID" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
         <attribute name="assetImgPath" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="assetName" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="assetValue" optional="YES" attributeType="String" syncable="YES"/>
@@ -15,6 +53,12 @@
         <attribute name="userName" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <elements>
-        <element name="AssetInfo" positionX="-63" positionY="-18" width="128" height="225"/>
+        <element name="AssetChange" positionX="-405" positionY="-180" width="128" height="133"/>
+        <element name="AssetCheck" positionX="-110" positionY="75" width="128" height="60"/>
+        <element name="AuthAsset" positionX="-297" positionY="65" width="128" height="223"/>
+        <element name="ContactInfo" positionX="-252" positionY="-36" width="128" height="103"/>
+        <element name="ImageCache" positionX="-216" positionY="-144" width="128" height="73"/>
+        <element name="PersonAsset" positionX="-2" positionY="-198" width="128" height="223"/>
+        <element name="AssetDirectCheck" positionX="34" positionY="72" width="128" height="58"/>
     </elements>
 </model>

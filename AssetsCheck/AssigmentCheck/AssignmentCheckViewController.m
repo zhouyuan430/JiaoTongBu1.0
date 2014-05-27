@@ -8,25 +8,22 @@
 
 #import "AssignmentCheckViewController.h"
 #import "AssignmentCheckCell.h"
-#import "CheckAssetInfo.h"
-#import "TMDiskCache.h"
 #import "JiaoTongBuClient.h"
 #import "ReadViewController.h"
 #import "ZBarSDK.h"
 #import "ParseQRCode.h"
-#import "DiskCache.h"
+#import "AssetImage.h"
+#import "CommentData.h"
+#import "AssetCheck.h"
 
 @interface AssignmentCheckViewController ()
 
 @end
 
-static NSString* const KCheckListPlist = @"CheckList.plist";
-static NSString* const KCheckFlag = @"CheckFlag.plist";
-static NSString* const KCheckSource = @"CheckSource";
-
+static int page = 1;
 
 @implementation AssignmentCheckViewController
-
+@synthesize dataSource = _dataSource;
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -38,7 +35,8 @@ static NSString* const KCheckSource = @"CheckSource";
 }
 -(void)dealloc
 {
-    //[self.tableView removeObserver:_header forKeyPath:@"contentOffset"];
+    [self.tableView removeObserver:_footer forKeyPath:@"contentOffset"];
+    [self.tableView removeObserver:_footer forKeyPath:@"contentSize"];
 }
 
 - (void)viewDidLoad
@@ -48,21 +46,13 @@ static NSString* const KCheckSource = @"CheckSource";
     HHUD = [[MessageBox alloc] init];
     //下拉刷新
     //[self addHeader];
+    [self addFooter];
     
     [self initData];
     
-    //添加左按钮
-    UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
-                                   initWithBarButtonSystemItem:UIBarButtonSystemItemReply
-                                   target:self
-                                   action:@selector(ReplyButton)];
-    self.navigationItem.leftBarButtonItem = leftButton;
+    [self.navigationItem setBackItemWithTarget:self action:@selector(replyButton)];
     
-    UIBarButtonItem *rightButton = [[UIBarButtonItem alloc]
-                                    initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-                                    target:self
-                                    action:@selector(submitButton)];
-    self.navigationItem.rightBarButtonItem = rightButton;
+    [self.navigationItem setRightItemWithTarget:self action:@selector(submitButton) title:@"完成"];
     
     [self getData];
     
@@ -70,7 +60,6 @@ static NSString* const KCheckSource = @"CheckSource";
 
 -(void)initData
 {
-    dataSource = [[NSMutableArray alloc] initWithCapacity:20];
     submitCount =  0;
     checkedCount = 0;
     unCheckedCount = 0;
@@ -78,95 +67,70 @@ static NSString* const KCheckSource = @"CheckSource";
 
 -(void)initDataWithDataSource
 {
-    for (int i = 0; i < dataSource.count; i++) {
-        CheckAssetInfo *tmp = dataSource[i];
-        if ([tmp.checkFlag isEqualToString:@"2"]) {
+    for (int i = 0; i < self.dataSource.count; i++) {
+        AssetCheck *tmp = self.dataSource[i];
+        if (tmp.checkFlag.intValue == 2) {
             submitCount++;
         }
-        else if([tmp.checkFlag isEqualToString:@"1"])
-        {
+        else if(tmp.checkFlag.intValue == 1){
             checkedCount++;
         }
-        else
-        {
+        else{
             unCheckedCount++;
         }
     }
     NSLog(@"%d %d %d",submitCount,checkedCount,unCheckedCount);
 }
 
--(IBAction)ReplyButton
+-(void)replyButton
 {
     [self.navigationController popViewControllerAnimated:YES];
 }
 
 -(void)getData
 {
-    [dataSource removeAllObjects];
+    [self.dataSource removeAllObjects];
     
-    [self.tableView reloadData];
-    
-    //restore data
-    NSData *savedEncodedData = [[UserDefaults userDefaults] getdata:KCheckSource];
-    if(savedEncodedData != nil)
+    if(getMore)
     {
-        dataSource = (NSMutableArray *)[NSKeyedUnarchiver unarchiveObjectWithData:savedEncodedData];
-        
-        [self initDataWithDataSource];
-        
-        [self.tableView reloadData];
+        [self connect];
+        getMore = NO;
     }
     else{
-        if ([[TMDiskCache sharedCache] objectForKey:KCheckListPlist] != nil) {
-            [self loadData:(NSDictionary *)[[TMDiskCache sharedCache] objectForKey:KCheckListPlist]];
+        if ([[CommentData sharedInstance] getData:KAssetCheckName].count != 0) {
+            self.dataSource = [[CommentData sharedInstance] getData:KAssetCheckName];
+            [self initDataWithDataSource];
         }
         else{
-            [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
-            
-            NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
-            NSString *token = [[UserDefaults userDefaults] getdata:kToken];
-            
-            NSDictionary *parameters = @{@"uid":uid,@"token":token};
-            
-            [[JiaoTongBuClient sharedClient] GET:getCheckList parameters:parameters success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
-                
-                NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
-                if ([dic[@"status"] isEqualToString:@"A0006"])
-                {
-                    //存储数据,历史缓存类型
-                    [[TMDiskCache sharedCache] setObject:dic forKey:KCheckListPlist];
-                    [self loadData:dic];
-                }
-                else{
-                    [HHUD showMsg:dic[@"msg"] viewController:self];
-                }
-                [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-                
-            } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-                NSLog(@"%@",error);
-                [HHUD showMsg:error.localizedDescription viewController:self];
-                [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-                
-            }];
+            [self connect];
         }
     }
+}
+
+-(void)connect
+{
+    NSDictionary *para = @{@"page":[NSString stringWithFormat:@"%d",page],@"size":@"10"};
+    [[JiaoTongBuClient sharedClient] startGet:getCheckPageListCode parameters:para withCallBack:^(int flag, NSDictionary *dic, NSError *error) {
+        if (flag == 0) {
+            [self loadData:dic];
+        }
+        else if(flag == 1){
+            [HHUD showMsg:KNoMoreData viewController:self];
+        }
+        else{
+            [HHUD showMsg:error.localizedDescription viewController:self];
+        }
+    }];
 }
 
 -(void)loadData:(NSDictionary *)dic
 {
     NSArray *arr = dic[@"data"];
     for (int i = 0 ; i < [arr count]; i++) {
-        CheckAssetInfo *tmp = [[CheckAssetInfo alloc] initWithCheckData:arr[i]];
-        [dataSource addObject:tmp];
+        [[CommentData sharedInstance] insertData:arr[i] entityName:KAssetCheckCode];
     }
-    [self saveData];
+   self.dataSource = [[CommentData sharedInstance] getData:KAssetCheckName];
     [self.tableView reloadData];
-}
-
--(void)saveData
-{
-    NSData *encodedDataSource = [NSKeyedArchiver archivedDataWithRootObject:dataSource];
-    [[UserDefaults userDefaults] setdata:encodedDataSource key:KCheckSource];
 }
 
 - (void)didReceiveMemoryWarning
@@ -187,7 +151,7 @@ static NSString* const KCheckSource = @"CheckSource";
 {
     // Return the number of rows in the section.
     [HHUD showHide:self];
-    return [dataSource count];
+    return [self.dataSource count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -200,19 +164,30 @@ static NSString* const KCheckSource = @"CheckSource";
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     cell.accessoryType = UITableViewCellAccessoryNone;
     
-    if (indexPath.row < dataSource.count) {
-        CheckAssetInfo *tmp = dataSource[indexPath.row];
-        if ([tmp.checkFlag isEqualToString:@"2"]) {
+    if (indexPath.row < self.dataSource.count) {
+        
+        if (indexPath.row%2 == 0) {
+            cell.backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"PersonAssetBG-0"]];
+        }
+        else{
+            cell.backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"PersonAssetBG-1"]];
+        }
+        AssetCheck *tmp = self.dataSource[indexPath.row];
+        if (tmp.checkFlag.intValue == 2) {
             [cell.isCheckButton setBackgroundImage:[UIImage imageNamed:@"check"] forState:UIControlStateNormal];
         }
-        else if([tmp.checkFlag isEqualToString:@"1"]){
+        else if(tmp.checkFlag.intValue == 1){
             [cell.isCheckButton setBackgroundImage:[UIImage imageNamed:@"uncheck"] forState:UIControlStateNormal];
         }
         else{
             [cell.isCheckButton setBackgroundImage:[UIImage imageNamed:@"选择框"] forState:UIControlStateNormal];
         }
+        
         [cell loadimg:tmp.assetImgPath];
-        [cell setData:tmp];
+        
+        cell.assetName.text = tmp.assetName;
+        cell.assetKind.text = [NSString stringWithFormat:@"类型：%@",tmp.assetCate];
+        cell.assetCardID.text = [NSString stringWithFormat:@"固定资产编号：%@",tmp.assetCardID];
     }
     // Configure the cell...
     return cell;
@@ -221,11 +196,12 @@ static NSString* const KCheckSource = @"CheckSource";
 #pragma ------ 二维码扫描
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    CheckAssetInfo *tmp = dataSource[indexPath.row];
-    if (![tmp.checkFlag isEqualToString:@"0"]) {
+    AssetCheck *tmp = self.dataSource[indexPath.row];
+    if (tmp.checkFlag.intValue == 2) {
         return;
     }
     ReadViewController *readerView = [[ReadViewController alloc] init];
+    
     readerView.delegate = self;
     [self.navigationController pushViewController:readerView animated:NO];
 }
@@ -236,22 +212,25 @@ static NSString* const KCheckSource = @"CheckSource";
     NSIndexPath *selectedRowIndex = [self.tableView indexPathForSelectedRow];
     
     ParseQRCode * parse = [[ParseQRCode alloc] initWithData:symbolStr];
-    CheckAssetInfo *tmp = dataSource[selectedRowIndex.row];
+    AssetCheck *tmp = self.dataSource[selectedRowIndex.row];
     
     if (![parse.parseInfo[@"cardid"] isEqualToString:tmp.assetCardID]) {
         [HHUD showMsg:@"扫描资产不匹配" viewController:self];
         return;
     }
     
-    tmp.assetImg = image;
-    tmp.checkFlag = @"1";
+    tmp.assetImgPath = tmp.assetCardID;
+    NSData *data = UIImageJPEGRepresentation(image,1);
+    [[CommentData sharedInstance] insertImgData:data key:tmp.assetImgPath];
+    
+    tmp.checkFlag = @1;
+    [[CommentData sharedInstance] saveData];
 
-    [dataSource insertObject:tmp atIndex:checkedCount + submitCount];
-    [dataSource removeObjectAtIndex:selectedRowIndex.row+1];
+    
+    self.dataSource = [[CommentData sharedInstance] getData:KAssetCheckName];
     
     checkedCount++;
     
-    [self saveData];
     [self.tableView reloadData];
     
     self.tableView.scrollsToTop = YES;
@@ -259,42 +238,21 @@ static NSString* const KCheckSource = @"CheckSource";
 
 #pragma 上传图片
 
--(void)upLoadCheckLists:(NSData *)imageData info:(CheckAssetInfo*)tmp
+-(void)upLoadCheckLists:(NSData *)imageData info:(AssetCheck*)tmp
 {
-    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
-        
-    NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
-    NSString *token = [[UserDefaults userDefaults] getdata:kToken];
-    
     NSString *imageString = [imageData base64Encoding];
-    
-    NSDictionary *parameters =@{@"uid":uid,@"token":token ,@"aid":tmp.assetID,@"qrBase64":imageString};
-    
-    [[JiaoTongBuClient sharedClient] POST:uploadCheckLists parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
-        
-    } success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        
-        NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
-        
-        tmp.assetImgPath = [NSString stringWithFormat:@"%@",tmp.assetCardID];
-        NSString *key = [NSString stringWithFormat:@"http://%@",tmp.assetImgPath];
-        [[DiskCache sharedSearchCateLoad] storeData:imageData forKey:key];
-        
-        [HHUD showHide:self];
-        [HHUD showMsg:dic[@"msg"] viewController:self];
-        
-        //保存信息
-        [self saveData];
-        [self.tableView reloadData];
-        
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-        
-        
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        
-        [HHUD showHide:self];
-        [HHUD showMsg:error.localizedDescription viewController:self];
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+    NSDictionary *para =@{@"aid":tmp.assetID,@"qrBase64":imageString};
+    [[JiaoTongBuClient sharedClient] startPost:uploadCheckListsCode parameters:para withCallBack:^(int flag, NSDictionary *dic, NSError *error) {
+        if (flag != 2) {
+            [[CommentData sharedInstance] saveData];
+            [HHUD showHide:self];
+            [HHUD showMsg:dic[@"msg"] viewController:self];
+            [self.tableView reloadData];
+        }
+        else{
+            [HHUD showHide:self];
+            [HHUD showMsg:error.localizedDescription viewController:self];
+        }
     }];
 }
 
@@ -304,24 +262,18 @@ static NSString* const KCheckSource = @"CheckSource";
         [HHUD showMsg:@"请先盘点资产" viewController:self];
     }
     else{
-        [HHUD showWait:@"正在上传..." viewController:self];
-        for (int i = 0; i < dataSource.count; i++)
+        [HHUD showWait:KUpLoading viewController:self];
+        for (int i = 0; i < self.dataSource.count; i++)
         {
-            CheckAssetInfo *tmp = dataSource[i];
-            if ([tmp.checkFlag isEqualToString:@"1"]) {
-                tmp.checkFlag = @"2";
-                CheckAssetInfo * tmp = dataSource[i];
-                NSData *data = UIImageJPEGRepresentation(tmp.assetImg,0.000001);
+            AssetCheck *tmp = self.dataSource[i];
+            if (tmp.checkFlag.intValue == 1){
+                tmp.checkFlag = @2;
+                
+                AssetImage *img = [[AssetImage alloc] init];
+                [img loadimg:tmp.assetImgPath];
+                NSData *data = UIImageJPEGRepresentation(img.image,1);
+
                 [self upLoadCheckLists:data info:tmp];
-            }
-        }
-        int begin = submitCount;
-        for (int i = begin; i <dataSource.count; i++) {
-            CheckAssetInfo *tmp = dataSource[i];
-            if ([tmp.checkFlag isEqualToString:@"2"]) {
-                [dataSource insertObject:tmp atIndex:submitCount];
-                [dataSource removeObjectAtIndex:i+1];
-                submitCount ++;
             }
         }
     }
@@ -345,11 +297,35 @@ static NSString* const KCheckSource = @"CheckSource";
 
 - (void)NextView:(MJRefreshBaseView *)refreshView
 {
-    [[TMDiskCache sharedCache] removeObjectForKey:KCheckListPlist];
+    [[CommentData sharedInstance] delete:KAssetCheckName entityName:KAssetCheckCode];
+    page = 1;
     [self getData];
     
     //结束刷新状态
     [refreshView endRefreshing];
 }
+
+#pragma 上拉加载
+
+- (void)addFooter
+{
+    __unsafe_unretained AssignmentCheckViewController *vc = self;
+    MJRefreshFooterView *footer = [MJRefreshFooterView footer];
+    footer.scrollView = self.tableView;
+    
+    footer.beginRefreshingBlock = ^(MJRefreshBaseView *refreshView) {
+        // 模拟延迟加载数据，因此0.2秒后才调用）
+        [vc performSelector:@selector(PreviousView:) withObject:refreshView afterDelay:0.2];
+    };
+    _footer = footer;
+}
+- (void)PreviousView:(MJRefreshBaseView *)refreshView
+{
+    getMore = YES;
+    page ++;
+    [self getData];
+    [refreshView endRefreshing];
+}
+
 
 @end

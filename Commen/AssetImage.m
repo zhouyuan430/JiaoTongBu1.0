@@ -8,7 +8,7 @@
 
 #import "AssetImage.h"
 #import "UIImageView+AFNetworking.h"
-#import "DiskCache.h"
+#import "CommentData.h"
 @implementation AssetImage
 
 - (id)initWithFrame:(CGRect)frame
@@ -26,11 +26,9 @@
 {
     if (_url)
     {
-        _url = [NSString stringWithFormat:@"http://%@",_url];        
-        NSString *cpic_spath=[[DiskCache sharedSearchCateLoad] cachePathForKey:_url];
-        if([[NSFileManager defaultManager]fileExistsAtPath:cpic_spath])
+        imageData = [[CommentData sharedInstance] cacheForKey:_url];
+        if(imageData)
         {
-            imageData =[NSData dataWithContentsOfFile:cpic_spath];
             UIImage *aa=[UIImage imageWithData:imageData];
             [self setImage:aa];
         }
@@ -48,7 +46,7 @@
                     dispatch_async(dispatch_get_main_queue(),
                                    ^{
                                        self.image = image;
-                                       [[DiskCache sharedSearchCateLoad]storeData:DATA forKey:_url];
+                                       [[CommentData sharedInstance] insertImgData:DATA key:_url];
                                    });
                 }
             });

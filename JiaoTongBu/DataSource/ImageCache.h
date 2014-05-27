@@ -15,4 +15,6 @@
 @property (nonatomic, retain) NSString * key;
 @property (nonatomic, retain) NSData * data;
 
+-(void)initWithData:(NSData *)_data key:(NSString *)_key ;
+
 @end

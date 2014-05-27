@@ -8,7 +8,6 @@
 
 #import <UIKit/UIKit.h>
 #import "MJRefresh.h"
-#import "AssetInfo.h"
 #import "MessageBox.h"
 @interface SearchDetailViewController : UITableViewController <UIActionSheetDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate>
 {

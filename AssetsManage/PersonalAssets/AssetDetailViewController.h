@@ -8,7 +8,6 @@
 
 #import <UIKit/UIKit.h>
 #import "MJRefresh.h"
-#import "AssetInfo.h"
 #import "MessageBox.h"
 @interface AssetDetailViewController : UITableViewController <UIActionSheetDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate>
 {
@@ -26,8 +25,6 @@
 }
 @property (strong, nonatomic) NSMutableArray *dataSource;
 @property (strong, nonatomic) NSIndexPath *currentInfo;
-
-//@property (strong, nonatomic) AssetInfo *assetInfo;
 
 -(IBAction)imgClick:(id)sender;
 @end

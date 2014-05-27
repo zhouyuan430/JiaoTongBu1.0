@@ -8,11 +8,16 @@
 
 #import <UIKit/UIKit.h>
 #import "ReadViewController.h"
+#import "MessageBox.h"
 
 @interface DirectCheckTableViewController : UITableViewController <getReaderViewDelegate>
 {
-     NSMutableArray *dataSource;
+    MessageBox *HHUD;
+   int submitCount;
+   int checkedCount;
 }
+
+@property (strong,nonatomic) NSMutableArray *dataSource;
 
 @property (strong, nonatomic) IBOutlet UIImageView *imageview;
 

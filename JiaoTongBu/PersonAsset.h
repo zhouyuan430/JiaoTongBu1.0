@@ -10,12 +10,12 @@
 #import <CoreData/CoreData.h>
 
 
-@interface DataSource : NSManagedObject
+@interface PersonAsset : NSManagedObject
 
 @property (nonatomic, retain) NSString * assetCardID;
 @property (nonatomic, retain) NSString * assetCate;
 @property (nonatomic, retain) NSString * assetCount;
-@property (nonatomic, retain) NSString * assetID;
+@property (nonatomic, retain) NSNumber * assetID;
 @property (nonatomic, retain) NSString * assetImgPath;
 @property (nonatomic, retain) NSString * assetName;
 @property (nonatomic, retain) NSString * assetValue;
@@ -24,5 +24,8 @@
 @property (nonatomic, retain) NSString * useDepartment;
 @property (nonatomic, retain) NSString * useOffice;
 @property (nonatomic, retain) NSString * userName;
+
+-(void)initWithData:(NSDictionary *)data;
+
 
 @end

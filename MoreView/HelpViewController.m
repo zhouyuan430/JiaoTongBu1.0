@@ -27,15 +27,11 @@
 {
     [super viewDidLoad];
     
-    //添加左按钮
-    UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
-                                   initWithBarButtonSystemItem:UIBarButtonSystemItemReply
-                                   target:self
-                                   action:@selector(ReplyButton)];
-    [self.navigationItem setLeftBarButtonItem:leftButton];
+    [self.navigationItem setBackItemWithTarget:self action:@selector(replyButton)];
+
 	// Do any additional setup after loading the view.
 }
--(void)ReplyButton
+-(void)replyButton
 {
     [self.navigationController popViewControllerAnimated:YES];
 }

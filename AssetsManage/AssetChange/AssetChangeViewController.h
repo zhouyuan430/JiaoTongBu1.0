@@ -11,15 +11,16 @@
 #import "MJRefresh.h"
 @interface AssetChangeViewController : UITableViewController<UIAlertViewDelegate>
 {
-    //数据源
-    NSMutableArray *dataSource;
-    //选中框
-    NSMutableArray *isSelected;
     //提示框
     MessageBox * HHUD;
     //下拉刷新
     MJRefreshHeaderView *_header;
+    MJRefreshFooterView *_footer;
+    
+    BOOL getMore;
 }
+//数据源
+@property (strong,nonatomic) NSMutableArray *dataSource;
 
 -(IBAction)selectButton:(id)sender;
 

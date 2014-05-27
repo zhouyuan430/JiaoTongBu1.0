@@ -11,9 +11,7 @@
 @implementation ContactInfoCell
 
 @synthesize nameLabel;
-@synthesize phoneLabel;
 @synthesize emailLabel;
-@synthesize addressLabel;
 @synthesize departmentLabel;
 
 @synthesize peopleImg;
@@ -36,9 +34,9 @@
 
 -(void)setCellInfo:(ContactInfo *)_info
 {
-    self.nameLabel.text = [NSString stringWithFormat:@"姓名：%@",_info.nameLabel];
-    self.emailLabel.text = [NSString stringWithFormat:@"email：%@",_info.emailLabel];
-    self.departmentLabel.text = _info.departmentLabel;
+    self.nameLabel.text = [NSString stringWithFormat:@"姓名：%@",_info.contactName];
+    self.emailLabel.text = [NSString stringWithFormat:@"邮箱：%@",_info.contactEmail];
+    self.departmentLabel.text = _info.contactDepartment;
 }
 
 @end

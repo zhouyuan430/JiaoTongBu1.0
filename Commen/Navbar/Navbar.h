@@ -9,9 +9,10 @@
 
 #define DefaultStateBarColor [UIColor blackColor]
 #define DefaultStateBarSytle UIBarStyleBlackOpaque
+extern NSString *gNavbarBackgroundImageName;
+
 
 #import <UIKit/UIKit.h>
-
 
 @interface Navbar : UINavigationBar
 
@@ -24,8 +25,6 @@
 @end
 
 
-
-
 /**
  * @brief 自定义barbuttonitem
  *
@@ -36,17 +35,16 @@
 #define TitleFont 18
 #define TitleColor [UIColor whiteColor]
 
-#define BackgroundImage @"nav_bg_image.png"
-#define BackItemImage @"back_bar_button.png"
+#define BackItemImage @"BackButton.png"
 #define ItemImage @"bar_button_item.png"
-#define BackItemSelectedImage @"back_bar_button_s.png"
+#define BackItemSelectedImage @"BackButton.png"
 #define ItemSelectedImage @"bar_button_item_s.png"
 
 #define BackItemOffset UIEdgeInsetsMake(0, 5, 0, 0)
 #define ItemLeftMargin 10
-#define ItemWidth 52
+#define ItemWidth 30
 #define ItemHeight SysNavbarHeight
-#define ItemTextFont 12
+#define ItemTextFont 15
 #define ItemTextNormalColot [UIColor whiteColor]
 #define ItemTextSelectedColot [UIColor colorWithWhite:0.7 alpha:1]
 
@@ -94,11 +92,10 @@ typedef enum {
 - (void)setNewTitle:(NSString *)title;
 - (void)setNewTitleImage:(UIImage *)image;
 
-
-
 - (void)setLeftItemWithTarget:(id)target
                        action:(SEL)action
                         title:(NSString *)title;
+
 - (void)setLeftItemWithTarget:(id)target
                        action:(SEL)action
                         image:(UIImage *)image;
@@ -109,17 +106,24 @@ typedef enum {
 - (void)setRightItemWithTarget:(id)target
                         action:(SEL)action
                          title:(NSString *)title;
+
 - (void)setRightItemWithTarget:(id)target
                         action:(SEL)action
-                         image:(UIImage *)image;
-- (void)setRightItemWithButtonItem:(NavBarButtonItem *)item;
+                         image:(NSString *)image;
 
+- (void)setRightItemWithButtonItem:(NavBarButtonItem *)item;
 
 
 - (void)setBackItemWithTarget:(id)target
                        action:(SEL)action;
+
 - (void)setBackItemWithTarget:(id)target
                        action:(SEL)action
                         title:(NSString *)title;
 
+- (void)setRightItemsWithTarget:(id)target
+                        action1:(SEL)action1
+                        action2:(SEL)action2
+                         title1:(NSString *)title1
+                         title2:(NSString *)title2;
 @end

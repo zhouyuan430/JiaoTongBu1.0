@@ -8,9 +8,12 @@
 
 #import "RootViewController.h"
 #import "SetUpViewController.h"
+#import "Navbar.h"
 @interface RootViewController ()
 
 @end
+
+extern  NSString *gNavbarBackgroundImageName;
 
 @implementation RootViewController
 @synthesize personalAssets;
@@ -19,6 +22,9 @@
 @synthesize AssetsSearch;
 @synthesize ContactInfo;
 @synthesize BarItem;
+@synthesize LogCount;
+@synthesize logDate;
+
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -29,29 +35,35 @@
     }
     return self;
 }
+-(void)viewWillAppear:(BOOL)animated
+{
+    gNavbarBackgroundImageName = @"MainNavigetionBar.png";
+    [self.navigationController.navigationBar setNeedsDisplay];
+    
+    [self.navigationController.navigationBar setTintColor:[UIColor colorWithRed:28.0/255.0 green:115.0/255.0 blue:174.0/255.0 alpha:1]];
+}
 
+-(void)viewWillDisappear:(BOOL)animated
+{
+    gNavbarBackgroundImageName = @"NavigationBar.png";
+    [self.navigationController.navigationBar setNeedsDisplay];
+}
+
+ 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     
-    [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"LogIn背景"]]];
+    [self.navigationItem setRightItemWithTarget:self action:@selector(moreView) image:@"MoreButton.png"];
     
-    UIGraphicsBeginImageContext(CGSizeMake(10, 25));
-    [[UIImage imageNamed:@"竖条" ] drawInRect:CGRectMake(0, 0, 10, 25)];
-    UIBarButtonItem *right = [[UIBarButtonItem alloc] initWithImage:UIGraphicsGetImageFromCurrentImageContext() style:UIBarButtonItemStyleBordered target:self action:@selector(moreView:)];
-    self.navigationItem.rightBarButtonItem = right;
-    //[BarItem setImage:UIGraphicsGetImageFromCurrentImageContext()];
-    UIGraphicsEndImageContext();
+    LogCount.text = [NSString stringWithFormat:@"尊敬的管理员用户您好，您已经登录%@次",    [[UserDefaults userDefaults] getdata:kLogCount]];
     
-   // [personalAssets setImage:[UIImage imageNamed:@"个人资产"] forState:UIControlStateNormal];
-  //  [personalAssets setImage:[UIImage imageNamed:@"个人资产-1"] forState:UIControlStateHighlighted];
-    [personalAssets setBackgroundImage:[UIImage imageNamed:@"个人资产"] forState:UIControlStateNormal];
-    [personalAssets setBackgroundImage:[UIImage imageNamed:@"个人资产-1"] forState:UIControlStateHighlighted];
+    logDate.text = [NSString stringWithFormat:@"上次登录时间是:%@",[[UserDefaults userDefaults] getdata:kLogDate]];
     
 	// Do any additional setup after loading the view.
 }
 
--(void)moreView:(id)sender
+-(void)moreView
 {
     //在这里呼出下方菜单按钮项
     myActionSheet = [[UIActionSheet alloc]

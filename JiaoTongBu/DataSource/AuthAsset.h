@@ -12,7 +12,7 @@
 
 @interface AuthAsset : NSManagedObject
 
-@property (nonatomic, retain) NSString * assetID;
+@property (nonatomic, retain) NSNumber * assetID;
 @property (nonatomic, retain) NSString * assetName;
 @property (nonatomic, retain) NSString * assetCate;
 @property (nonatomic, retain) NSString * assetValue;
@@ -25,4 +25,6 @@
 @property (nonatomic, retain) NSString * id_useOffice;
 @property (nonatomic, retain) NSString * upLoadPath;
 
+
+-(void)initWithData:(NSDictionary *)data;
 @end

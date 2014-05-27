@@ -13,4 +13,16 @@
 
 @dynamic checkFlag;
 
+-(void)initCheckData:(NSDictionary *)data
+{
+    if (data) {
+        self.assetID = [NSNumber numberWithInt:[data[@"id"] integerValue]];
+        self.assetName  = data[@"name"];
+        self.assetCate  = data[@"cate"];
+        self.assetCardID = data[@"cardid"];
+        self.assetImgPath = data[@"assetImgPath"];
+        self.checkFlag = 0;
+    }
+}
+
 @end

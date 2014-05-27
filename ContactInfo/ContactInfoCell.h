@@ -12,9 +12,7 @@
 @interface ContactInfoCell : UITableViewCell
 
 @property (strong, nonatomic) IBOutlet UILabel *nameLabel;
-@property (strong, nonatomic) IBOutlet UILabel *phoneLabel;
 @property (strong, nonatomic) IBOutlet UILabel *emailLabel;
-@property (strong, nonatomic) IBOutlet UILabel *addressLabel;
 @property (strong, nonatomic) IBOutlet UILabel *departmentLabel;
 
 @property (strong, nonatomic) IBOutlet UIImageView *peopleImg;

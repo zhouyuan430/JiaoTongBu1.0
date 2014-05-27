@@ -8,23 +8,19 @@
 
 #import "AssetDetailViewController.h"
 #import "AssetDetailCell.h"
-#import "AssetInfo.h"
-#import "TMDiskCache.h"
 #import "JiaoTongBuClient.h"
-#import "DiskCache.h"
-#import "UpLoadImage.h"
+#import "Navbar.h"
+#import "CommentData.h"
 
 @interface AssetDetailViewController ()
 
 @end
 
-static NSString* const KAssetsListPlist = @"AssetsList.plist";
-static CGFloat const KQuality = 0.0000001;
-
 @implementation AssetDetailViewController
 
 @synthesize currentInfo;
 @synthesize dataSource;
+
 - (id)initWithStyle:(UITableViewStyle)style
 {
     self = [super initWithStyle:style];
@@ -36,7 +32,6 @@ static CGFloat const KQuality = 0.0000001;
 -(void)dealloc
 {
     [self.tableView removeObserver:_header forKeyPath:@"contentOffset"];
-    
     [self.tableView removeObserver:_footer forKeyPath:@"contentSize"];
     [self.tableView removeObserver:_footer forKeyPath:@"contentOffset"];
 
@@ -55,12 +50,8 @@ static CGFloat const KQuality = 0.0000001;
     
     [self addFooter];
     [self addHeader];
-    //添加左按钮
-    UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
-                                   initWithBarButtonSystemItem:UIBarButtonSystemItemReply
-                                   target:self
-                                   action:@selector(replyButton)];
-    [self.navigationItem setLeftBarButtonItem:leftButton];
+    
+    [self.navigationItem setBackItemWithTarget:self action:@selector(replyButton)];
     
     [self.tableView reloadData];
 }
@@ -79,10 +70,7 @@ static CGFloat const KQuality = 0.0000001;
     footer.scrollView = self.tableView;
     
     footer.beginRefreshingBlock = ^(MJRefreshBaseView *refreshView) {
-        // 增加5条假数据
-        
-        // 模拟延迟加载数据，因此2秒后才调用）
-        // 这里的refreshView其实就是footer
+        // 模拟延迟加载数据，因此0.2秒后才调用）
         [vc performSelector:@selector(PreviousView:) withObject:refreshView afterDelay:0.2];
     };
     _footer = footer;
@@ -96,8 +84,7 @@ static CGFloat const KQuality = 0.0000001;
     MJRefreshHeaderView *header = [MJRefreshHeaderView header];
     header.scrollView = self.tableView;
     header.beginRefreshingBlock = ^(MJRefreshBaseView *refreshView) {
-        // 进入刷新状态就会回调这个Block
-        // 模拟延迟加载数据，因此2秒后才调用）
+        // 模拟延迟加载数据，因此0.2秒后才调用）
         [vc performSelector:@selector(NextView:) withObject:refreshView afterDelay:0.2];
     };
     _header = header;
@@ -109,17 +96,22 @@ static CGFloat const KQuality = 0.0000001;
         currentLine--;
         [self.tableView reloadData];
     }
+    else{
+        [HHUD showMsg:@"已经是第一个" viewController:self];
+    }
     [refreshView endRefreshing];
 }
 
 - (void)NextView:(MJRefreshBaseView *)refreshView
 {
     // 刷新表格
-    if(currentLine < [dataSource count] - 1){
+    if(currentLine < dataSource.count - 1){
         currentLine++;
         [self.tableView reloadData];
     }
-    // (最好在刷新表格后调用)调用endRefreshing可以结束刷新状态
+    else{
+        [HHUD showMsg:@"已经是最后一个" viewController:self];
+    }
     [refreshView endRefreshing];
 }
 
@@ -135,6 +127,7 @@ static CGFloat const KQuality = 0.0000001;
                      cancelButtonTitle:@"取消"
                      destructiveButtonTitle:nil
                      otherButtonTitles: @"打开照相机", @"从手机相册获取",nil];
+    
     [myActionSheet showInView:self.view];
 }
 
@@ -144,7 +137,7 @@ static CGFloat const KQuality = 0.0000001;
     //呼出的菜单按钮点击后的响应
     if (buttonIndex == myActionSheet.cancelButtonIndex)
     {
-        NSLog(@"取消");
+        //NSLog(@"取消");
     }
     switch (buttonIndex)
     {
@@ -166,13 +159,11 @@ static CGFloat const KQuality = 0.0000001;
     {
         UIImagePickerController *picker = [[UIImagePickerController alloc] init];
         picker.delegate = self;
-        
-        //设置拍照后的图片可被编辑
         picker.allowsEditing = YES;
         picker.sourceType = sourceType;
         [self presentViewController:picker animated:YES completion:^{}];
-    }else
-    {
+    }
+    else{
         NSLog(@"模拟其中无法打开照相机,请在真机中使用");
     }
 }
@@ -181,34 +172,43 @@ static CGFloat const KQuality = 0.0000001;
 -(void)LocalPhoto
 {
     UIImagePickerController *picker = [[UIImagePickerController alloc] init];
-    
     picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
     picker.delegate = self;
-    
-    //设置选择后的图片可被编辑
     picker.allowsEditing = YES;
     [self presentViewController:picker animated:YES completion:^{}];
-    
 }
+
+//对图片尺寸进行压缩--
+-(UIImage*)imageWithImage:(UIImage*)image CGSize:(CGSize)Size
+{
+    UIGraphicsBeginImageContext(Size);
+    [image drawInRect:CGRectMake(0,0,Size.width,Size.height)];
+    UIImage* newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
+}
+
 //当选择一张图片后进入这里
 -(void)imagePickerController:(UIImagePickerController*)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
     
     NSString *type = [info objectForKey:UIImagePickerControllerMediaType];
     
-    //当选择的类型是图片
     if ([type isEqualToString:@"public.image"])
     {
-        //先把图片转成NSData
-        UIImage* image = [info objectForKey:@"UIImagePickerControllerOriginalImage"];
-        NSData *data;
-      
-        data = UIImageJPEGRepresentation(image, KQuality);
+        UIImage* image = [self imageWithImage:[info objectForKey:@"UIImagePickerControllerOriginalImage"] CGSize:CGSizeMake(200, 200)];
+    
+        NSData *data = UIImageJPEGRepresentation(image, 1);
         
-        //关闭相册界面
         [picker dismissViewControllerAnimated:YES completion:^{}];
         
-        AssetInfo *tmp = dataSource[currentLine];
+        //立即显示选中得图片
+        PersonAsset *tmp = dataSource[currentLine];
+        NSIndexPath *index = [NSIndexPath indexPathForRow:currentLine inSection:0];
+        AssetDetailCell *cell = (AssetDetailCell*)[self.tableView cellForRowAtIndexPath:index];
+        UIImageView *img = [[UIImageView alloc] initWithFrame:CGRectMake(0,0,cell.assetImg.frame.size.width,cell.assetImg.frame.size.height)];
+        img.image = image;
+        [cell.assetImg addSubview:img];
         
         [self upLoadImage:data info:tmp];
     }
@@ -220,43 +220,25 @@ static CGFloat const KQuality = 0.0000001;
 
 #pragma 上传图片
 
--(void)upLoadImage:(NSData *)imageData info:(AssetInfo*)tmp
+-(void)upLoadImage:(NSData *)imageData info:(PersonAsset *)tmp
 {
-    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
     
-    [HHUD showWait:@"正在上传图片..." viewController:self];
-    
-    NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
-    NSString *token = [[UserDefaults userDefaults] getdata:kToken];
-    
+    [HHUD showWait:KUpLoading viewController:self];
     NSString *imageString = [imageData base64Encoding];
+    NSDictionary *para =@{@"base64":imageString,@"aid":tmp.assetID};
     
-    
-    NSDictionary *parameters =@{@"base64":imageString,@"uid":uid,@"token":token ,@"aid":tmp.assetID};
-    [[JiaoTongBuClient sharedClient] POST:uploadAssetImages parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
-        
-    } success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        
-        NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
-        
-        tmp.assetImgPath = [NSString stringWithFormat:@"%@",tmp.assetCardID];
-        NSString *key = [NSString stringWithFormat:@"http://%@",tmp.assetImgPath];
-        [[DiskCache sharedSearchCateLoad] storeData:imageData forKey:key];
-        
-        [HHUD showHide:self];
-        [HHUD showMsg:dic[@"msg"] viewController:self];
-        
-        [self.tableView reloadData];
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-        
-        
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        
-        [HHUD showHide:self];
-        [HHUD showMsg:error.localizedDescription viewController:self];
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-    }];
-}
+    [[JiaoTongBuClient sharedClient] startPost:uploadAssetImagesCode parameters:para withCallBack:^(int flag, NSDictionary *dic, NSError *error) {
+        if (flag == 0) {
+            tmp.assetImgPath = [NSString stringWithFormat:@"%@",tmp.assetCardID];
+            [[CommentData sharedInstance] insertImgData:imageData key:tmp.assetImgPath];
+            [HHUD showHide:self];
+            [HHUD showMsg:dic[@"msg"] viewController:self];
+        }
+        else{
+            [HHUD showHide:self];
+            [HHUD showMsg:error.localizedDescription viewController:self];
+        }
+    }];}
 
 - (void)didReceiveMemoryWarning
 {
@@ -283,7 +265,7 @@ static CGFloat const KQuality = 0.0000001;
     
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
 
-    AssetInfo *tmp = dataSource[currentLine];
+    PersonAsset *tmp = dataSource[currentLine];
     
     [cell loadImgDetail:tmp.assetImgPath];
     
@@ -293,64 +275,9 @@ static CGFloat const KQuality = 0.0000001;
     return cell;
 }
 
-/*
- -(void)upLoadImage:(NSData *)imageData assetID:(NSString *)aid
- {
- [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
- [HHUD showWait:@"正在上传图片..." viewController:self];
- 
- NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
- NSString *token = [[UserDefaults userDefaults] getdata:kToken];
- 
- NSString *imageString = [imageData base64Encoding];
- 
- 
- NSDictionary *parameters =@{@"b":imageString,@"token":token ,@"uid":uid};
- [[JiaoTongBuClient sharedClient] POST:uploadImage parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
- 
- } success:^(AFHTTPRequestOperation *operation, id responseObject) {
- 
- NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
- 
- [self upLoadAssetImage:aid path:[dic[@"data"] objectAtIndex:0][@"url"] imageData:imageData];
- 
- } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
- [HHUD showHide:self];
- [HHUD showMsg:error.localizedDescription viewController:self];
- }];
- 
- }
- 
- -(void)upLoadAssetImage:(NSString *)aid path:(NSString *)path imageData:(NSData *)imageData
- {
- //缓存图片
- AssetInfo *tmp = dataSource[currentLine];
- 
- tmp.assetImgPath = [NSString stringWithFormat:@"%@%@",imagePath,path];
- 
- NSString *key = [NSString stringWithFormat:@"http://%@",tmp.assetImgPath];
- 
- [[DiskCache sharedSearchCateLoad] storeData:imageData forKey:key];
- 
- NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
- NSString *token = [[UserDefaults userDefaults] getdata:kToken];
- 
- NSDictionary *parametes = @{@"uid":uid,@"token":token,@"path":path,@"aid":aid,@"cate":@"1"};
- 
- [[JiaoTongBuClient sharedClient] GET:uploadAssetImage parameters:parametes success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
- NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
- [HHUD showHide:self];
- [HHUD showMsg:dic[@"msg"] viewController:self];
- 
- [self.tableView reloadData];
- [[TMDiskCache sharedCache] removeObjectForKey:KAssetsListPlist];
- 
- } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
- [HHUD showHide:self];
- [HHUD showMsg:error.localizedDescription viewController:self];
- }];
- [UIApplication sharedApplication].networkActivityIndicatorVisible = NO; //隐藏
- }
- */
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPat
+{
+    return 700;
+}
 
 @end

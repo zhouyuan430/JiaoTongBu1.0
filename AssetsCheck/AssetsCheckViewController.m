@@ -23,19 +23,20 @@
     }
     return self;
 }
+-(void)viewWillAppear:(BOOL)animated
+{
+    self.navigationController.navigationBar.translucent = YES;
+    [self.navigationController.navigationBar setTintColor:[UIColor colorWithWhite:1 alpha:1]];
+}
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    //添加左按钮
-    UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
-                                   initWithBarButtonSystemItem:UIBarButtonSystemItemReply
-                                   target:self
-                                   action:@selector(ReplyButton)];
-    [self.navigationItem setLeftBarButtonItem:leftButton];
+    [self.navigationItem setBackItemWithTarget:self action:@selector(replyButton)];
+
     // Do any additional setup after loading the view.
 }
--(void)ReplyButton
+-(void)replyButton
 {
     [self.navigationController popViewControllerAnimated:YES];
 }
@@ -51,6 +52,7 @@
     
     [self.navigationController pushViewController:directVC animated:NO];
 }
+
 
 
 @end

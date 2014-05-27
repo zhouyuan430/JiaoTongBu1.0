@@ -8,6 +8,7 @@
 
 #import "AssetDetailCell.h"
 #import "AssetImage.h"
+
 @implementation AssetDetailCell
 
 @synthesize assetImg;
@@ -15,10 +16,12 @@
 @synthesize assetkind;
 @synthesize assetName;
 @synthesize userName;
-@synthesize useDeadline;
-@synthesize recentCheckDate;
-@synthesize directorName;
+@synthesize useDepartment;
 @synthesize asserCount;
+@synthesize assetCardID;
+@synthesize useOffice;
+@synthesize id_useOffice;
+@synthesize assetValue;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
 {
@@ -40,23 +43,28 @@
 {
     AssetImage *img = [[AssetImage alloc] initWithFrame:CGRectMake(0,0,self.assetImg.frame.size.width,self.assetImg.frame.size.height)];
     if ([_url isEqualToString:@""]) {
-        img.image = [UIImage imageNamed:@"Icon"];
+        img.image = [UIImage imageNamed:@"DefaultAssetImg"];
     }
     else{
         [img loadimg:_url];
         if (!img.image) {
-            img.image = [UIImage imageNamed:@"Icon"];
+            img.image = [UIImage imageNamed:@"DefaultAssetImg"];
         }
     }
     [self.assetImg addSubview:img];
 }
 
--(void)setdata:(AssetInfo *)tmp
+-(void)setdata:(PersonAsset *)tmp
 {
     self.assetName.text = tmp.assetName;
-    self.assetkind.text = [NSString stringWithFormat:@"类型：%@", tmp.assetCate];
+    self.assetCardID.text = [NSString stringWithFormat:@"固定资产编号：%@",tmp.assetCardID];
+    self.assetID.text = [NSString stringWithFormat:@"编号：%@",tmp.assetID ];
+    self.assetkind.text = [NSString stringWithFormat:@"类别：%@",tmp.assetCate];
+    self.userName.text = [NSString stringWithFormat:@"使用人：%@",tmp.userName];
+    self.useDepartment.text = [NSString stringWithFormat:@"使用部门：%@", tmp.useDepartment];
+    self.useOffice.text = [NSString stringWithFormat:@"使用处室：%@",tmp.useOffice];
+    self.id_useOffice.text = [NSString stringWithFormat:@"处室编号：%@",tmp.id_useOffice];
+    self.assetValue.text =[NSString stringWithFormat:@"价值：%@",tmp.assetValue];
     self.asserCount.text = [NSString stringWithFormat:@"数量：%@", tmp.assetCount];
-    self.userName.text = [NSString stringWithFormat:@"使用人：%@", tmp.userName];
-    self.directorName.text = [NSString stringWithFormat:@"监管部门：%@", tmp.directorName];
 }
 @end

@@ -9,16 +9,18 @@
 #import "AssetChangeViewController.h"
 #import "AssetChangeCell.h"
 #import "JiaoTongBuClient.h"
-#import "AssetInfo.h"
-#import "TMDiskCache.h"
+#import "CommentData.h"
+#import "AssetChange.h"
+
 @interface AssetChangeViewController ()
 
 @end
 
-static NSString* const KAssetsListPlist = @"AssetsList.plist";
-
+static int page = 1;
 
 @implementation AssetChangeViewController
+
+@synthesize dataSource = _dataSource;
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -32,88 +34,81 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 -(void)dealloc
 {
     [self.tableView removeObserver:_header forKeyPath:@"contentOffset"];
+    [self.tableView removeObserver:_footer forKeyPath:@"contentOffset"];
+    [self.tableView removeObserver:_footer forKeyPath:@"contentSize"];
 }
 
+-(void)viewWillAppear:(BOOL)animated
+{
+    [self.navigationController.navigationBar setBackgroundImage:[UIImage imageNamed:@"NavigationBar"] forBarMetrics:UIBarMetricsDefault];
+    self.navigationController.navigationBar.translucent = NO;
+    
+    [self.navigationController.navigationBar setTintColor:[UIColor colorWithWhite:1 alpha:1]];
+}
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     
     HHUD = [[MessageBox alloc] init];
+    getMore = NO;
     //添加下拉刷新
     [self addHeader];
+    [self addFooter];
     
     self.title = [NSString stringWithFormat:@"资产变更[%@]",[[UserDefaults userDefaults] getdata:kUserName]];
-    //初始化数组
-    dataSource = [[NSMutableArray alloc] initWithCapacity:20];
-    isSelected = [[NSMutableArray alloc] initWithCapacity:20];
-    //添加左按钮
-    UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
-                                   initWithBarButtonSystemItem:UIBarButtonSystemItemReply
-                                   target:self
-                                   action:@selector(replyButton)];
-    [self.navigationItem setLeftBarButtonItem:leftButton];
     
-    UIBarButtonItem *allCheckButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemEdit target:self action:@selector(allCheck:)];
-    allCheckButton.tag = 0;
+    [self.navigationItem setBackItemWithTarget:self action:@selector(replyButton)];
     
-    UIBarButtonItem *submitButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(submitButton)];
+    [self.navigationItem setRightItemsWithTarget:self action1:@selector(submitButton) action2:@selector(allCheck:) title1:@"提交" title2:@"全选"];
     
-    self.navigationItem.rightBarButtonItems = @[submitButton,allCheckButton];
-    
+    self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     //获取数据
     [self getData];
 }
 
 -(void)getData
 {
-    [dataSource removeAllObjects];
-    [self.tableView reloadData];
+    [self.dataSource removeAllObjects];
 
-    if ([[TMDiskCache sharedCache] objectForKey:KAssetsListPlist] != nil) {
-        NSLog(@"本地");
-        [self loadData:(NSDictionary *)[[TMDiskCache sharedCache] objectForKey:KAssetsListPlist]];
-        
+    if (getMore) {
+        [self connect];
+        getMore = NO;
+    }
+    else if([[CommentData sharedInstance] getData:KAssetChangeName].count != 0){
+        self.dataSource = [[CommentData sharedInstance] getData:KAssetChangeName];
     }
     else{
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
-
-         NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
-         NSString *token = [[UserDefaults userDefaults] getdata:kToken];
-     
-        NSDictionary *parameters = @{@"uid":uid,@"token":token};
-        
-        [[JiaoTongBuClient sharedClient] GET:getAssetsList parameters:parameters success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
-            
-            NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
-            if ([dic[@"status"] isEqualToString:@"A0006"])
-            {
-                //存储数据,历史缓存类型
-                [[TMDiskCache sharedCache] setObject:dic forKey:KAssetsListPlist];
-                [self loadData:dic];
-            }
-            else{
-                [HHUD showMsg:dic[@"msg"] viewController:self];
-            }
-            
-        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-            NSLog(@"%@",error);
-            [HHUD showMsg:error.localizedDescription viewController:self];
-
-        }];
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO; //显示
+        [self connect];
     }
+}
+
+-(void)connect
+{
+    NSDictionary *para = @{@"page":[NSString stringWithFormat:@"%d",page],@"size":@"5"};
+    
+    [[JiaoTongBuClient sharedClient] startGet:getAssetPageListCode parameters:para withCallBack:^(int flag, NSDictionary *dic, NSError *error) {
+        if (flag == 0) {
+            [self loadData:dic];
+        }
+        else if(flag == 1){
+            [self.tableView reloadData];
+            [HHUD showMsg:KNoMoreData viewController:self];
+        }
+        else{
+            [HHUD showMsg:error.localizedDescription viewController:self];
+        }
+    }];
 }
 
 -(void)loadData:(NSDictionary *)dic
 {
     NSArray *arr = dic[@"data"];
     for (int i = 0 ; i < [arr count]; i++) {
-        AssetInfo *tmp = [[AssetInfo alloc] initWithData:arr[i]];
-        
-        [dataSource addObject:tmp];
-        [isSelected addObject:@"0"];
+        [[CommentData sharedInstance] insertData:arr[i] entityName:KAssetChangeCode];
     }
+    
+    self.dataSource = [[CommentData sharedInstance] getData:KAssetChangeName];
     [self.tableView reloadData];
 }
 
@@ -130,15 +125,18 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     UIButton *cb = (UIButton *)sender;
     cb.tag = (cb.tag + 1) % 2;
     if (cb.tag) {
-        for (int i = 0; i < [isSelected count]; i++) {
-            isSelected[i] = @"1";
+        for (int i = 0; i < self.dataSource.count; i++) {
+            AssetChange * tmp = self.dataSource[i];
+            [tmp setIsChecked:YES];
         }
     }
     else{
-        for (int i = 0; i < [isSelected count]; i++) {
-            isSelected[i] = @"0";
+        for (int i = 0; i < self.dataSource.count; i++) {
+            AssetChange * tmp = self.dataSource[i];
+            [tmp setIsChecked:NO];
         }
     }
+    [[CommentData sharedInstance] saveData];
     [self.tableView reloadData];
 }
 //获取选择退还的资产
@@ -146,9 +144,9 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 {
     NSString * aids = [[NSString alloc] init];
     aids = [NSString stringWithFormat:@""];
-    for (int i = 0 ; i < [isSelected count]; i++) {
-        if ([isSelected[i] isEqualToString:@"1"]) {
-            AssetInfo *tmp = dataSource[i];
+    for (int i = 0 ; i < self.dataSource.count; i++) {
+        AssetChange * tmp = self.dataSource[i];
+        if (tmp.isChecked) {
             aids = [NSString stringWithFormat:@"%@%@,",aids,tmp.assetID];
         }
     }
@@ -161,12 +159,11 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     NSString * aids = [self getAids];
    
     if ([aids isEqualToString:@""]) {
-        [HHUD showMsg:@"请选择资产" viewController:self];
+        [HHUD showMsg:@"您还没有选择资产" viewController:self];
     }
     else{
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"申请退还！" message:nil delegate:self cancelButtonTitle:@"确定" otherButtonTitles:@"取消", nil];
         [alertView show];
-    
     }
 }
 //弹出确定提示框
@@ -185,35 +182,17 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 //网络提交
 -(void)submit
 {
-    
     NSString * aids = [self getAids];
-    
-    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES; //显示
-    
-    NSString *uid = [[UserDefaults userDefaults] getdata:kUserID];
-    NSString *token = [[UserDefaults userDefaults] getdata:kToken];
-    
-    NSDictionary *parameters = @{@"aids":aids,@"uid":uid,@"token":token};
-    
-    [[JiaoTongBuClient sharedClient] GET:applyRefund parameters:parameters success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
-        
-        NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
-        if ([dic[@"status"] isEqualToString:@"A0006"]){
+    NSDictionary *para = @{@"aids":aids};
+    [[JiaoTongBuClient sharedClient] startGet:applyRefundCode parameters:para withCallBack:^(int flag, NSDictionary *dic, NSError *error) {
+        if (flag != 2) {
             [HHUD showMsg:dic[@"msg"] viewController:self];
         }
         else{
-            [HHUD showMsg:dic[@"msg"] viewController:self];
+            [HHUD showMsg:error.localizedDescription viewController:self];
         }
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-        
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"%@",error);
-        [HHUD showMsg:error.localizedDescription viewController:self];
-        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     }];
 }
-
-
 
 - (void)didReceiveMemoryWarning
 {
@@ -222,6 +201,11 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 }
 
 #pragma mark - Table view data source
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return 128;
+}
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
@@ -234,7 +218,7 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 {
     //#warning Incomplete method implementation.
     // Return the number of rows in the section.
-    return [dataSource count];
+    return [self.dataSource count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -249,11 +233,18 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     
     //没有选中样式
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
-    if (indexPath.row < dataSource.count) {
+    if (indexPath.row < self.dataSource.count) {
         
-        AssetInfo *tmp = dataSource[indexPath.row];
+        if (!indexPath.row%2) {
+            cell.backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"PersonAssetBG-0"]];
+        }
+        else{
+               cell.backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"PersonAssetBG-1"]];
+        }
+        
+        AssetChange *tmp = self.dataSource[indexPath.row];
         //自定义单选框
-        if ([isSelected[indexPath.row] isEqualToString:@"1"]) {
+        if (tmp.isChecked) {
             cell.CheckButton.selected = 1;
         }
         else{
@@ -261,6 +252,7 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
         }
         //标记
         cell.CheckButton.tag = indexPath.row;
+        
         
         [cell.CheckButton setBackgroundImage:[UIImage imageNamed:@"选择框"] forState:UIControlStateNormal];
         [cell.CheckButton setBackgroundImage:[UIImage imageNamed:@"选择框-1"] forState:UIControlStateSelected];
@@ -277,25 +269,28 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     AssetChangeCell *cell = (AssetChangeCell *)[self.tableView cellForRowAtIndexPath:indexPath];
+    AssetChange * tmp = self.dataSource[indexPath.row];
     UIButton * cb= (UIButton *)cell.CheckButton;
     cb.selected = !cb.selected;
     if (cb.selected == 1) {
-        isSelected[cb.tag] = @"1";
+        tmp.isChecked = 1;
     }
     else{
-        isSelected[cb.tag] = @"0";
+        tmp.isChecked = 0;
     }
+    [[CommentData sharedInstance] saveData];
 }
 
 -(IBAction)selectButton:(id)sender
 {
     UIButton *cb = (UIButton*)sender;
+    AssetChange * tmp = self.dataSource[cb.tag];
     cb.selected = !cb.selected;
     if (cb.selected == 1) {
-        isSelected[cb.tag] = @"1";
+        tmp.isChecked = 1;
     }
     else{
-        isSelected[cb.tag] = @"0";
+        tmp.isChecked = 0;
     }
 }
 
@@ -307,8 +302,6 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
     MJRefreshHeaderView *header = [MJRefreshHeaderView header];
     header.scrollView = self.tableView;
     header.beginRefreshingBlock = ^(MJRefreshBaseView *refreshView) {
-        
-        // 进入刷新状态就会回调这个Block
         // 模拟延迟加载数据，因此0.2秒后才调用
         [vc performSelector:@selector(NextView:) withObject:refreshView afterDelay:0.2];
         
@@ -318,12 +311,35 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 
 - (void)NextView:(MJRefreshBaseView *)refreshView
 {
-    [[TMDiskCache sharedCache] removeObjectForKey:KAssetsListPlist];
+    [[CommentData sharedInstance] delete:KAssetChangeName entityName:KAssetChangeCode];
+    
+    page = 1;
     [self getData];
     // (最好在刷新表格后调用)调用endRefreshing可以结束刷新状态
     [refreshView endRefreshing];
 }
 
+#pragma 上拉加载
+
+- (void)addFooter
+{
+    __unsafe_unretained AssetChangeViewController *vc = self;
+    MJRefreshFooterView *footer = [MJRefreshFooterView footer];
+    footer.scrollView = self.tableView;
+    
+    footer.beginRefreshingBlock = ^(MJRefreshBaseView *refreshView) {
+        // 模拟延迟加载数据，因此0.2秒后才调用）
+        [vc performSelector:@selector(PreviousView:) withObject:refreshView afterDelay:0.2];
+    };
+    _footer = footer;
+}
+- (void)PreviousView:(MJRefreshBaseView *)refreshView
+{
+    getMore = YES;
+    page ++;
+    [self getData];
+    [refreshView endRefreshing];
+}
 
 
 @end

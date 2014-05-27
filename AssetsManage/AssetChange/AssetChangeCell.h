@@ -9,9 +9,12 @@
 
 #import <Foundation/Foundation.h>
 #import "AssetCell.h"
+#import "AssetChange.h"
 
 @interface AssetChangeCell : AssetCell
 
 @property (strong, nonatomic) IBOutlet UIButton *CheckButton;
+
+-(void)setData:(AssetChange *)tmp;
 
 @end

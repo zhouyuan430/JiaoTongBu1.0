@@ -7,8 +7,8 @@
 //
 
 #import "SetUpViewController.h"
-#import "DiskCache.h"
-#import "TMDiskCache.h"
+#import "CommentData.h"
+
 @interface SetUpViewController ()
 
 @end
@@ -17,6 +17,7 @@ static NSString* const KAssetsListPlist = @"AssetsList.plist";
 static NSString* const KContactInfoPlist = @"ContactInfo.plist";
 static NSString* const KAuthListPlist = @"AuthList.plist";
 static NSString* const KCheckListPlist = @"CheckList.plist";
+static NSString* const KCheckSource = @"CheckSource";
 
 @implementation SetUpViewController
 
@@ -33,16 +34,12 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
     [super viewDidLoad];
     
     [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"LogIn背景"]]];
+    self.navigationController.navigationBar.translucent = YES;
+    
+    [self.navigationItem setBackItemWithTarget:self action:@selector(replyButton)];
 
-    //添加左按钮
-    UIBarButtonItem *leftButton = [[UIBarButtonItem alloc]
-                                   initWithBarButtonSystemItem:UIBarButtonSystemItemReply
-                                   target:self
-                                   action:@selector(ReplyButton)];
-    [self.navigationItem setLeftBarButtonItem:leftButton];
-   
 }
--(void)ReplyButton
+-(void)replyButton
 {
     [self.navigationController popViewControllerAnimated:YES];
 }
@@ -52,11 +49,11 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
     [[UserDefaults userDefaults] removedata:kUserName];
     [[UserDefaults userDefaults] removedata:kToken];
     [[UserDefaults userDefaults] removedata:kPassword];
-    
+    [[UserDefaults userDefaults] removedata:KCheckSource];
+
     [self clear];
     
     [self performSegueWithIdentifier:@"LogInViewController" sender:self];
-    
 }
 -(IBAction)clearCache:(id)sender
 {
@@ -81,8 +78,14 @@ static NSString* const KCheckListPlist = @"CheckList.plist";
 
 -(void)clear
 {
-    [[DiskCache sharedSearchCateLoad] cleanDisk];
-    [[TMDiskCache sharedCache] removeAllObjects];
+    [[CommentData sharedInstance] delete:KImageCacheName entityName:KImageCacheCode];
+    [[CommentData sharedInstance] delete:KPersonAssetName entityName:KPersonAssetCode];
+    [[CommentData sharedInstance] delete:KContactInfoName entityName:KContactInfoCode];
+    [[CommentData sharedInstance] delete:KAuthAssetName entityName:KAuthAssetCode];
+    [[CommentData sharedInstance] delete:KAssetChangeName entityName:KAssetChangeCode];
+    [[CommentData sharedInstance] delete:KAssetDirectChechName entityName:KAssetDirectCheckCode];
+    
+    [[UserDefaults userDefaults] removedata:KCheckSource];
 }
 
 

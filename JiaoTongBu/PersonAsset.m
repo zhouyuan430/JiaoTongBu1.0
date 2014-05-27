@@ -6,10 +6,10 @@
 //  Copyright (c) 2014年 zhouyuan. All rights reserved.
 //
 
-#import "DataSource.h"
+#import "PersonAsset.h"
 
 
-@implementation DataSource
+@implementation PersonAsset
 
 @dynamic assetCardID;
 @dynamic assetCate;
@@ -23,5 +23,24 @@
 @dynamic useDepartment;
 @dynamic useOffice;
 @dynamic userName;
+
+-(void)initWithData:(NSDictionary *)data
+{
+    if (data) {
+        self.assetID = [NSNumber numberWithInt:[data[@"aid"] integerValue]];
+        self.assetName = data[@"name"];
+        self.assetCate = data[@"cate"];
+        self.assetValue = data[@"value"];
+        self.userName = data[@"username"];
+        self.assetCount = data[@"count"];
+        self.useDepartment = data[@"useDepartment"];
+        self.assetCardID = data[@"assetCardId"];
+        self.assetImgPath = data[@"image"];
+        self.useOffice = data[@"useOffice"];
+        self.id_useOffice = data[@"id_useOffice"];
+    }
+}
+
+
 
 @end

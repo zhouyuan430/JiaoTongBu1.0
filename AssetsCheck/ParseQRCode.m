@@ -9,16 +9,14 @@
 #import "ParseQRCode.h"
 
 @implementation ParseQRCode
-@synthesize assetCate;
-@synthesize assetID;
-@synthesize assetName;
-@synthesize assetNum;
-@synthesize userName;
-@synthesize assetCardID;
+
 @synthesize parseInfo;
+
 
 -(ParseQRCode *)initWithData:(NSString *)str
 {
+    str = [str stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    NSLog(@"%@",str);
     ParseQRCode *tmp = [[ParseQRCode alloc] init];
     tmp.parseInfo = [[NSMutableDictionary alloc] init];
     int begin = 0;

@@ -11,10 +11,5 @@
 
 @interface DirectCheckCell : AssetCell
 
-@property (strong, nonatomic) IBOutlet UIButton *isCheckButton;
-
-@property (strong, nonatomic) IBOutlet UIImageView * img;
-
-@property (strong, nonatomic) IBOutlet UILabel *assetName;
 
 @end

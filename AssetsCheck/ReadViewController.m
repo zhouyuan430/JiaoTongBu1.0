@@ -48,6 +48,8 @@
     upOrdown = NO;
     //初始话ZBar
     ZBarReaderViewController * reader = [ZBarReaderViewController new];
+    
+    
     //设置代理
     reader.readerDelegate = self;
     //支持界面旋转
@@ -117,8 +119,8 @@
         [picker removeFromParentViewController];
     }];
     [self.navigationController popViewControllerAnimated:YES];
-
 }
+
 -(void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
     [timer invalidate];
@@ -127,33 +129,45 @@
     upOrdown = NO;
     [picker dismissViewControllerAnimated:NO completion:^{
         [picker removeFromParentViewController];
-        UIImage * image = [info objectForKey:UIImagePickerControllerOriginalImage];
+        UIImage * image = [self imageWithImage:[info objectForKey:UIImagePickerControllerOriginalImage]];
+        
         //初始化
         ZBarReaderController * read = [ZBarReaderController new];
         //设置代理
         read.readerDelegate = self;
-        CGImageRef cgImageRef = image.CGImage;
+        
         ZBarSymbol * symbol = nil;
-        id <NSFastEnumeration> results = [read scanImage:cgImageRef];
-        for (symbol in results)
-        {
+        id <NSFastEnumeration> results = [info objectForKey:ZBarReaderControllerResults];
+        for (symbol in results){
             break;
         }
         NSString * result;
-        if ([symbol.data canBeConvertedToEncoding:NSShiftJISStringEncoding])
-        {
-            result = [NSString stringWithCString:[symbol.data cStringUsingEncoding: NSShiftJISStringEncoding] encoding:NSUTF8StringEncoding];
-        }
-        else
-        {
-            result = symbol.data;
-        }
+        result = symbol.data;
         
         [self.delegate getReadSymbolStr:result fromImage:image];
 
         [self.navigationController popViewControllerAnimated:YES];
         
     }];
+}
+//对图片尺寸进行压缩--
+-(UIImage*)imageWithImage:(UIImage*)image
+{
+    // Create a graphics image context
+    UIGraphicsBeginImageContext(CGSizeMake(200, 200));
+    
+    // Tell the old image to draw in this new context, with the desired
+    // new size
+    [image drawInRect:CGRectMake(0,0,200,200)];
+    
+    // Get the new image from the context
+    UIImage* newImage = UIGraphicsGetImageFromCurrentImageContext();
+    
+    // End the context
+    UIGraphicsEndImageContext();
+    
+    // Return the new image.
+    return newImage;
 }
 
 

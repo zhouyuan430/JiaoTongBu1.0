@@ -15,4 +15,7 @@
 
 @property (nonatomic, retain) NSNumber * checkFlag;
 
+-(void)initCheckData:(NSDictionary *)data;
+
+
 @end

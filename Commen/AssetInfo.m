@@ -14,15 +14,15 @@
 @synthesize assetCount;
 @synthesize assetName;
 @synthesize assetCate;
-@synthesize recentCheckDate;
 @synthesize userName;
-@synthesize directorName;
-@synthesize useDeadline;
+@synthesize useDepartment;
 @synthesize assetImgPath;
 @synthesize assetImg;
 @synthesize assetValue;
 @synthesize assetCardID;
 @synthesize upLoadPath;
+@synthesize useOffice;
+@synthesize id_useOffice;
 
 -(AssetInfo *)initWithData:(NSDictionary *)dic
 {
@@ -34,9 +34,11 @@
         tmp.assetValue = dic[@"value"];
         tmp.userName = dic[@"username"];
         tmp.assetCount = dic[@"count"];
-        tmp.directorName = dic[@"useDepartment"];
+        tmp.useDepartment = dic[@"useDepartment"];
         tmp.assetCardID = dic[@"assetCardId"];
         tmp.assetImgPath = dic[@"image"];
+        tmp.useOffice = dic[@"useOffice"];
+        tmp.id_useOffice = dic[@"id_useOffice"];
     }
     return tmp;
 }
@@ -51,9 +53,11 @@
         tmp.assetValue = dic[@"assetValue"];
         tmp.userName = dic[@"username"];
         tmp.assetCount = dic[@"num"];
-        tmp.directorName = dic[@"name_department"];
+        tmp.useDepartment = dic[@"name_department"];
         tmp.assetCardID = dic[@"assetsId"];
         tmp.assetImgPath = dic[@"image"];
+        tmp.useOffice = dic[@"useOffice"];
+        tmp.id_useOffice = dic[@"id_useOffice"];
     }
     return tmp;
 }

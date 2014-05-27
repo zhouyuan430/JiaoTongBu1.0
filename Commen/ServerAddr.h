@@ -9,27 +9,22 @@
 #ifndef JiaoTongBu_ServerAddr_h
 #define JiaoTongBu_ServerAddr_h
 //登录
-#define login            @"http://health.lekangba.cn/axis2/services/AssetManageInter/login"
+#define loginURL                    @"http://health.lekangba.cn/axis2/services/AssetManageInter/login"
 
-#define getContactList   @"http://health.lekangba.cn/axis2/services/AssetManageInter/getContactList"
+#define getContactPageListURL       @"http://health.lekangba.cn/axis2/services/AssetManageInter/getContactPageList"
 
-#define getAssetsList    @"http://health.lekangba.cn/axis2/services/AssetManageInter/getAssetsList"
+#define getAssetPageListURL         @"http://health.lekangba.cn/axis2/services/AssetManageInter/getAssetPageList"
 
-#define getCheckList     @"http://health.lekangba.cn/axis2/services/AssetManageInter/getCheckList"
+#define getCheckPageListURL         @"http://health.lekangba.cn/axis2/services/AssetManageInter/getCheckPageList"
 
-#define getAuthList      @"http://health.lekangba.cn/axis2/services/AssetManageInter/getAuthList"
+#define getAuthListURL              @"http://health.lekangba.cn/axis2/services/AssetManageInter/getAuthList"
 
-#define uploadImage      @"http://health.lekangba.cn/axis2/services/AssetManageInter/uploadImage"
+#define uploadAssetImagesURL        @"http://health.lekangba.cn/axis2/services/AssetManageInter/uploadAssetImages"
 
-#define uploadAssetImages @"http://health.lekangba.cn/axis2/services/AssetManageInter/uploadAssetImages"
+#define uploadCheckListsURL         @"http://health.lekangba.cn/axis2/services/AssetManageInter/uploadCheckLists"
 
-#define uploadCheckList  @"http://health.lekangba.cn/axis2/services/AssetManageInter/uploadCheckList"
+#define applyRefundURL              @"http://health.lekangba.cn/axis2/services/AssetManageInter/applyRefund"
 
-#define uploadCheckLists @"http://health.lekangba.cn/axis2/services/AssetManageInter/uploadCheckLists"
-
-#define uploadAssetImage @"http://health.lekangba.cn/axis2/services/AssetManageInter/uploadAssetImage"
-
-#define applyRefund      @"http://health.lekangba.cn/axis2/services/AssetManageInter/applyRefund"
-#define imagePath        @"health.lekangba.cn/axis2/AssetImage/"
+#define imagePath                   @"health.lekangba.cn/axis2/AssetImage/"
 
 #endif

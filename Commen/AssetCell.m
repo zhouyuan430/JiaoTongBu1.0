@@ -14,6 +14,7 @@
 @synthesize assetKind;
 @synthesize assetcount;
 @synthesize assetImg;
+@synthesize assetCardID;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
 {
@@ -35,23 +36,16 @@
 {
     AssetImage *img = [[AssetImage alloc] initWithFrame:CGRectMake(0, 0, self.assetImg.frame.size.width, self.assetImg.frame.size.height)];
     if ([_url isEqualToString:@""]) {
-        img.image = [UIImage imageNamed:@"Icon"];
+        img.image = [UIImage imageNamed:@"DefaultAssetImg"];
     }
     else{
         [img loadimg:_url];
         if (!img.image) {
-            img.image = [UIImage imageNamed:@"Icon"];
+            img.image = [UIImage imageNamed:@"DefaultAssetImg"];
         }
     }
     [self.assetImg addSubview:img];
 }
--(void)setData:(AssetInfo *)tmp
-{
-    if (tmp) {
-        self.assetName.text = tmp.assetName;
-        self.assetKind.text = [NSString stringWithFormat:@"类型：%@",tmp.assetCate];
-        self.assetcount.text = [NSString stringWithFormat:@"固定资产编号：%@",tmp.assetCardID];
-    }
-}
+
 
 @end

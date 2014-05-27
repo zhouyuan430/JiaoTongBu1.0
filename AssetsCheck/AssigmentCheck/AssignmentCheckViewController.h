@@ -14,18 +14,20 @@
 
 @interface AssignmentCheckViewController : UITableViewController <getReaderViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate>
 {
-    NSMutableArray *dataSource;
-        
     int submitCount;
-    
     int checkedCount;
-    
     int unCheckedCount;
+    
+    BOOL getMore;
     //NSMutableArray *assetsPath;
     
     MessageBox *HHUD;
     
     MJRefreshHeaderView *_header;
+    MJRefreshFooterView *_footer;
     
 }
+
+@property (strong,nonatomic) NSMutableArray *dataSource;
+
 @end

@@ -9,17 +9,19 @@
 #import "Navbar.h"
 
 @interface Navbar()
-
 @property (nonatomic,strong)NSNumber *stateBarStyle;
 @end
 
 @implementation Navbar
 @synthesize stateBarColor = _stateBarColor;
 @synthesize stateBarStyle = _stateBarStyle;
+NSString * gNavbarBackgroundImageName = @"NavigationBar.png";
 
 - (void)drawRect:(CGRect)rect
 {
-    [[UIImage imageNamed:BackgroundImage] drawInRect:rect];
+    if (gNavbarBackgroundImageName != nil) {
+        [[UIImage imageNamed:gNavbarBackgroundImageName] drawInRect:rect];
+    }
 }
 
 - (void)setNeedsLayout
@@ -64,7 +66,10 @@
 
 
 
+
+
 @implementation NavBarButtonItem
+
 @synthesize itemType = _itemType;
 @synthesize button = _button;
 @synthesize title = _title;
@@ -95,7 +100,6 @@
         [button setTitleColor:ItemTextSelectedColot forState:UIControlStateSelected];
         button.frame =CGRectMake(0, 0, ItemWidth, ItemHeight);
     }
-  
     return self;
 }
 
@@ -123,7 +127,7 @@
                     action:(SEL)action
                      title:(NSString *)title
 {
-    NavBarButtonItem *item = [[NavBarButtonItem alloc]initWithType:NavBarButtonItemTypeBack];
+    NavBarButtonItem *item = [[NavBarButtonItem alloc] initWithType:NavBarButtonItemTypeBack];
     item.title = title;
     [item setTarget:target withAction:action];
     return item;
@@ -137,9 +141,8 @@
     switch (itemType) {
         case NavBarButtonItemTypeBack:
         {
-            image = [UIImage imageNamed:BackItemImage];
-            image_s = [UIImage imageNamed:BackItemSelectedImage];
-            
+            image = [self imageWithImage:[UIImage imageNamed:@"BackButton"] CGSize:CGSizeMake(12, 30)];
+            image_s = [self imageWithImage:[UIImage imageNamed:@"BackButton"] CGSize:CGSizeMake(12, 30)];
         }
             break;
         case NavBarButtonItemTypeDefault:
@@ -172,7 +175,7 @@
 - (void)setImage:(NSString *)image
 {
     _image = image;
-    UIImage *image_ = [UIImage imageNamed:image];
+    UIImage *image_ = [self imageWithImage:[UIImage imageNamed:image] CGSize:CGSizeMake(8, 30)];//[UIImage imageNamed:image];
     [_button setImage:image_  forState:UIControlStateNormal];
     [_button setImage:image_ forState:UIControlStateHighlighted];
     [_button setImage:image_ forState:UIControlStateSelected];
@@ -229,7 +232,7 @@
         switch (_itemType) {
             case NavBarButtonItemTypeBack:
             {
-                image = [UIImage imageNamed:BackItemImage];
+                image = [self imageWithImage:[UIImage imageNamed:@"BackButton"] CGSize:CGSizeMake(12, 30)];
             }
                 break;
             case NavBarButtonItemTypeDefault:
@@ -246,7 +249,7 @@
             switch (_itemType) {
                 case NavBarButtonItemTypeBack:
                 {
-                    image = [UIImage imageNamed:BackItemSelectedImage];
+                    image = [self imageWithImage:[UIImage imageNamed:@"BackButton"] CGSize:CGSizeMake(12, 30)];
                 }
                     break;
                 case NavBarButtonItemTypeDefault:
@@ -263,6 +266,25 @@
     [_button setBackgroundImage:image forState:UIControlStateHighlighted];
     [_button setBackgroundImage:image forState:UIControlStateSelected];
 }
+
+
+//对图片尺寸进行压缩--
+-(UIImage*)imageWithImage:(UIImage*)image CGSize:(CGSize)Size
+{
+    UIGraphicsBeginImageContext(CGSizeMake(ItemWidth, ItemHeight));
+    if (Size.width == 8) {
+        [image drawInRect:CGRectMake(10,5,Size.width,Size.height)];
+    }
+    else{
+        [image drawInRect:CGRectMake(0,5,Size.width,Size.height)];
+    }
+    UIImage* newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
+}
+
+
+
 @end
 
 
@@ -278,7 +300,7 @@
     label.tag = 99901;
     label.font = [UIFont systemFontOfSize:TitleFont];
     label.textColor = TitleColor;
-    label.textAlignment = kTextAlignmentCenter;
+    label.textAlignment = NSTextAlignmentCenter;//  kTextAlignmentCenter;
     label.text = title;
     self.titleView = label;
 
@@ -352,15 +374,13 @@
 }
 
 
-
-
 - (void)setBackItemWithTarget:(id)target
                        action:(SEL)action
 
 {
     NavBarButtonItem *buttonItem = [NavBarButtonItem backItemWithTarget:target
                                                                  action:action
-                                                                  title:@"返回"];
+                                                                  title:@""];
     self.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:buttonItem.button];
 }
 
@@ -372,6 +392,22 @@
                                                                  action:action
                                                                   title:title];
     self.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:buttonItem.button];
+}
+
+-(void)setRightItemsWithTarget:(id)target
+                       action1:(SEL)action1
+                       action2:(SEL)action2
+                        title1:(NSString *)title1
+                        title2:(NSString *)title2
+{
+    NavBarButtonItem *buttonItem1 = [NavBarButtonItem defauleItemWithTarget:target
+                                                                    action:action1
+                                                                     title:title1];
+    NavBarButtonItem *buttonItem2 = [NavBarButtonItem defauleItemWithTarget:target
+                                                                    action:action2
+                                                                     title:title2];
+
+    self.rightBarButtonItems = @[[[UIBarButtonItem alloc] initWithCustomView:buttonItem1.button],[[UIBarButtonItem alloc] initWithCustomView:buttonItem2.button]];
 }
 
 @end

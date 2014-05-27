@@ -7,21 +7,23 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "AssetInfo.h"
+#import "PersonAsset.h"
 @interface AssetDetailCell : UITableViewCell
 
 @property (strong, nonatomic) IBOutlet UIButton *assetImg;
-@property (strong, nonatomic) NSString *assetID;
-@property(strong, nonatomic) IBOutlet UILabel *asserCount;
+@property (strong, nonatomic) IBOutlet UILabel *assetID;
+@property (strong, nonatomic) IBOutlet UILabel *asserCount;
 @property (strong, nonatomic) IBOutlet UILabel *assetName;
 @property (strong, nonatomic) IBOutlet UILabel *assetkind;
-@property (strong, nonatomic) IBOutlet UILabel *recentCheckDate;
 @property (strong, nonatomic) IBOutlet UILabel *userName;
-@property (strong, nonatomic) IBOutlet UILabel *directorName;
-@property (strong, nonatomic) IBOutlet UILabel *useDeadline;
+@property (strong, nonatomic) IBOutlet UILabel *useDepartment;
+@property (strong, nonatomic) IBOutlet UILabel *assetCardID;
+@property (strong, nonatomic) IBOutlet UILabel *useOffice;
+@property (strong, nonatomic) IBOutlet UILabel *id_useOffice;
+@property (strong, nonatomic) IBOutlet UILabel *assetValue;
 
 -(void)loadImgDetail:(NSString *)_url;
 
--(void)setdata:(AssetInfo *)tmp;
+-(void)setdata:(PersonAsset *)tmp;
 
 @end
