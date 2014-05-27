@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="5064" systemVersion="12F45" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="AssetInfo" representedClassName="" syncable="YES">
+        <attribute name="assetCardID" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="assetCate" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="assetCount" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="assetID" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="assetImgPath" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="assetName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="assetValue" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="id_useOffice" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="upLoadPath" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="useDepartment" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="useOffice" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="userName" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="AssetInfo" positionX="-63" positionY="-18" width="128" height="225"/>
+    </elements>
+</model>
