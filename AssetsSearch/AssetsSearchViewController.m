@@ -47,17 +47,12 @@ static int page = 1;
     self.navigationController.navigationBar.translucent = NO;
     
     [self.navigationController.navigationBar setTintColor:[UIColor colorWithWhite:1 alpha:1]];
+    [self.navigationItem setTitle:@"名称"];
 }
 
 -(void)viewDidAppear:(BOOL)animated
 {
     [self.MyTableView setFrame:CGRectMake(44,5, 320, 400)];
-}
--(void)viewDidDisappear:(BOOL)animated
-{
-    if (searched) {
-        [[CommentData sharedInstance] delete:KAuthAssetName entityName:KAuthAssetCode];
-    }
 }
 
 -(void)initData
@@ -69,25 +64,15 @@ static int page = 1;
     
     searchItermArr = [[NSMutableArray alloc] initWithObjects:@"名称",@"使用人",@"处室",@"类别", nil];
     
-    searched = NO;
     getMore = NO;
     
-
     [self.MyTableView setContentInset:UIEdgeInsetsMake(44, 0, 64, 0)];
     self.MyTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
 }
 
-
--(IBAction)searchItemBt:(id)sender
-{
-}
-
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-
     [self initData];
     
     [self.navigationItem setBackItemWithTarget:self action:@selector(replyButton)];
@@ -220,8 +205,8 @@ static int page = 1;
 -(void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
 {
     [[CommentData sharedInstance] delete:KAuthAssetName entityName:KAuthAssetCode];
-    searched = YES;
-    [self getData:searchBar.text searchItem:searchItemBt.titleLabel.text];
+    [self getData:searchBarButton.text searchItem:self.navigationItem.title];
+
     [searchBar resignFirstResponder];
 }
 -(BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar
@@ -239,7 +224,7 @@ static int page = 1;
 -(BOOL)searchBarShouldEndEditing:(UISearchBar *)searchBar
 {
     searchBar.showsScopeBar = NO;
-    [self.MyTableView setContentInset:UIEdgeInsetsMake(44, 0, 0, 0)];
+    [self.MyTableView setContentInset:UIEdgeInsetsMake(44, 0, 64, 0)];
 
     [searchBar sizeToFit];
     [searchBar setShowsCancelButton:NO animated:YES];
@@ -247,7 +232,7 @@ static int page = 1;
 }
 -(void)searchBar:(UISearchBar *)searchBar selectedScopeButtonIndexDidChange:(NSInteger)selectedScope
 {
-    [searchItemBt setTitle:searchItermArr[selectedScope] forState:UIControlStateNormal];
+    [self.navigationItem setTitle:searchItermArr[selectedScope]];
 }
 
 
@@ -260,7 +245,6 @@ static int page = 1;
     footer.scrollView = self.MyTableView;
     
     footer.beginRefreshingBlock = ^(MJRefreshBaseView *refreshView) {
-        // 增加5条假数据
         // 模拟延迟加载数据，因此0.2秒后才调用）
         [vc performSelector:@selector(PreviousView:) withObject:refreshView afterDelay:0.2];
     };
@@ -274,7 +258,6 @@ static int page = 1;
     MJRefreshHeaderView *header = [MJRefreshHeaderView header];
     header.scrollView = self.MyTableView;
     header.beginRefreshingBlock = ^(MJRefreshBaseView *refreshView) {
-        // 进入刷新状态就会回调这个Block
         // 模拟延迟加载数据，因此0.2秒后才调用）
         [vc performSelector:@selector(NextView:) withObject:refreshView afterDelay:0.2];
     };
@@ -286,7 +269,8 @@ static int page = 1;
 {
     getMore = YES;
     page ++;
-    [self getData:searchBarButton.text searchItem:searchItemBt.titleLabel.text];
+    [self getData:searchBarButton.text searchItem:self.navigationItem.title];
+
     [refreshView endRefreshing];
 }
 
@@ -295,7 +279,8 @@ static int page = 1;
     // 刷新表格
     [[CommentData sharedInstance] delete:KAuthAssetName entityName:KAuthAssetCode];
     page = 1;
-    [self getData:searchBarButton.text searchItem:searchItemBt.titleLabel.text];
+    [self getData:searchBarButton.text searchItem:self.navigationItem.title];
+
     [refreshView endRefreshing];
 }
 

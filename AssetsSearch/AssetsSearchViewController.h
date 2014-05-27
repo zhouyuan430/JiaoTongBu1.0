@@ -13,8 +13,7 @@
 @interface AssetsSearchViewController : UIViewController <UITextFieldDelegate,UISearchBarDelegate,UIAlertViewDelegate,UITableViewDelegate,UITableViewDataSource>
 {    
     NSMutableArray * searchItermArr;
-    //判断是否经历过搜索
-    BOOL searched;
+
     BOOL getMore;
     
     MessageBox * HHUD;
@@ -29,7 +28,5 @@
 @property (strong, nonatomic) IBOutlet UITableView *MyTableView;
 
 @property (strong, nonatomic) IBOutlet UIButton *searchItemBt;
-
--(IBAction)searchItemBt:(id)sender;
 
 @end

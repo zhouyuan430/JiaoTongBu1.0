@@ -164,10 +164,10 @@
                                 <rect key="frame" x="9" y="64" width="303" height="80"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
-                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="接收推送消息" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Qz0-RA-COF">
-                                        <rect key="frame" x="110" y="29" width="102" height="21"/>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="推送消息" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Qz0-RA-COF">
+                                        <rect key="frame" x="110" y="28" width="83" height="23"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="19"/>
                                         <color key="textColor" red="0.10588236153125763" green="0.44313728809356689" blue="0.67058825492858887" alpha="1" colorSpace="deviceRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
@@ -178,6 +178,14 @@
                                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                         </state>
                                     </button>
+                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="DLD-VV-4Rq">
+                                        <rect key="frame" x="225" y="24" width="51" height="31"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    </switch>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="PushMsg.png" translatesAutoresizingMaskIntoConstraints="NO" id="Vr1-bD-Rge">
+                                        <rect key="frame" x="74" y="27" width="25" height="25"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    </imageView>
                                 </subviews>
                                 <color key="backgroundColor" red="0.96862751245498657" green="1" blue="0.93725496530532837" alpha="1" colorSpace="deviceRGB"/>
                             </view>
@@ -186,9 +194,9 @@
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="C0h-WN-USe">
-                                        <rect key="frame" x="96" y="25" width="111" height="30"/>
+                                        <rect key="frame" x="28" y="23" width="247" height="34"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="19"/>
                                         <state key="normal" title="清除缓存">
                                             <color key="titleColor" red="0.10588236149999999" green="0.44313728810000003" blue="0.67058825489999996" alpha="1" colorSpace="deviceRGB"/>
                                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
@@ -197,6 +205,10 @@
                                             <action selector="clearCache:" destination="RDp-tL-uBC" eventType="touchUpInside" id="VcB-nr-SSB"/>
                                         </connections>
                                     </button>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="ClearnCache.png" translatesAutoresizingMaskIntoConstraints="NO" id="CYQ-Sl-B2g">
+                                        <rect key="frame" x="74" y="27" width="25" height="25"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    </imageView>
                                 </subviews>
                                 <color key="backgroundColor" red="0.94117653369903564" green="0.98823535442352295" blue="0.9960784912109375" alpha="1" colorSpace="deviceRGB"/>
                             </view>
@@ -205,10 +217,10 @@
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IPV-dG-aZB">
-                                        <rect key="frame" x="110" y="25" width="69" height="30"/>
+                                        <rect key="frame" x="52" y="23" width="198" height="34"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <state key="normal" title="切换用户">
+                                        <fontDescription key="fontDescription" type="system" pointSize="19"/>
+                                        <state key="normal" title=" 切换用户">
                                             <color key="titleColor" red="0.10588236149999999" green="0.44313728810000003" blue="0.67058825489999996" alpha="1" colorSpace="deviceRGB"/>
                                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                         </state>
@@ -216,6 +228,10 @@
                                             <action selector="changeUser:" destination="RDp-tL-uBC" eventType="touchUpInside" id="64B-EK-vW5"/>
                                         </connections>
                                     </button>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="ChangeUser.png" translatesAutoresizingMaskIntoConstraints="NO" id="i1c-W3-jbr">
+                                        <rect key="frame" x="74" y="27" width="25" height="25"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    </imageView>
                                 </subviews>
                                 <color key="backgroundColor" red="0.96862751245498657" green="1" blue="0.93725496530532837" alpha="1" colorSpace="deviceRGB"/>
                             </view>
@@ -223,8 +239,8 @@
                                 <rect key="frame" x="9" y="304" width="303" height="264"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <subviews>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="logo-1.png" translatesAutoresizingMaskIntoConstraints="NO" id="Bqc-pR-pQn">
-                                        <rect key="frame" x="0.0" y="133" width="303" height="131"/>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="AssetCheckLogo.png" translatesAutoresizingMaskIntoConstraints="NO" id="Bqc-pR-pQn">
+                                        <rect key="frame" x="0.0" y="151" width="303" height="113"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     </imageView>
                                 </subviews>
@@ -492,20 +508,10 @@
                     </view>
                     <navigationItem key="navigationItem" id="pqO-aw-ocJ">
                         <nil key="title"/>
-                        <button key="titleView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="M5G-iw-ijT">
-                            <rect key="frame" x="96" y="6" width="128" height="33"/>
-                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            <fontDescription key="fontDescription" type="system" pointSize="19"/>
-                            <state key="normal" title="名称">
-                                <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                            </state>
-                        </button>
                     </navigationItem>
                     <connections>
                         <outlet property="MyTableView" destination="GWm-O8-O1b" id="Wkx-Jd-oIW"/>
                         <outlet property="searchBarButton" destination="Oca-9b-J0X" id="1vD-KF-hdJ"/>
-                        <outlet property="searchItemBt" destination="M5G-iw-ijT" id="QwA-BZ-Kce"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="BmB-6d-Dll" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -1361,6 +1367,8 @@
         <image name="AssigmentCheckBt.png" width="192" height="123"/>
         <image name="Background.png" width="640" height="960"/>
         <image name="ButtonBackground.png" width="555" height="541"/>
+        <image name="ChangeUser.png" width="59" height="60"/>
+        <image name="ClearnCache.png" width="39" height="44"/>
         <image name="ContactInfo-1.png" width="156" height="148"/>
         <image name="ContactInfo.png" width="156" height="148"/>
         <image name="DefaultAssetImg.png" width="139" height="109"/>
@@ -1373,9 +1381,9 @@
         <image name="MainBackground.png" width="640" height="960"/>
         <image name="PersonAsset-1.png" width="165" height="125"/>
         <image name="PersonAsset.png" width="165" height="125"/>
+        <image name="PushMsg.png" width="42" height="38"/>
         <image name="Select.png" width="55" height="55"/>
         <image name="arrow.png" width="19" height="16"/>
-        <image name="logo-1.png" width="539" height="172"/>
         <image name="logo.png" width="640" height="141"/>
         <image name="uploadImg.png" width="583" height="220"/>
         <image name="选择.png" width="55" height="55"/>

@@ -102,7 +102,6 @@ static int page = 1;
 
 -(void)loadData:(NSDictionary*)dic
 {
-
     NSArray *arr = dic[@"data"];
     for (int i = 0 ; i < [arr count]; i++) {
         [[CommentData sharedInstance] insertData:arr[i] entityName:KContactInfoCode];

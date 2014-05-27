@@ -7,7 +7,6 @@
 //
 
 #import "AssetImage.h"
-#import "UIImageView+AFNetworking.h"
 #import "CommentData.h"
 @implementation AssetImage
 
@@ -21,7 +20,7 @@
 }
 
 
-//自己的一部下载图片
+//异步下载图片
 -(void)loadimg:(NSString *)_url
 {
     if (_url)
@@ -33,7 +32,7 @@
             [self setImage:aa];
         }
         else{
-            NSLog(@"下载");
+           // NSLog(@"下载");
             __block NSData *DATA = imageData;
             dispatch_queue_t  Queue=dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
             dispatch_async(Queue, ^{

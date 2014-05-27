@@ -30,4 +30,5 @@
 -(void)insertImgData:(NSData *)_data key:(NSString *)_key;
 -(NSData *)cacheForKey:(NSString *)_key;
 
+
 @end

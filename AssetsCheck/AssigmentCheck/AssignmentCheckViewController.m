@@ -52,7 +52,7 @@ static int page = 1;
     
     [self.navigationItem setBackItemWithTarget:self action:@selector(replyButton)];
     
-    [self.navigationItem setRightItemWithTarget:self action:@selector(submitButton) title:@"完成"];
+    [self.navigationItem setRightItemWithTarget:self action:@selector(submitButton) title:@"提交"];
     
     [self getData];
     

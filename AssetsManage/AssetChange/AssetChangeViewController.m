@@ -85,7 +85,7 @@ static int page = 1;
 
 -(void)connect
 {
-    NSDictionary *para = @{@"page":[NSString stringWithFormat:@"%d",page],@"size":@"5"};
+    NSDictionary *para = @{@"keywd":@"" ,@"page":[NSString stringWithFormat:@"%d",page],@"size":@"5"};
     
     [[JiaoTongBuClient sharedClient] startGet:getAssetPageListCode parameters:para withCallBack:^(int flag, NSDictionary *dic, NSError *error) {
         if (flag == 0) {

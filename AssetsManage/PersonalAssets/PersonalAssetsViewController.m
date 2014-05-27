@@ -44,13 +44,6 @@ static int page = 1;
     
 }
 
--(void)viewDidDisappear:(BOOL)animated
-{
-    if (searched) {
-        [[CommentData sharedInstance] delete:KPersonAssetName entityName:KPersonAssetCode];
-    }
-}
-
 
 -(void)initData
 {
@@ -61,7 +54,6 @@ static int page = 1;
     [self addHeader];
     [self addFooter];
     
-    searched = NO;
     getMore = NO;
 }
 
@@ -196,7 +188,6 @@ static int page = 1;
 -(void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
 {
     [[CommentData sharedInstance] delete:KPersonAssetName entityName:KPersonAssetCode];
-    searched = YES;
     [self getData:searchBar.text];
     [searchBar resignFirstResponder];
 }

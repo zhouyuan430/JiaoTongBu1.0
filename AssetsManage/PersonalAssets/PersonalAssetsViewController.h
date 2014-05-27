@@ -11,10 +11,7 @@
 #import "MJRefresh.h"
 
 @interface PersonalAssetsViewController : UITableViewController <UITextFieldDelegate,UISearchBarDelegate,UINavigationControllerDelegate>
-{    
-    //判断是否经历过搜索
-    BOOL searched;
-    
+{
     MessageBox *HHUD;
     
     BOOL getMore;

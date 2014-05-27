@@ -9,6 +9,8 @@
 #import "JiaoTongBuClient.h"
 #import "GDataXMLNode.h"
 #import "AppCode.h"
+#import "AppDelegate.h"
+
 
 static NSString * const JiaoTongBuBaseURLString = @"https://alpha-api.app.net/";
 
@@ -93,20 +95,16 @@ static NSString * const JiaoTongBuBaseURLString = @"https://alpha-api.app.net/";
     
     [[JiaoTongBuClient sharedClient] GET:URL parameters:parameters success:^(AFHTTPRequestOperation *operation, NSData * responseObject) {
         NSDictionary *dic = [[JiaoTongBuClient sharedClient] XMLParser:responseObject];
-        if ([dic[@"status"] isEqualToString:@"A0006"])
-        {
+        if ([dic[@"status"] isEqualToString:@"A0006"]){
             callBack(0,dic,nil);
         }
         else{
             callBack(1,dic,nil);
         }
-        
         [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         callBack(2,nil,error);
         [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-
     }];
 }
 
@@ -146,9 +144,6 @@ static NSString * const JiaoTongBuBaseURLString = @"https://alpha-api.app.net/";
         callBack(1,nil,error);
         [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     }];
-
 }
-
-
 
 @end
